@@ -7,6 +7,7 @@ import roerobotyngve.Coordinate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -27,7 +28,7 @@ import org.opencv.imgproc.Moments;
 
 public class ImageProcessing implements Runnable
 {
-    private String hvemSin = "kristian";
+    private String hvemSin = "odroid";
     // list of images to process
     private final Stack<RoeImage> processQueue;
     
@@ -41,7 +42,7 @@ public class ImageProcessing implements Runnable
     {
         // load dll file for opencv
        // Må fikses link
-        if(hvemSin.equalsIgnoreCase("odroid"))
+        if(hvemSin.equalsIgnoreCase("kristian"))
         {
             System.load("C:\\Users\\krist\\Dropbox\\skole\\6. semester\\Bachelor\\Rognhandteringsrobot-NTNU_Bacheloroppgave\\Programmering\\RoeRobot-ImageProcessing\\opencv\\build\\java\\x64\\opencv_java330.dll");
         }
