@@ -29,7 +29,7 @@ public class testing implements ImageProcessingListener
     public void test()
     {
         ImageProcessing ip = new ImageProcessing();
-        Mat img = Imgcodecs.imread("C:\\Users\\krist\\Desktop\\8.jpg");
+        Mat img = Imgcodecs.imread("C:\\1.jpg");
         RoeImage im = new RoeImage();
         im.SetImage(img);
         

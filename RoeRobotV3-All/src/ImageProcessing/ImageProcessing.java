@@ -48,7 +48,7 @@ public class ImageProcessing implements Runnable
         }
         if(hvemSin.equalsIgnoreCase("odroid"))
         {
-            
+            //-Djava.library.path="/usr/lib/jvm/java-8-oracle/lib/arm"
         }
         if(hvemSin.equalsIgnoreCase("per"))
         {

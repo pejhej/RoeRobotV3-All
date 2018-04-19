@@ -150,7 +150,28 @@ public class RoeAnalyserDevice implements StatusListener
 
     
     
-    
+     //Enum for holding the states
+    /*
+    private enum CurrentTray
+    {
+       int Tray1 =1,
+       int Tray2 =2,
+       int Tray3 =3;  
+       
+       private int tray;
+
+        private CurrentTray(Status status)
+        {
+            this.tray = tray;
+        }
+
+        public CurrentTray getTray()
+        {
+            return tray;
+        }
+            
+    }
+    */
     
 
     /**
