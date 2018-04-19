@@ -15,7 +15,6 @@ import Commands.ReleaseGripper;
 import Commands.StateRequest;
 import Commands.Stop;
 import Commands.Suction;
-import I2CCommunication.I2CCommunication;
 import Status.Busy;
 import Status.EMC;
 import Status.ElevatorLimitTrigg;
@@ -36,9 +35,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Timer;
-import javafx.concurrent.Worker;
 import javax.swing.text.html.HTMLDocument;
 import org.junit.rules.Stopwatch;
+import SerialCommunication.SerialCommunication;
 
 /**
  * This class represents a robot and all its possible commands and actions. It
@@ -50,9 +49,9 @@ import org.junit.rules.Stopwatch;
 public class RoeAnalyserDevice implements StatusListener
 {
 
-    public RoeAnalyserDevice(I2CCommunication i2c)
+    public RoeAnalyserDevice(SerialCommunication serial)
     {
-        i2cComm = i2c;
+        this.serialComm = serial;
 
     }
 
@@ -140,7 +139,7 @@ public class RoeAnalyserDevice implements StatusListener
     Status currentStatus;
 
     //I2c communication 
-    I2CCommunication i2cComm;
+    SerialCommunication serialComm;
 
     //Tray
     Tray currentTray;
@@ -208,7 +207,7 @@ public class RoeAnalyserDevice implements StatusListener
                     //Create the lock grip command
                     LockGripper cmdLockGripper = new LockGripper();
                     //Lock the gripper
-                    this.i2cComm.addSendQ(cmdLockGripper);
+                    this.serialComm.addSendQ(cmdLockGripper);
                 } //Something is faulty, end the task
                 else
                 {
@@ -236,7 +235,7 @@ public class RoeAnalyserDevice implements StatusListener
                     //Create the release grip command
                     ReleaseGripper cmdReleaseGrip = new ReleaseGripper();
                     //Send command to release the gripper
-                    this.i2cComm.addSendQ(cmdReleaseGrip);
+                    this.serialComm.addSendQ(cmdReleaseGrip);
                 } //Something is faulty, end the task
                 else
                 {
@@ -312,7 +311,7 @@ public class RoeAnalyserDevice implements StatusListener
                     //Create the lock grip command
                     LockGripper cmdLockGripper = new LockGripper();
                     //Lock the gripper
-                    this.i2cComm.addSendQ(cmdLockGripper);
+                    this.serialComm.addSendQ(cmdLockGripper);
                 } //Something is faulty, end the task
                 else
                 {
@@ -340,7 +339,7 @@ public class RoeAnalyserDevice implements StatusListener
                     //Create the release grip command
                     ReleaseGripper cmdReleaseGrip = new ReleaseGripper();
                     //Send command to release the gripper
-                    this.i2cComm.addSendQ(cmdReleaseGrip);
+                    this.serialComm.addSendQ(cmdReleaseGrip);
                 } //Something is faulty, end the task
                 else
                 {
@@ -418,7 +417,7 @@ public class RoeAnalyserDevice implements StatusListener
         // Generate a Calibration command. 
         // Send cmd. 
         Calibrate calicmd = new Calibrate();
-        i2cComm.addSendQ(calicmd);
+        serialComm.addSendQ(calicmd);
                 //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
         delay(300); //TODO: ONLY FOR TEST
                 
@@ -426,7 +425,7 @@ public class RoeAnalyserDevice implements StatusListener
         {
             //Send calib param command to get calibration parameters
             CalibParam cmdCalibPar = new CalibParam();
-            i2cComm.addRecieveQ(cmdCalibPar);
+            serialComm.addRecieveQ(cmdCalibPar);
         } //Something is faulty, end the task
         else
         {
@@ -442,7 +441,7 @@ public class RoeAnalyserDevice implements StatusListener
     public void stopRobot()
     {
         Stop stop = new Stop();
-        i2cComm.addSendQ(stop);
+        serialComm.addSendQ(stop);
     }
 
     /**
@@ -484,7 +483,7 @@ public class RoeAnalyserDevice implements StatusListener
                 {
                     Suction cmdSuck = new Suction();
                     //Send suction command
-                    i2cComm.addSendQ(cmdSuck);
+                    serialComm.addSendQ(cmdSuck);
                 } //Something is faulty, end task
                 else
                 {
@@ -592,7 +591,7 @@ public class RoeAnalyserDevice implements StatusListener
         moveCmd.setIntYValue(cordinat.getxCoord());
         moveCmd.setIntZValue(cordinat.getxCoord());
         //Add to the communication sending queue
-        i2cComm.addSendQ(moveCmd);
+        serialComm.addSendQ(moveCmd);
     }
     
     
@@ -669,7 +668,7 @@ public class RoeAnalyserDevice implements StatusListener
     public void updateStatus()
     {
         StateRequest stateReq = new StateRequest();
-        i2cComm.addRecieveQ(stateReq);
+        serialComm.addRecieveQ(stateReq);
     }
 
     private void stopWatch(long waitMillis)
@@ -721,7 +720,7 @@ public class RoeAnalyserDevice implements StatusListener
         }
 
         //Send command
-        i2cComm.addSendQ(cmdLight);
+        serialComm.addSendQ(cmdLight);
     }
 
     /**
@@ -753,7 +752,7 @@ public class RoeAnalyserDevice implements StatusListener
         }
 
         //Send command
-        i2cComm.addSendQ(cmdLight);
+        serialComm.addSendQ(cmdLight);
 
         return succesful;
     }
@@ -803,6 +802,6 @@ public class RoeAnalyserDevice implements StatusListener
     
     public void testElevatorCMD(Commando cmd)
         {
-        i2cComm.addSendQ(cmd);
+        serialComm.addSendQ(cmd);
         }
 }
