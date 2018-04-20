@@ -5,10 +5,6 @@
  */
 package roerobotv3.all;
 
-import Commands.CalibParam;
-import Commands.Calibrate;
-import Commands.Move;
-import Commands.StateRequest;
 import SerialCommunication.SerialCommunication;
 import java.io.UnsupportedEncodingException;
 import static java.lang.Thread.sleep;
@@ -19,11 +15,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opencv.core.Core;
 
+
 /**
  *
  * @author PerEspen
  */
-public class RoeRobotV3All
+public class RoeRobotV3All 
 {
 
 
@@ -65,7 +62,7 @@ public class RoeRobotV3All
         // serialComm = new SerialCommunication();
        //  serialComm.start();
        
-       System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+       
      }
      
      public void initRun()
@@ -73,30 +70,6 @@ public class RoeRobotV3All
           
           
           //threadPool.execute(i2comm); 
-          
-        Move move = new Move();
-        Move move2 = new Move();
-        Move move3 = new Move();
-        Move move4 = new Move();
-        Move move5 = new Move();
-        Move move6 = new Move();
-        
-        Calibrate calib = new Calibrate();
-        Calibrate calib2 = new Calibrate();
-        
-
-
-   
-       
-       StateRequest strq = new StateRequest();
-       StateRequest strq1 = new StateRequest();
-       StateRequest strq2 = new StateRequest();
-       StateRequest strq3 = new StateRequest();
-         System.out.println("Sending request");
-         
-         CalibParam calibparam = new CalibParam();
-       
- 
      }
      
      
@@ -155,18 +128,12 @@ public class RoeRobotV3All
      */
     public static void main(String[] args)
     {
-       
-        RoeRobotV3All roeb = new RoeRobotV3All();
-        roeb.initRun();
-        roeb.roeAnalyserDevTest();
-        
-       
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        //RoeRobotV3All roeb = new RoeRobotV3All();
+        //roeb.initRun();
+        //roeb.roeAnalyserDevTest();      
     }
-    
-    
-    
-    
-    
+
     
     
     private void sleeping(long sleepTime)
@@ -181,7 +148,7 @@ public class RoeRobotV3All
        }
        
     }
-    
+   
 }
     
 
