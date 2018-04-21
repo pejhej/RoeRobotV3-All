@@ -54,9 +54,10 @@ public class RoeAnalyserDevice implements StatusListener
         this.serialComm = serial;
 
     }
-
     
-
+ 
+    //TODO: add calibration return functions
+    
     /**
      * Notification of incoming statuses 
      * 
@@ -65,7 +66,13 @@ public class RoeAnalyserDevice implements StatusListener
     @Override
     public void notifyNewStatus(Status status) 
     {
+        //Check if its parameter
+        if(State.PARAMETER.getStateStatus().getString().contains(status.getString()))
+        {
+          calibrationParam = status;
+        }
         
+        currentStatus = status;    
     }
 
     
@@ -133,10 +140,12 @@ public class RoeAnalyserDevice implements StatusListener
     //Timer timer = new Timer();
     //Timer variabales
     private long timerTime = 0;
-    private long waitTime = 1000000;
+    private long waitTime = 10000;
 
     //Holds the current status sent by the roerobot
     Status currentStatus;
+   //The calibration params
+    Status calibrationParam;
 
     //I2c communication 
     SerialCommunication serialComm;
@@ -439,14 +448,15 @@ public class RoeAnalyserDevice implements StatusListener
         // Send cmd. 
         Calibrate calicmd = new Calibrate();
         serialComm.addSendQ(calicmd);
+        System.out.println("Sent calibrate to SCOMM");
                 //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
-        delay(300); //TODO: ONLY FOR TEST
+//        delay(300); //TODO: ONLY FOR TEST
                 
         if (robotIsReady(waitTime))
         {
             //Send calib param command to get calibration parameters
             CalibParam cmdCalibPar = new CalibParam();
-            serialComm.addRecieveQ(cmdCalibPar);
+            serialComm.sendQ(cmdCalibPar);
         } //Something is faulty, end the task
         else
         {
@@ -548,7 +558,7 @@ public class RoeAnalyserDevice implements StatusListener
             //After a set wait time, update the status
             if (timerHasPassed(pollTime))
             {
-                delay(1000);//TODO: ONLY FOR TEST
+        //        delay(1000);//TODO: ONLY FOR TEST
                 updateStatus(); //Send status update request
                 resetTimer();   //Reset timer
             }
@@ -689,7 +699,8 @@ public class RoeAnalyserDevice implements StatusListener
     public void updateStatus()
     {
         StateRequest stateReq = new StateRequest();
-        serialComm.addRecieveQ(stateReq);
+        //TODO: TESTING
+        serialComm.sendQ(stateReq);
     }
 
     private void stopWatch(long waitMillis)
@@ -823,6 +834,15 @@ public class RoeAnalyserDevice implements StatusListener
     
     public void testElevatorCMD(Commando cmd)
         {
-        serialComm.addSendQ(cmd);
+        serialComm.sendQ(cmd);
         }
+    
+    /**
+     * Return the calibration parameter status
+     * @return Return the status with the calibration parameters
+     */
+    public Status getCalibrationParams()
+    {
+        return this.calibrationParam;
+    }
 }

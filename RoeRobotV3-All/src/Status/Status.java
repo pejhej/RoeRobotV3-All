@@ -32,7 +32,7 @@ public class Status
     //flag of critical or uncritical status
     private boolean critical = false;
     
-    private byte[] value;
+    private String[] value;
     
    //private boolean triggered;
     private final String STATUS;
@@ -61,12 +61,12 @@ public class Status
      * 
      * @param val The given byte value 
      */
-    public void putValue(byte[] val)
+    public void putValue(String[] val)
     {
         this.value = val;
     }
     
-      public byte[] getValue()
+      public String[] getValue()
     {
         return this.value;
     }

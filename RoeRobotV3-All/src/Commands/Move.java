@@ -161,22 +161,31 @@ public class Move extends Commando
     
     
         /**
-     * Return the XY payload of this command, with first byte as address for cmd and second as total number of bytes
+     * Return the XY payload of this command, with first byte as address for cmd and rest as X then Y position
      * @return Return the payload including its size
      */
     public byte[] makeCompleteXYByte()
             {
                 byte[] returnByte = null;
+                
+                //To count where in the byte array next pos is
+                int arrayCounter = 0;
+                //Extra length for the array, without x and y length
+                int extraLength = 1;
+                //Check for null
                 if(this.getxValue() != null)
                 {
                 //Create new byte array for added size to the value
-                returnByte = new byte[this.getxValue().length + this.getyValue().length + 2];
+                returnByte = new byte[this.getxValue().length + this.getyValue().length + extraLength];
                 
                 //Make new byte to send to store the byte[] length in the first byte
-            returnByte[0] = this.getCmdAddr();
-            returnByte[1] = (byte) ((byte) this.getxValue().length + this.getyValue().length);
-            System.arraycopy(this.getxValue(), 0, returnByte, 2, this.getxValue().length);
-            System.arraycopy(this.getyValue(), 0, returnByte, (2+this.getxValue().length), this.getyValue().length);
+            returnByte[arrayCounter++] = this.getCmdAddr();
+            //returnByte[arrayCounter++] = (byte) ((byte) this.getxValue().length + this.getyValue().length);
+            //Add the X and Y value positions
+            System.arraycopy(this.getxValue(), 0, returnByte, arrayCounter, this.getxValue().length);
+            //increment arrayCounter
+            arrayCounter = arrayCounter + this.getxValue().length;
+            System.arraycopy(this.getyValue(), 0, returnByte, arrayCounter, this.getyValue().length);
                 }
                 
                 return returnByte;
@@ -192,15 +201,21 @@ public class Move extends Commando
             {
                 byte[] returnByte = null;
                 
+                  //To count where in the byte array next pos is
+                int arrayCounter = 0;
+                //Check for null
                 if(this.getzValue() != null)
                 {
                     //Create new byte array for added size to the value
-                returnByte = new byte[this.getzValue().length + 2];
+                returnByte = new byte[this.getzValue().length + 1];
                 
                 //Make new byte to send to store the byte[] length in the first byte
-                 returnByte[0] = this.getCmdAddr();
-             returnByte[1] = (byte) this.getzValue().length;
-             System.arraycopy(this.getzValue(), 0, returnByte, 2, this.getzValue().length); 
+                 returnByte[arrayCounter++] = this.getCmdAddr();
+            // returnByte[1] = (byte) this.getzValue().length; 
+            //Add the z value
+             System.arraycopy(this.getzValue(), 0, returnByte, arrayCounter, this.getzValue().length); 
+             
+             arrayCounter = arrayCounter+this.getzValue().length;
                 }
                
             

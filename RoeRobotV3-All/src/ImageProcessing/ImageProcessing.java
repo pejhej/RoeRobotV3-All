@@ -28,7 +28,7 @@ import org.opencv.imgproc.Moments;
 
 public class ImageProcessing implements Runnable
 {
-    private String hvemSin = "odroid";
+    private String hvemSin = "x";
     // list of images to process
     private final Stack<RoeImage> processQueue;
     
@@ -49,10 +49,12 @@ public class ImageProcessing implements Runnable
         if(hvemSin.equalsIgnoreCase("odroid"))
         {
             //-Djava.library.path="/usr/lib/jvm/java-8-oracle/lib/arm"
+            //java -Djava.library.path="/home/odroid/opencv-package-xu4/ "
+             System.load("/home/odroid/NetBeansProjects/RoeRobotV3-All/RoeRobotV3-All/lib/opencv-package-xu4/libopencv_java310.so");
         }
         if(hvemSin.equalsIgnoreCase("per"))
         {
-            
+            System.load("C:\\Users\\PerEspen\\OneDrive\\Bachelor\\Programming\\Netbeans\\lib\\opencv\\build\\java\\x64\\opencv_java330.dll");
         }
         
         

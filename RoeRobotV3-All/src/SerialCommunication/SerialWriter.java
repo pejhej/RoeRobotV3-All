@@ -72,6 +72,9 @@ public class SerialWriter {
         {
             
             this.setDataToBeSent(bytesToSend);
+            //TODO: Printing
+            System.out.println("Writer sending data");
+            System.out.println(this.getDataToSend());
             this.output.write(this.getDataToSend());
             output.flush();
         } catch (IOException ex) 
@@ -79,7 +82,8 @@ public class SerialWriter {
             ex.printStackTrace();
             System.out.println("Serial: "+ex.toString());
         }
-    }
+    } 
+    
 
     /**
      * Add calculator and add itself as listener to the calculator data

@@ -57,6 +57,7 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
     /**
      * ********************* SERIAL VARIABLES *********************
      */
+    //Controller addresses
     private static final byte CONTROLLER_ADDR_ELEVATOR = 0x05;
     private static final byte CONTROLLER_ADDR_LINEARBOT = 0x03;
     private static final String CONTROLLER_STRADDR_ELEVATOR = "dev2";
@@ -70,7 +71,12 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
     {
         "COM3", // pc
         "COM4", // pc
-        "COM5", // pc
+        "COM5",
+         "COM6",
+ "COM7",
+ "COM8",
+ "COM9",
+ "COM10",// pc
         "/dev/usbdev", // linux
         "/dev/tty", // linux
         "/dev/ttyUSB0", // linux
@@ -117,11 +123,11 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
     /**
      * Constructor
      *
-     * @param threadpool
      */
-    public SerialCommunication(ScheduledExecutorService threadpool)
+    public SerialCommunication( )
     {
-        this.threadpool = threadpool;
+        sendQeue = new LinkedList<Commando>();
+        recieveQeue = new LinkedList<Commando>();
         try
         {
             this.connect();
@@ -184,13 +190,15 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
                     SerialPort.PARITY_NONE);
 
             System.out.println("Connected to serialport: " + portId);
-
+            serialPort.disableReceiveTimeout();
+            //serialPort.enableReceiveThreshold(1);
             // create and start writer thread in threadpool
             this.writer = new SerialWriter(this.serialPort);
             //this.threadpool.execute(this.writer);
 
             // create and start reader object
             this.reader = new SerialReader(this.serialPort);
+            
 
         } catch (PortInUseException | UnsupportedCommOperationException e)
         {
@@ -246,10 +254,11 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
     /**
      * ******************* SERIAL SETUP/FUNCTIONS ***********************
      */
-    //Controllers
 
+    //Statuses
     Status elevatorState;
     Status linearBotState;
+    Parameters calibrationParams;
 
     //Only for testing
     boolean readyTriggered = false;
@@ -327,37 +336,46 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
     {
         while (true)
         {
-            if (!sendQeue.isEmpty())
+            //
+            
+            if (getSendQSize() != 0)
             {    //Send the commands in the qeue
-                sendCommand(sendQeue.pop());
+                System.out.println("Got CMD");
+                sendCommand(popSendQ());
 
                 // Only recieve if something is sent
                 //TODO: Check this, currently the incomming recieving qeue only can recieve stateRequest, maybe staterequest should be Status 
                 //and thereof the incomming demand can handle all kind of "requests" for different states
             }
-            if (!recieveQeue.isEmpty())
-            {   //read the expecting incomming bytes
-                //Find the status to create and put all the values in the status
-                //Trigger the status listener
-                requestStatus(recieveQeue.pop());
-
-                if (elevatorState != null || linearBotState != null)
-                {
-
-                } else
-                {
-                    System.out.println("BOTH OF THE STATES WERE NULL");
-                }
-            }
-            //New data is recieved
+                //New data is recieved
             if (newDataRecieved)
             {
+                //Parse the newly recieved data
                 parseInputData(incommingData);
+                //Check the new statuses and trigger if needed
                 checkStatesAndTrigger(elevatorState, linearBotState);
+                //Reset flag
                 newDataRecieved = false;
-            }
+            }   
         }
 
+    }
+    
+    /**
+     * Synchronized method for returning queue size
+     * @return Return the size of the queue
+     */
+    private synchronized int getSendQSize()
+    {
+        return sendQeue.size();
+    }
+    /**
+     * Synchronized method for returning last element of queue
+     * @return Returns the last commando put into the queue
+     */
+    private synchronized Commando popSendQ()
+    {
+        return sendQeue.pop();
     }
 
     /**
@@ -379,17 +397,7 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
         String elevatorString;
         //TODO: Fix this staterequest, should maybe be commando. MAYBE REMOVE THE CHECKING
         //When request commando is staterequest both arduinos should be addressed
-        /*
-        if (request instanceof StateRequest)
-        {
-        
-            
-            
-            System.arraycopy(linearSizeByte, 0, request, readSize, readSize);
-            
-        } //If nothing of the Request commands were recognised, just send a general request
-         */
-        //Cmd calibPar holds the amount of bytes to read.
+
         if (request instanceof CalibParam)
         {
             //Cast to get the correct command address
@@ -400,54 +408,50 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
             //
             short returnLinearSize;
             short returnElevatorSize;
-
-            // this.writer.sendData();
-            //Get the amount of bytes to be sent - ergo how many bytes to read
-            //TODO: Commented out returnbyte elevator;
-            // linearByte = readByteFromAddr(linearRobot, cmdCalibPar.getCmdAddr(), readSize);
-            // elevatorByte = readByteFromAddr(elevatorRobot,cmdCalibPar.getCmdAddr() , readSize);
-            /*
-            //Save the size of linear and elevator return bytes
-            returnLinearSize = returnByteLinearBot[1];
-            returnElevatorSize = returnByteElevator[1];
-            //The return bytes
-            byte[] linearBytes = new byte[returnLinearSize];
-            byte[] elevatorBytes = new byte[returnElevatorSize];
-             */
-            //Retrieve the bytes
-            //    System.arraycopy(linearByte, 0, request, readSize, readSize);
-        } else if (request != null)
+        } 
+        
+         if (request instanceof Move)
+        {
+            //Cast to get the correct command address
+            CalibParam cmdCalibPar = (CalibParam) request;
+            System.out.print("Command CalibParam");
+            //Nr of bytes to read with first interaction 
+            int readSize = cmdCalibPar.getNrOfBytes();
+            //
+            short returnLinearSize;
+            short returnElevatorSize;
+        } 
+        
+        
+       else if (request != null)
         {
 
-            try
-            {
+          
                 //Make string for elevator
                 elevatorString = makeCMDString(CONTROLLER_STRADDR_ELEVATOR, request.getCmdAddr());
                 //Send data and set bool
-                this.writer.sendData(elevatorString.getBytes("UTF-8"));
+                this.writeString(elevatorString);
                 elevatorBotAwaitingACK = true;
 
                 //Send linear data and set bool
                 linearString = makeCMDString(CONTROLLER_STRADDR_LINEARBOT, request.getCmdAddr());
-                this.writer.sendData(linearString.getBytes("UTF-8"));
+                this.writeString(linearString);
                 linearBotAwaitingACK = true;
 
-            } catch (UnsupportedEncodingException ex)
-            {
-                Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
-            }
+       
 
         }
-
+        
         //Loop until all acks of message are recieved
         while (elevatorBotAwaitingACK || linearBotAwaitingACK)
         {
+            System.out.print("Waiting ack");
             //New data has been recieved, check if it was ACK or NACK or not APPLICABLE
             if (newDataRecieved)
             {
                 checkAckAndToggle(incommingData);
             }
-
+            //TODO: ADD TIMEOUT
             if (elevatorBotAwaitingACK)
             {
 
@@ -520,26 +524,69 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
         }
          */
     }
-
-    String makeCMDString(String stringAddress, byte cmdByte)
+    
+    /**
+     * Send the data in string with dev address and cmd
+     * @param sendString 
+     */
+    private void writeCMDstring(String sendString)
+    {
+        try
+        {
+            this.writer.sendData(sendString.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException ex)
+        {
+            Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+        /**
+     * Send the data in string
+     * @param sendString 
+     */
+    private void writeString(String sendString)
+    {
+        try
+        {
+            this.writer.sendData(sendString.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException ex)
+        {
+            Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * Return a string containing both dev-address and cmd-address
+     * @param stringAddress Device address
+     * @param cmdByte The cmd-address Byte
+     * @return Return a string with both dev-address and cmd address seperated with ", "
+     */
+    String makeCMDString(String stringDevAddress, byte cmdByte)
     {
         String returnString = null;
         String cmdString = Byte.toString(cmdByte);
-        returnString = stringAddress + ", " + cmdString;
+        returnString = stringDevAddress + ", " + cmdString;
 
         return returnString;
     }
-
+    /**
+     * Check the incomming data for ACK or NACK and set the appropriate bools
+     * @param incommingData The incomming sring[] data
+     * @return Return true if incomming data was NACK or ACK
+     */
     private boolean checkAckAndToggle(String[] incommingData)
     {
         boolean returnBool = false;
 
-        String feedback = null;
+     
         //Check for null
         if (incommingData != null)
         {
+            //Save address and feedback(ACK or NACK)
+            String addr = incommingData[0];
+            String feedback = null;
             //Check for address
-            if (incommingData[0].compareTo(CONTROLLER_STRADDR_LINEARBOT) == 0)
+            if (addr.compareTo(CONTROLLER_STRADDR_LINEARBOT) == 0)
             {
                 //Check for length
                 if (incommingData.length > 1)
@@ -552,10 +599,12 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
                         //Update bools
                         returnBool = true;
                         linearBotAwaitingACK = false;
+                        System.out.print("Got ACK");
                     } //Check for NACK
                     else if (Integer.getInteger(feedback).compareTo(0) == 0)
                     {
                         returnBool = true;
+                         System.out.print("Got NACK");
                     }
                 }
             } else if (incommingData[0].compareTo(CONTROLLER_STRADDR_ELEVATOR) == 0)
@@ -591,28 +640,48 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
      */
     private synchronized void parseInputData(String[] incommingData)
     {
-        byte[] byteArray = new byte[incommingData.length - 1];
-
-        if (incommingData[0].compareTo(CONTROLLER_STRADDR_LINEARBOT) == 0)
+        int arrCnt = 0;
+        //Save the device address
+        String addrStr = incommingData[arrCnt++];
+        //Create new value str[]
+        String[] valueStr = new String[incommingData.length];
+        
+        //Copy the values
+        for(int i = arrCnt; i<incommingData.length; ++i)
         {
-
+            valueStr[i-arrCnt] = incommingData[i];
+        }
+        //Check for linear address
+        if (addrStr.compareTo(CONTROLLER_STRADDR_LINEARBOT) == 0)
+        {
+            //Make state for the linearbot
             System.out.print("Making Linear bot state");
-            linearBotState = makeState(byteArray);
+            linearBotState = makeState(valueStr);
             System.out.print("Made state: ");
             System.out.println(linearBotState.getString());
-
-        } //Check for address
-        else if (incommingData[0].compareTo(CONTROLLER_STRADDR_ELEVATOR) == 0)
-        {
-            for (int i = 1; i < incommingData.length; ++i)
+            
+            //Check if it is a calibration status, and set values if so
+            if(checkForCalibParam(linearBotState))
             {
-                byteArray[i - 1] = Byte.decode(incommingData[i]);
+                calibrationParams.putValue(valueStr);
+                calibrationParams.setSend(true);
             }
 
+        } //Check for elevator address
+        else if (addrStr.compareTo(CONTROLLER_STRADDR_ELEVATOR) == 0)
+        {
+            
             System.out.print("Making elevator bot state");
-            elevatorState = makeState(byteArray);
+            elevatorState = makeState(valueStr);
             System.out.print("Made state: ");
             System.out.println(elevatorState.getString());
+            
+             //Check if it is a calibration status, and set values if so
+            if(checkForCalibParam(elevatorState))
+            {
+                calibrationParams.putValue(valueStr);
+                calibrationParams.setSend(true);
+            }
 
         }
     }
@@ -629,40 +698,74 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
         //Safeguarding against null-pointer
         if (elevatorState != null && linearBotState != null)
         {
-
-            //System.out.println(elevatorState.equals(State.ReadyToRecieve));
-            if ((Byte.compare(elevatorState.getStatusAddress(), State.ReadyToRecieve.getStateValue()) == 0) && (Byte.compare(linearBotState.getStatusAddress(), State.ReadyToRecieve.getStateValue()) == 0))
+             //CHECK FOR CALIBRATION PARAMETER STATUS
+            if(this.checkForCalibParam(elevatorState) || this.checkForCalibParam(linearBotState))
+            {
+                //Check if calibration parameter is updated and should be sent
+                if(calibrationParams.isElevatorCalib() && calibrationParams.isLinearCalib())
+                {
+                    if(calibrationParams.isSend())
+                    {
+                        calibrationParams.notifyListeners();
+                        calibrationParams.setSend(false);
+                    }
+                }
+            }
+            //CHECK IF BOTH STATUSES ARE READY TO RECIEVE
+            else if (this.checkForReady(elevatorState) && this.checkForReady(linearBotState))
             {
 
                 //TODO: Trigger ready to recieve
                 System.out.println("ReadyToRecieve triggered");
-                //TODO: REMOVE WHEN IMPLEMENTING NOTIFY! ONLY FOR TESTING!!
-                readyTriggered = true;
-
+                elevatorState.notifyListeners();
             }
-            if (Byte.compare(elevatorState.getStatusAddress(), State.ReadyToRecieve.getStateValue()) != 0)
+            
+           //Check which are not ready
+           else if (!this.checkForReady(elevatorState))
             {
                 //TODO: Trigger this state / send notify
                 System.out.println("Elevator state triggered");
-                //readyTriggered = false;
-                byte[] val = new byte[2];
-                elevatorState.trigger(val);
-                //TEST
-                //readyTriggered = true;
+     
+                elevatorState.notifyListeners();
             }
-            if (Byte.compare(linearBotState.getStatusAddress(), State.ReadyToRecieve.getStateValue()) != 0)
+           //Check which are not ready
+           else if (!this.checkForReady(linearBotState))
             {
-                //TODO: Trigger this state
+                
                 System.out.println("LinearBotState triggered");
-                //  readyTriggered = false;
-
-                byte[] val = new byte[2];
-                linearBotState.trigger(val);
-                //TEST
-                // readyTriggered = true;
+              
+                linearBotState.notifyListeners();
             }
+   
         }
         System.out.println("Checking done");
+    }
+    
+    /**
+     * Returns true if the status is a ready to recieve status
+     * @param checkState The status to checkl
+     * @return Returns true if the status is a ready to recieve status
+     */
+    private boolean checkForReady(Status checkState)
+    {
+            boolean isReady = false;
+        if(Byte.compare(checkState.getStatusAddress(), State.ReadyToRecieve.getStateValue()) == 0)
+        {
+            isReady = true;
+        }
+        return isReady;
+    }
+    /**
+     * Return true if the status correspondes with 
+     */
+    private boolean checkForCalibParam(Status checkState)
+    {
+        boolean wasCalib = false;
+        if(Byte.compare(checkState.getStatusAddress(), State.PARAMETER.getStateValue()) == 0)
+        {
+            wasCalib = true;
+        }
+        return wasCalib;
     }
 
     /**
@@ -671,26 +774,42 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
      * @param stateByte Statebyte to create state from
      * @return Returns the created state, else null!
      */
-    //TODO: MAKE ENUM TO DECIDE WHICH STATUS HAS BEEN SENT FROM ARDUINO
-    public Status makeState(byte[] stateByte)
+    public Status makeState(String[] stateByte)
     {
-        byte cmdAddr = stateByte[0];
         Status returnState = null;
-        System.out.println("State addr: ");
-        System.out.print(cmdAddr);
-
+        //Save the cmd byte
+        byte cmdAddr = Byte.valueOf(stateByte[0]);
+        
+       //Get the status based on cmd address
         State state = State.get(cmdAddr);
-
+        
         //Nullpointer check
         if (state != null)
         {
+            System.out.println("State addr: ");
+            System.out.print(cmdAddr);
+            
             System.out.println("Value:");
             System.out.println(state.getStateValue());
-
-            //   System.out.println("State not recognised!!!");
+            
+            //Create new status based on the returned state
             Status status = state.getStatus();
             returnState = status.returnNew();
-            //Check for nullpointer
+            
+             //CHECK FOR VALUES
+             if(stateByte.length > 1)
+             {
+               //Make new byte[] to store values in
+             String[] valueByte = new String[stateByte.length-1];
+        
+            //Copy the array
+            System.arraycopy(stateByte, 1, valueByte, 0, stateByte.length-1);
+            
+             //Put the values    
+             returnState.putValue(valueByte);
+        }
+        
+        //Check for nullpointer
             if (listenerList != null)
             {
                 // add listeners to the new state  
@@ -709,20 +828,21 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
      *
      * @param cmd Commando to be performed
      */
-    public void addSendQ(Commando cmd)
+    public synchronized void addSendQ(Commando cmd)
     {
         sendQeue.add(cmd);
     }
 
+    
     /**
      * Added to the recieving queue
      *
      * @param stat
      */
     //TODO: Make changes to this recieving thing
-    public void addRecieveQ(Commando cmd)
+    public void sendQ(Commando cmd)
     {
-        recieveQeue.add(cmd);
+        sendQeue.add(cmd);
     }
 
     /**
@@ -754,17 +874,6 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
         return returnByte;
     }
 
-    private void testCommando()
-    {
-        byte b = 0b00000001;
-        byte b2 = 100;
-        Commando comm = new Commando(b);
-        int i = 15;
-        System.out.println("Setting int value");
-        comm.setIntValue(i);
-        System.out.println(comm.getIntValue());
-
-    }
 
     /**
      * Handles the commandos given in parameter. Tasks handled based on Commando
@@ -777,17 +886,69 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
         System.out.print("Commando address: ");
         System.out.println(cmd.getCmdAddr());
 
-        /**
-         * COMMANDS TO ARDUINO*
-         */
+        String elevatorString = null;
+        String linearString = null;
+  
         /**
          * *Checking all the possible commands**
          */
         //Check for move command
         if (cmd instanceof Move)
         {
-            doMove(cmd);
-        } //Check for acceleration command
+              //Do the X-Y movement first and send to the controller
+             Move cmdMove = (Move) cmd;
+                 
+                 
+             //Check for x and y values, and write them to the linearbot
+                if ((cmdMove.getxValue() != null) && (cmdMove.getyValue() != null))
+                 {
+                    //SEND THE BYTES
+                     byte[] XYbyte = cmdMove.makeCompleteXYByte();
+                     //Make new byte for dev addr, cmd addr and payload
+                     byte[] sendByte = addBytes(CONTROLLER_ADDR_LINEARBOT, (byte)0, XYbyte);
+                     //Send the data
+                     this.writer.sendData(sendByte);
+                
+                }
+
+                //Z value should be written to elevator robot
+             if (cmdMove.getzValue() != null)
+             {
+                  //SEND THE BYTES
+                     byte[] Zbyte = cmdMove.makeCompleteZByte();
+                     //Make new byte for dev addr, cmd addr and payload
+                     byte[] sendByte = addBytes(CONTROLLER_ADDR_ELEVATOR, (byte)0, Zbyte);
+                      //Send the data
+                     this.writer.sendData(sendByte);
+           
+             }
+
+                 System.out.println("Sending Move done");
+        } 
+        
+        //Send command
+        else if (cmd != null)
+        {
+                //Make string for elevator
+                elevatorString = makeCMDString(CONTROLLER_STRADDR_ELEVATOR, cmd.getCmdAddr());
+                //Send data and set bool
+                this.writeString(elevatorString);
+                System.out.print("Sent elevator string: ");
+                System.out.println(elevatorString);
+                elevatorBotAwaitingACK = true;
+
+                //Send linear data and set bool
+                linearString = makeCMDString(CONTROLLER_STRADDR_LINEARBOT, cmd.getCmdAddr());
+                this.writeString(linearString);
+                  System.out.print("Sent linear string: ");
+                System.out.println(linearString);
+                linearBotAwaitingACK = true;
+        }
+         System.out.print("Sent commando: ");
+    }
+
+
+    //Check for acceleration command
         /*
         else if (cmd instanceof Acceleration)
         {
@@ -858,12 +1019,7 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
             this.writeBytesToAddr(elevatorRobot, cmd.getCmdAddr(), cmd.getValue()); 
             }
          */ //Send the command
-        else
-        {
-            // writeByte(linearRobot, cmd.getCmdAddr());
-            //  writeByte(elevatorRobot, cmd.getCmdAddr());
-        }
-    }
+     
 
     /**
      * COMMANDS "FROM" ARDUINO*
@@ -894,13 +1050,16 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
             //Reset the state request
             //((StateRequest) cmd).reset();
         }
-     */
+    */
+    
+    
+     
     /**
      * Do the move command as specified
      *
      * @param cmd The command with attached values
      */
-    public void doMove(Commando cmd)
+    private void doMove(Commando cmd)
     {
         //Do the X-Y movement first and send to the controller
         Move cmdMove = (Move) cmd;
@@ -908,31 +1067,60 @@ public class SerialCommunication extends Thread implements SerialPortEventListen
         //Combine the xyByte from the cmd move
         if ((cmdMove.getxValue() != null) && (cmdMove.getyValue() != null))
         {
-
             //SEND THE BYTES
-            //cmdMove.getCompleteXYstring();
-            // writeBytes(linearRobot, cmdMove.makeCompleteXYByte());
+           // cmdMove.getCompleteXYstring();
+            //writeBytes(linearRobot, cmdMove.makeCompleteXYByte());
         }
 
         //Z value should be written to elevator robot
         if (cmdMove.getzValue() != null)
         {
-            /*
-            byte[] sendByte = new byte[xyByte.length + 2];
-            sendByte[0] = cmd.getCmdAddr();
-            sendByte[1] = (byte) cmdMove.getzValue().length;
-            
-            System.arraycopy(cmdMove.getzValue(), 0, sendByte, 2, cmdMove.getzValue().length);
-            
-              System.out.println("Sending do move command to elevatorbot");
-            writeBytes(elevatorRobot, sendByte);
-             */
-
-            //cmdMove.getCompleteZstring();
-            //writeBytes(elevatorRobot, cmdMove.makeCompleteZByte());
+           
         }
 
-        System.out.println("Sending done");
+        System.out.println("Sending Move done");
+    }
+    
+    /**
+     * Add all the bytes together
+     * @param devAddr The device address in byte
+     * @param cmdAddr The cmd address in byte
+     * @param payload The payload in byte[]
+     * @return Return a complete byte[] with all sending values, returns null if nothing was copied
+     */
+    private byte[] addBytes(byte devAddr, byte cmdAddr, byte[] payload)
+    {
+        byte[] totalByte = null;
+         //Keep track of the next array pos
+       int arrayCnt = 0; 
+       
+        //Check if cmd address is present
+        if(cmdAddr != 0)
+        {
+             totalByte = new byte[payload.length + 2];
+             //Store the device address and cmd address 
+            totalByte[arrayCnt++] = devAddr;
+            totalByte[arrayCnt++] = cmdAddr;
+        }
+        else
+        {
+            totalByte = new byte[payload.length + 1];
+             //Store the device address and cmd address 
+            totalByte[arrayCnt++] = devAddr;
+        }
+        
+    
+  
+        //Add the whole payload
+        if(totalByte != null)
+        {
+           System.arraycopy(payload, 0, totalByte, arrayCnt, payload.length); 
+        }
+        
+        
+        
+        
+        return totalByte;
     }
 
     /**

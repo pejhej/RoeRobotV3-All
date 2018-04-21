@@ -113,14 +113,19 @@ public class SerialReader implements SerialPortEventListener {
      */
     @Override
     public synchronized void serialEvent(SerialPortEvent oEvent) {
+        
         // check if the event is data being received on the serial port
         if (oEvent.getEventType() == SerialPortEvent.DATA_AVAILABLE) 
         {
+            System.out.println("kjome");
             try {
                 
+                System.out.println(input.read());
                 // saving the input data to an string array, each element seperated by an "/"
                 this.inputData = this.input.readLine().split(",");
-                      
+                      //TODO: Printing
+                      System.out.println("Reading bus");
+                      System.out.println(Arrays.toString(inputData));
                     // notify all the listeners of data available for reading
                     this.notifyListeners(inputData);
                     // Fill the input data with null, so no stored values will 
@@ -129,6 +134,7 @@ public class SerialReader implements SerialPortEventListener {
               
             } catch (IOException ex) 
             {
+            System.out.println("bitches ass" + ex.getMessage());
             //    System.out.println("reader lesing " + ex.toString());
             }
         }
