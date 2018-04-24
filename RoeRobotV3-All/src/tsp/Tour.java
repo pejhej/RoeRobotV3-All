@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package tsp;
-
+import roerobotyngve.Coordinate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.List;
 public class Tour {
 
     // Arraylist containing all destinations. 
-    private ArrayList<Position> destinations;
+    private ArrayList<Coordinate> destinations;
     private double fitness = 0;
     private double totalDistance = 0;
 
@@ -34,7 +34,7 @@ public class Tour {
     public Tour(boolean fillWithDestinations) {
         this.destinations = new ArrayList<>();
         if (fillWithDestinations) {
-            this.destinations.addAll(PositionManager.getDestinations());
+            this.destinations.addAll(CoordinateManager.getCoordinates());
             this.shuffleDestinations();
             this.calcTotalDist();
         }
@@ -43,7 +43,7 @@ public class Tour {
 
     private void shuffleDestinations() {
         // find start destinatio 
-        Position dest = this.destinations.get(0);
+        Coordinate dest = this.destinations.get(0);
         this.destinations.remove(dest);
         // Randomly reorder the tour
         Collections.shuffle(this.destinations);
@@ -71,17 +71,17 @@ public class Tour {
     }
 
     public String destinationsToString() {
-        String destinationsString = "There is no destinations";
+        String destinationsString = "There are no destinations";
         if (!this.destinations.isEmpty()) {
             destinationsString = "";
-            for (Position destination : this.destinations) {
+            for (Coordinate destination : this.destinations) {
                 destinationsString = destinationsString + destination.toStringXYCoord();
             }
         }
         return destinationsString;
     }
 
-    public List<Position> getList() {
+    public List<Coordinate> getList() {
         return this.destinations;
     }
 
