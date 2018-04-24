@@ -161,6 +161,7 @@ public class SerialCommunicationWithJ extends Thread implements SerialInputListe
         //Save the incomming data
         incommingData = fromByteToStringArr(data);
         
+        //Print the incomming data as a string
         String dataString = new String(data, StandardCharsets.UTF_8);
         System.out.println(dataString);
         
@@ -216,14 +217,14 @@ public class SerialCommunicationWithJ extends Thread implements SerialInputListe
         {
             return status.getStatusAddress();
         }
-
+        //
         public static State get(byte address)
         {
             //the reverse lookup by simply getting 
             //the value from the lookup HsahMap. 
             return lookup.get(address);
         }
-
+        //Return the status
         public Status getStatus()
         {
             return this.status;
@@ -570,7 +571,7 @@ public class SerialCommunicationWithJ extends Thread implements SerialInputListe
      * Parses the string array in the incomming data parameter. Makes the
      * appropriate
      *
-     * @param incommingData
+     * @param incommingData The data to parse
      */
     private synchronized void parseInputData(String[] incommingData)
     {
@@ -619,7 +620,6 @@ public class SerialCommunicationWithJ extends Thread implements SerialInputListe
                 calibrationParams.putValue(valueStr);
                 calibrationParams.setSend(true);
             }
-
         }
         }
     }

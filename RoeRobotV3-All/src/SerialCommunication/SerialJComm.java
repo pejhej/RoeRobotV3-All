@@ -73,7 +73,9 @@ public class SerialJComm
      
 
     }
-
+    /**
+     * Connect to the serial port, with the portname in the constructor
+     */
     public void connect()
     {
                 
@@ -144,15 +146,7 @@ public class SerialJComm
                 {
                     return;
                 }
-               /*
-               if(port.bytesAvailable() > 0)
-               {
-                    byte[] newData = new byte[port.bytesAvailable()];
-                        int numRead = port.readBytes(newData, newData.length);
-                        System.out.println("Read " + numRead + " bytes.");
-                   
-               }
-               */
+         
                 try
                 {
                     if(reader.available() > 0)
@@ -182,7 +176,6 @@ public class SerialJComm
             }
         });
 
-        // add method for getting notified when data is recieved
        
 
         
