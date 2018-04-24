@@ -123,11 +123,12 @@ public class SerialReader implements SerialPortEventListener {
                 System.out.println(input.read());
                 // saving the input data to an string array, each element seperated by an "/"
                 this.inputData = this.input.readLine().split(",");
+                
                       //TODO: Printing
                       System.out.println("Reading bus");
                       System.out.println(Arrays.toString(inputData));
                     // notify all the listeners of data available for reading
-                    this.notifyListeners(inputData);
+                    this.notifyListeners(Arrays.toString(inputData).getBytes("UTF-8"));
                     // Fill the input data with null, so no stored values will 
                     //be carried over to next message
                     Arrays.fill(inputData, null);
@@ -145,7 +146,7 @@ public class SerialReader implements SerialPortEventListener {
      * notify all listeners of data now available for reading listener has to
      * implement the CalculationListener interface
      */
-    private synchronized void notifyListeners(String[] input) 
+    private synchronized void notifyListeners(byte[] input) 
     {
         if (this.listeners != null) 
         {

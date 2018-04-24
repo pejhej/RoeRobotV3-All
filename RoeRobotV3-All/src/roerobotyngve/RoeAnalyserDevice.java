@@ -34,10 +34,10 @@ import static com.pi4j.wiringpi.Gpio.delay;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Timer;
-import javax.swing.text.html.HTMLDocument;
 import org.junit.rules.Stopwatch;
-import SerialCommunication.SerialCommunication;
+import SerialCommunication.SerialCommunicationWithJ;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class represents a robot and all its possible commands and actions. It
@@ -49,13 +49,20 @@ import SerialCommunication.SerialCommunication;
 public class RoeAnalyserDevice implements StatusListener
 {
 
-    public RoeAnalyserDevice(SerialCommunication serial)
+    public RoeAnalyserDevice(SerialCommunicationWithJ serial)
     {
         this.serialComm = serial;
 
     }
     
- 
+    private synchronized Status getCurrentStatus()
+    {
+        return this.currentStatus;
+    }
+    private synchronized void setCurrentStatus(Status setStatus)
+    {
+        this.currentStatus = setStatus;
+    }
     //TODO: add calibration return functions
     
     /**
@@ -64,7 +71,7 @@ public class RoeAnalyserDevice implements StatusListener
      * @param status being trigged
      */
     @Override
-    public void notifyNewStatus(Status status) 
+    public synchronized void notifyNewStatus(Status status) 
     {
         //Check if its parameter
         if(State.PARAMETER.getStateStatus().getString().contains(status.getString()))
@@ -72,7 +79,7 @@ public class RoeAnalyserDevice implements StatusListener
           calibrationParam = status;
         }
         
-        currentStatus = status;    
+        setCurrentStatus(status);    
     }
 
     
@@ -140,15 +147,18 @@ public class RoeAnalyserDevice implements StatusListener
     //Timer timer = new Timer();
     //Timer variabales
     private long timerTime = 0;
-    private long waitTime = 10000;
+    private long waitTime = 20000;
 
     //Holds the current status sent by the roerobot
-    Status currentStatus;
+    Status currentStatus = null;
    //The calibration params
-    Status calibrationParam;
+    Status calibrationParam = null;
+
+    
+
 
     //I2c communication 
-    SerialCommunication serialComm;
+    SerialCommunicationWithJ serialComm;
 
     //Tray
     Tray currentTray;
@@ -448,15 +458,21 @@ public class RoeAnalyserDevice implements StatusListener
         // Send cmd. 
         Calibrate calicmd = new Calibrate();
         serialComm.addSendQ(calicmd);
-        System.out.println("Sent calibrate to SCOMM");
+        System.out.println("Sent calibrate to S-COMM");
                 //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
 //        delay(300); //TODO: ONLY FOR TEST
-                
+        
         if (robotIsReady(waitTime))
         {
             //Send calib param command to get calibration parameters
             CalibParam cmdCalibPar = new CalibParam();
             serialComm.sendQ(cmdCalibPar);
+            
+            //Check the calibration param
+            if(this.getCalibrationParams()  != null)
+            {
+                System.out.println("Calib params not attained yet..");   
+            }
         } //Something is faulty, end the task
         else
         {
@@ -552,15 +568,29 @@ public class RoeAnalyserDevice implements StatusListener
     private boolean robotIsReady(long pollTime)
     {
         boolean robotState = true;
+        //Reset the timer
+         resetTimer();
+        
         //Check if robot is ready for new command & no faults are present
+       
         while (!isReady() && !robotFaultyStatus())
         {
             //After a set wait time, update the status
             if (timerHasPassed(pollTime))
             {
+                //TODO: ONLY FOR TESTING
+                try
+                {
+                    Thread.sleep(pollTime);
+                } catch (InterruptedException ex)
+                {
+                    System.out.println("Timer has been interrupted");
+                    System.out.println(ex.getMessage());
+                    Logger.getLogger(RoeAnalyserDevice.class.getName()).log(Level.SEVERE, null, ex);
+                }
         //        delay(1000);//TODO: ONLY FOR TEST
-                updateStatus(); //Send status update request
-                resetTimer();   //Reset timer
+                 updateStatus(); //Send status update request
+                 resetTimer();   //Reset timer
             }
         }
         //Check if robot has a critical error
@@ -581,10 +611,10 @@ public class RoeAnalyserDevice implements StatusListener
         //Return bool
         boolean ready = false;
         //Check status
-        if (currentStatus != null)
+        if (getCurrentStatus() != null)
         {
             //Check if status is ready to recieve
-            if (currentStatus.getString().equalsIgnoreCase(State.ReadyToRecieve.getStateStatus().getString().toLowerCase()))
+            if (getCurrentStatus().getString().equalsIgnoreCase(State.ReadyToRecieve.getStateStatus().getString().toLowerCase()))
             {
                 ready = true;
             }
@@ -824,9 +854,9 @@ public class RoeAnalyserDevice implements StatusListener
     private boolean robotFaultyStatus()
     {
         boolean returnThis = false;
-        if(currentStatus != null)
+        if(getCurrentStatus() != null)
         {
-            returnThis = currentStatus.critical();
+            returnThis = getCurrentStatus().critical();
         }
         return returnThis;
                 

@@ -84,37 +84,8 @@ public class SerialWriter {
         }
     } 
     
-
-    /**
-     * Add calculator and add itself as listener to the calculator data
-     * available
-     *
-     * @param calculator
-     */
-    /*
-    public void addCalculator(DataCalculation calculator) 
-    {
-        this.calculator = calculator;
-        this.calculator.addListener(this);
-    }
-
-    /**
-     * Getting notified on data available from the calculation
-     * @param val
-     */
-    /*
-    @Override
-    public synchronized void setCalculations(boolean val) {
-        this.dataAvailable = val;
-    }
-    */
     
-    /**
-     * Getter method for the dataAvailable variable.
-     */
-    private synchronized boolean getCaluculations() {
-        return this.dataAvailable;
-    }
+ 
     
     private synchronized void setDataToBeSent(byte[] dataByte)
     {

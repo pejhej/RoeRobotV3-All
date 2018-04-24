@@ -63,6 +63,16 @@ public class Commando
         return this.commandAddress;
     }
     
+      /**
+     * Returns the command address for this commando object
+     * @return Returns the command address for this commando in String
+     */
+    public String getStringCmdAddr()
+    {
+        
+        return Byte.toString(commandAddress);
+    }
+    
     
     /**INTEGER VALUES SETTER / GETTER **/
     /**
