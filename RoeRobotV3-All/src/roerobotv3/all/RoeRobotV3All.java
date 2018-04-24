@@ -5,20 +5,15 @@
  */
 package roerobotv3.all;
 
-import Commands.CalibParam;
 import Commands.Calibrate;
 import Commands.Move;
 import Commands.StateRequest;
 import SerialCommunication.SerialCommunication;
-import SerialCommunication.SerialCommunicationWithJ;
-import java.io.UnsupportedEncodingException;
 import static java.lang.Thread.sleep;
-import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.opencv.core.Core;
 import roerobotyngve.RoeAnalyserDevice;
 
 /**
@@ -36,7 +31,7 @@ public class RoeRobotV3All
    private static final int MAX_CLIENT_THREADS = 20;
      private ScheduledExecutorService threadPool;
 
-     SerialCommunicationWithJ serialComm;
+     SerialCommunication serialComm;
      
      
      public RoeRobotV3All()
@@ -45,7 +40,7 @@ public class RoeRobotV3All
      //    System.load("/home/odroid/NetBeansProjects/RoeRobotV3-All/RoeRobotV3-All/lib/librxtxSerial.so");
    //   System.load("/home/odroid/NetBeansProjects/RoeRobotV3-All/RoeRobotV3-All/lib/librxtxParallel.so");
          threadPool = Executors.newScheduledThreadPool(MAX_CLIENT_THREADS);
-         serialComm = new SerialCommunicationWithJ();
+         serialComm = new SerialCommunication();
          serialComm.connect();
          serialComm.start();
        

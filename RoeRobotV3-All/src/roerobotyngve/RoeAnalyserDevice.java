@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import org.junit.rules.Stopwatch;
-import SerialCommunication.SerialCommunicationWithJ;
+import SerialCommunication.SerialCommunication;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,7 +49,7 @@ import java.util.logging.Logger;
 public class RoeAnalyserDevice implements StatusListener
 {
 
-    public RoeAnalyserDevice(SerialCommunicationWithJ serial)
+    public RoeAnalyserDevice(SerialCommunication serial)
     {
         this.serialComm = serial;
 
@@ -158,7 +158,7 @@ public class RoeAnalyserDevice implements StatusListener
 
 
     //I2c communication 
-    SerialCommunicationWithJ serialComm;
+    SerialCommunication serialComm;
 
     //Tray
     Tray currentTray;
