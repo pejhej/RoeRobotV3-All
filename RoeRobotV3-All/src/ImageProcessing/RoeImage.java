@@ -27,13 +27,34 @@ public class RoeImage
     // frame index in tray
     private int pictureIndex;
     
-    // list holding position of roe detected in the image
-    private final ArrayList<Coordinate> roePositions;
+    // variable holding height of camera above surface in mm  
+    private final float captureHeight;
     
-    public RoeImage()
+    //variable holding the Field Of View from the camera (angle)
+    private final int FOV;
+    
+    // list holding position of roe detected in the image
+    private final ArrayList<Coordinate> roePositionPixels;
+    
+    // list holding position of roe detecten in image in millimeters
+    private final ArrayList<Coordinate> roePositionMillimeters;
+    
+    /**
+     * 
+     * @param captureHeight distance between lens and surface captured in mm
+     * @param fieldOfView field of view of camera (angle)
+     */
+    public RoeImage(float captureHeight, int fieldOfView)
     {
+        // save the camera to surface distance 
+        this.captureHeight = captureHeight;
+        
+        // save the cameras FOV
+        this.FOV = fieldOfView;
+        
         // create list of roe positions
-         roePositions= new ArrayList();
+        roePositionPixels = new ArrayList();
+        roePositionMillimeters = new ArrayList();
     }
     
     
@@ -82,24 +103,48 @@ public class RoeImage
     
     
     /**
-     * Add position of roe.
+     * Add position of roe in pixels.
      * 
-     * @param coordinate of roe 
+     * @param coordinate of roe in pixels 
      */
-    public void addRoePosition(Coordinate coordinate)
+    public void addRoePositionPixel(Coordinate coordinate)
     {
-        this.roePositions.add(coordinate);
+        this.roePositionPixels.add(coordinate);
+        System.out.println("pixel: " + coordinate.getxCoord() + " - " + coordinate.getyCoord());
     }
             
     
     /**
-     * Get iterator from list of roe postitions.
+     * Get iterator from list of roe postitions in pixels.
      * 
-     * @return iterator from list of roe positions. 
+     * @return iterator from list of roe positions in pixels. 
      */
-    public Iterator getRoePositionIterator()
+    public Iterator getRoePositionPixelIterator()
     {
-        return this.roePositions.iterator();
+        return this.roePositionPixels.iterator();
+    }
+    
+    
+    /**
+     * Add position of roe in millimeter.
+     * 
+     * @param coordinate of roe in millimeter
+     */
+    public void addRoePositionMillimeter(Coordinate coordinate)
+    {
+        this.roePositionMillimeters.add(coordinate);
+        System.out.println("millimeter: " + coordinate.getxCoord() + " - " + coordinate.getyCoord());
+    }
+            
+    
+    /**
+     * Get iterator from list of roe postitions in millimeter.
+     * 
+     * @return iterator from list of roe positions in millimeter. 
+     */
+    public Iterator getRoePositionMillimeterIterator()
+    {
+        return this.roePositionMillimeters.iterator();
     }
     
     
@@ -122,5 +167,25 @@ public class RoeImage
     public int getPictureIndex()
     {
         return this.pictureIndex;
+    }
+    
+    /**
+     * Get the cameras field of view.
+     * 
+     * @return returns field of view of camera (angle)
+     */
+    public int getFieldOfView()
+    {
+        return this.FOV;
+    }
+    
+    /**
+     * Get the distance between camera and surface in mm
+     * 
+     * @return distance between camera and surface in mm
+     */
+    public float getDistance()
+    {
+        return this.captureHeight;
     }
 }

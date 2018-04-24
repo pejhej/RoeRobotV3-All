@@ -7,7 +7,6 @@ import roerobotyngve.Coordinate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -28,7 +27,7 @@ import org.opencv.imgproc.Moments;
 
 public class ImageProcessing implements Runnable
 {
-    private String hvemSin = "x";
+    private final String hvemSin = "x";
     // list of images to process
     private final Stack<RoeImage> processQueue;
     
@@ -41,7 +40,6 @@ public class ImageProcessing implements Runnable
     public ImageProcessing()
     {
         // load dll file for opencv
-       // Må fikses link
         if(hvemSin.equalsIgnoreCase("kristian"))
         {
             System.load("C:\\Users\\krist\\Dropbox\\skole\\6. semester\\Bachelor\\Rognhandteringsrobot-NTNU_Bacheloroppgave\\Programmering\\RoeRobot-ImageProcessing\\opencv\\build\\java\\x64\\opencv_java330.dll");
@@ -125,10 +123,12 @@ public class ImageProcessing implements Runnable
             // create coordinate object
             Coordinate blobCentroid = new Coordinate(blobCenterY, blobCenterX, 0);
             
-            // add coordinate of blob centroid to image being processed
-            processingImage.addRoePosition(blobCentroid);
+            // add pixel coordinate of blob centroid to image being processed
+            processingImage.addRoePositionPixel(blobCentroid);
+            
+            // calculate millimeter coordinate of blob centroid to image being processed
+            this.pixelToMillimeterConversion(blobCentroid, processingImage);
         }
-        
         
         // notify listeners of image finished processing
         // add processed image as parameter
@@ -136,6 +136,7 @@ public class ImageProcessing implements Runnable
         {
             listener.notifyImageProcessed(processingImage);
         }
+        
         
         
         //======================== DEBUG =============================//
@@ -170,6 +171,53 @@ public class ImageProcessing implements Runnable
                 Imgproc.circle(boundedBlobsCentroid, new Point(blobCenterX,blobCenterY), 1, new Scalar(0,0,0));
             }  
         }
+    }
+    
+    /**
+     * Calculate distance from pixels to mm.
+     * 
+     */
+    private void pixelToMillimeterConversion(Coordinate pixelCoordinate, RoeImage processingImage)
+    {
+        // get variables needed from the image
+        double fieldOfView = processingImage.getFieldOfView();
+        double distance = processingImage.getDistance();
+        double imageHeight = processingImage.getImage().height();
+        double imageWidth = processingImage.getImage().width();
+        
+        // calculate length of diagonal of image in mm
+        double diagonalMillimeter = distance * Math.cos((fieldOfView/2)*(Math.PI/180)) * 2;
+        
+        // calculate length of diagonal in pixels
+        double diagonalPixel = Math.sqrt(Math.pow(imageHeight, 2) + Math.pow(imageWidth, 2));
+        
+        // calculate angle of diagonal
+        double theta = Math.atan(imageHeight/imageWidth);
+        
+        // calculate width of image in millimeter
+        double imageWidthMillimeter = Math.cos(theta) * diagonalMillimeter;
+
+        // calaculate height of image in millimeter
+        double imageHeightMillimeter = Math.sin(theta) * diagonalMillimeter;
+        
+        // calculate the size of a pixel in x direction in mm 
+        double pixelSizeDirX = imageHeightMillimeter/imageHeight;
+        
+        // calculate tje size of a pixel in y direction in mm        
+        double pixelSizeDirY = imageWidthMillimeter/imageWidth;
+        
+        
+        // uses xDir size on y coordinate and opposite
+        // since image is rotated 90 degrees in robot
+        // calculate distance to x and y position in millimeter
+        double xPositionMillimeter = pixelCoordinate.getxCoord() * pixelSizeDirY;
+        double yPositionMillimeter = pixelCoordinate.getyCoord() * pixelSizeDirX;
+
+        // create coordinate in millimeters
+        Coordinate millimeterCoordinate = new Coordinate(xPositionMillimeter, yPositionMillimeter);
+        
+        // add coordinate in millimeter to the RoeImage being processed 
+        processingImage.addRoePositionMillimeter(millimeterCoordinate);
     }
     
     

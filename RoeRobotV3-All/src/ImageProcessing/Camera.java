@@ -27,6 +27,9 @@ public class Camera
     // Camera
     private final VideoCapture cam;
     
+    // Cameras field of view (angle)
+    private final int FOV = 78;
+    
     
     public Camera() 
     {
@@ -46,12 +49,13 @@ public class Camera
     /**
      * Take a picture and return the Mat frame.
      * 
+     * @param cameraHeight distance between lens and surface 
      * @return RoeImage with picture and properties
      */
-    public RoeImage takePicture() 
+    public RoeImage takePicture(float cameraHeight) 
     {
         // return variable
-        RoeImage result = new RoeImage();
+        RoeImage result = new RoeImage(cameraHeight, this.FOV);
         
         // take picture 
         this.cam.read(this.frame);
