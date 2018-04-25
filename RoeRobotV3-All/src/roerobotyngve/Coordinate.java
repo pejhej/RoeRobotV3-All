@@ -57,5 +57,13 @@ public class Coordinate {
         return this.zCoord;
     }
     
-
+    /**
+     * Return X and Y coordinates ass string
+     *
+     * @return string with X and Y coordinates for the destination.
+     */
+    public String toStringXYCoord() {
+        String XYCoord = ("| " + this.getxCoord()+ " , " + this.getyCoord()+ " , " + this.getzCoord()+ " |");
+        return XYCoord;
+    }
 }

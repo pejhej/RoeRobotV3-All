@@ -91,12 +91,12 @@ public class Tour {
     private void calcTotalDist() {
         this.totalDistance = 0;
         for (int i = 0; i <= this.destinations.size() - 2; i++) {
-            int fromX = this.destinations.get(i).getxPos();
-            int fromY = this.destinations.get(i).getyPos();
-            int toX = this.destinations.get(i + 1).getxPos();
-            int toY = this.destinations.get(i + 1).getyPos();
-            int deltaX = Math.abs(toX - fromX);
-            int deltaY = Math.abs(toY - fromY);
+            double fromX = this.destinations.get(i).getxCoord();
+            double fromY = this.destinations.get(i).getyCoord();
+            double toX = this.destinations.get(i + 1).getxCoord();
+            double toY = this.destinations.get(i + 1).getyCoord();
+            double deltaX = Math.abs(toX - fromX);
+            double deltaY = Math.abs(toY - fromY);
             this.totalDistance = this.totalDistance + Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         }
     }

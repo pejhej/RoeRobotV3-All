@@ -718,8 +718,7 @@ public class RoeAnalyserDevice implements StatusListener
                 //The task is done, break
             case done:
                 break;
-        }
-        
+        }   
         return succesful;
     }
 

@@ -14,7 +14,6 @@ import java.util.List;
  * @author Yngve
  */
 public class CoordinateManager {
-
     
     // Holds all the coordinates
     private static ArrayList coordinates = new ArrayList<Coordinate>();
