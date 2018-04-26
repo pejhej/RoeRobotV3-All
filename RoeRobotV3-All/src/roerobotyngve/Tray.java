@@ -14,9 +14,7 @@ import java.util.ArrayList;
  *
  * @author Yngve
  */
-public class Tray
-{
-
+public class Tray{
     //Number for this tray
     private final int nr;
     private final int handleOffset = 0;
@@ -25,12 +23,12 @@ public class Tray
     private final int distUpperLowerPos = 20; // Distanse form the upper position to the lowest point in the tray
     private final int upperPos = 30; // defined in mm parallel to the Z-axis 
     private final int lowerPos = 40; // defined in mm parallel to the Z-axis
-
+    
     private final int TotalCameraPositions = 6;  //Total amount of camera positions
-
+    
     private int nrOfRemovedRoe;
     private int flagPosZ;
-
+    
     //Coordinate for diff positions related to the tray
     //Coord for the handle when tray is close
     private Coordinate getHandleCoord;
@@ -40,35 +38,58 @@ public class Tray
     private Coordinate openTrayCoord;
     //Coordinate for Z coordinate(down to tray roe level)
     private Coordinate pickupRoeZCoord;
+    
+    // x and y coordinates of first camera position
+    private double imageCoordX = 10; //======================ENDRES
+    private double imageCoordY = 10;  //======================ENDRES
+    
+    // image width and height in mm
+    private double imageWidth = 50;
+    private double imageHeight = 100;
+    
+    // list holding positions of camera coordinates
+    private final ArrayList<Coordinate> cameraPositions;
 
-    //Different camerapossez
-    /*private Coordinate cameraPos1;
-    private Coordinate cameraPos2;
-    private Coordinate cameraPos3;
-    private Coordinate cameraPos4;
-    private Coordinate cameraPos5;
-    private Coordinate cameraPos6;
-     */
-    private ArrayList<Coordinate> cameraPositions;
-
-    public Tray(int nr, int flagposZ)
+    public Tray(int nr, int flagposZ) 
     {
         this.flagPosZ = flagposZ;
         this.nr = nr;
         
         this.cameraPositions = new ArrayList<Coordinate>();
         
-        openTrayCoord = null;
+        // fill list with camera coordinates
+        this.createCameraCoordinates();
+        
     }
 
+    /**
+     * fill the array of cameracoordinates 
+     */
+    private void createCameraCoordinates()
+    {
+        
+        // create top row of coordinates
+        for(int i = 0; i <= 12; i++)
+        {
+            Coordinate nextCoord = new Coordinate(this.imageCoordX + this.imageWidth*i, this.imageCoordY + this.imageHeight);
+            this.addCameraPos(nextCoord);
+        }
+        
+        // create bottom row of coordinates
+        for(int i = 12; i >= 0; i--)
+        {
+            Coordinate nextCoord = new Coordinate(this.imageCoordX + this.imageWidth*i, this.imageCoordY);
+            this.addCameraPos(nextCoord);
+        }
+    }
+    
     /**
      * Get upper position returns the upper limit position of the tray defined
      * in mm from the bottom of a global coordinat system
      *
      * @return
      */
-    public int getUpperPos()
-    {
+    public int getUpperPos() {
         return upperPos;
     }
 
@@ -78,8 +99,7 @@ public class Tray
      *
      * @return
      */
-    public int getLowerPos()
-    {
+    public int getLowerPos() {
         return lowerPos;
     }
 
@@ -88,8 +108,7 @@ public class Tray
      *
      * @return int with lower positon.
      */
-    public int getDistUpperLowerPos()
-    {
+    public int getDistUpperLowerPos() {
         return distUpperLowerPos;
     }
 
@@ -98,8 +117,7 @@ public class Tray
      *
      * @param removedRoe is the number of dead roe witch has been removed.
      */
-    public void increaseNrOfRemovedRoe(int removedRoe)
-    {
+    public void increaseNrOfRemovedRoe(int removedRoe) {
         this.nrOfRemovedRoe = this.nrOfRemovedRoe + removedRoe;
     }
 
@@ -109,8 +127,7 @@ public class Tray
      *
      * @return number of removed roe.
      */
-    public int getNrOfRemovedRoe()
-    {
+    public int getNrOfRemovedRoe() {
         return nrOfRemovedRoe;
     }
 
@@ -119,8 +136,7 @@ public class Tray
      *
      * @return width of tray
      */
-    public int getWidth()
-    {
+    public int getWidth() {
         return width;
     }
 
@@ -129,112 +145,100 @@ public class Tray
      *
      * @return depth of tray
      */
-    public int getDepth()
-    {
+    public int getDepth() {
         return depth;
     }
 
     /**
      * Return this trays number
-     *
      * @return The number of this tray
      */
     public int getTrayNr()
     {
         return this.nr;
     }
-
+    
     /**
      * Coordinates for the handle to this tray
-     *
      * @return Return coordinate for the handle of this tray
      */
     public Coordinate getHandleCoordinate()
     {
-
         return this.getHandleCoordinate();
     }
-
-    /**
+    
+    
+      /**
      * Return the Z Coordinates for the handle to this tray
-     *
      * @return Return the Z coordinate for the handle of this tray
      */
     public Coordinate getZHandleCoord()
     {
-        Coordinate zCord = new Coordinate(0, 0, this.getHandleCoordinate().getzCoord());
-
+        Coordinate zCord = new Coordinate(0,0, this.getHandleCoordinate().getzCoord());
+        
         return zCord;
     }
-
     /**
      * Return the coords for pulling the tray to open position
-     *
      * @return Return the coords for opening the tray
      */
     public Coordinate getOpenCoord()
     {
-        return this.openTrayCoord;
+       return this.openTrayCoord;
     }
-
-    /**
+    
+        /**
      * Return the coords for opening the tray
-     *
      * @return Return the coords for opening the tray
      */
     public Coordinate getDefaultCoord()
     {
-        return this.defaultPosCoord;
+       return this.defaultPosCoord;
     }
-
+    
     /**
      * Return the z coord where roe should be pickuped up
-     *
      * @return Return the z coord where roe should be pickuped up
      */
     public Coordinate getRoePickupZCoord()
     {
         return this.pickupRoeZCoord;
     }
-
+    
     /**
      * Returns the coord for grabbing the handle to close the tray
-     *
-     * @return Returns the coord for grabbing the handle to close the tray
+     * @return  Returns the coord for grabbing the handle to close the tray
      */
     public Coordinate getCloseTrayCoord()
     {
-        Coordinate returnCord = new Coordinate(this.getOpenCoord().getxCoord() + 2, this.getOpenCoord().getyCoord(), this.getOpenCoord().getzCoord());
-        return returnCord;
+     Coordinate returnCord = new Coordinate(this.getOpenCoord().getxCoord()+2, this.getOpenCoord().getyCoord(), this.getOpenCoord().getzCoord());
+     return returnCord;
     }
-
+    
     /**
      * Return the coordinate for the wanted frame
-     *
      * @param nr Number for the fram wanted
-     * @return Return the coordinate for the frame corresponding with the param
-     * famre number
+     * @return Return the coordinate for the frame corresponding with the param famre number
      */
     public Coordinate getFrameCoord(int nr)
     {
         Coordinate returnCoord = null;
         //Check if the coordinate is in the array
-        if (nr <= this.cameraPositions.size())
-        {
+        if(nr <= this.cameraPositions.size())
             returnCoord = this.cameraPositions.get(nr);
-        }
-
-        return returnCoord;
+       
+       return returnCoord;
     }
-
+    
+    
     private void addCameraPos(Coordinate camPos)
     {
         this.cameraPositions.add(camPos);
     }
-
-    public int getFlagPosZ()
+    
+       public int getFlagPosZ()
     {
         return flagPosZ;
     }
-
+  
 }
