@@ -26,6 +26,10 @@ public class Status
     
     private boolean triggered = false;
     
+    private boolean sent = false;
+
+ 
+    
     //Number of bytes if other message then address is carried
     private  int nrOfBytes;
     
@@ -39,6 +43,7 @@ public class Status
     
     public  Status(byte statusAddr, String name)
             {
+                this.listeners = new ArrayList();
                 this.StatusAddress = statusAddr;
                 this.STATUS = name;
             }
@@ -138,6 +143,7 @@ public class Status
       */
      public void addListener(StatusListener listener)
      {
+         System.out.println("addListener(StatusListener listener)");
          this.listeners.add(listener);
      }
      
@@ -156,5 +162,15 @@ public class Status
                 listener.notifyNewStatus(this);
             }
         }
+    }
+    
+       public boolean isSent()
+    {
+        return sent;
+    }
+
+    public void setSent(boolean sent)
+    {
+        this.sent = sent;
     }
 }

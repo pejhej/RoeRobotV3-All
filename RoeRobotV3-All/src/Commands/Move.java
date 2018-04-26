@@ -21,12 +21,56 @@ public class Move extends Commando
     private byte[] xValue;
     private byte[] yValue;
     private byte[] zValue;
+    
+    private double xMove;
+    private double yMove;
+    private double zMove;
+    
+    private boolean xMoveBool;
+
+    public boolean isxMoveBool()
+    {
+        return xMoveBool;
+    }
+
+    public void setxMoveBool(boolean xMoveBool)
+    {
+        this.xMoveBool = xMoveBool;
+    }
+
+    public boolean isyMoveBool()
+    {
+        return yMoveBool;
+    }
+
+    public void setyMoveBool(boolean yMoveBool)
+    {
+        this.yMoveBool = yMoveBool;
+    }
+
+    public boolean iszMoveBool()
+    {
+        return zMoveBool;
+    }
+
+    public void setzMoveBool(boolean zMoveBool)
+    {
+        this.zMoveBool = zMoveBool;
+    }
+    private boolean yMoveBool;
+    private boolean zMoveBool;
+    
+    
     public Move()
     {
         super(COMMAND_ADDRESS);
         xValue = null;
         yValue = null;
         zValue = null;
+        
+        this.xMoveBool = false;
+        this.yMoveBool = false;
+        this.zMoveBool = false;
     }
     
     
@@ -221,5 +265,35 @@ public class Move extends Commando
             
                 return returnByte;
             }
+    
+    public double getxMove()
+    {
+        return xMove;
+    }
+
+    public void setxMove(double xMove)
+    {
+        this.xMove = xMove;
+    }
+
+    public double getyMove()
+    {
+        return yMove;
+    }
+
+    public void setyMove(double yMove)
+    {
+        this.yMove = yMove;
+    }
+
+    public double getzMove()
+    {
+        return zMove;
+    }
+
+    public void setzMove(double zMove)
+    {
+        this.zMove = zMove;
+    }
     
 }

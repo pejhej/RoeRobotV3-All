@@ -10,7 +10,6 @@ package SerialCommunication;
  * when a connection has been established a reader and a writer object
  * is created.
  */
-
 import Commands.Commando;
 import Commands.Move;
 import Status.Busy;
@@ -49,10 +48,10 @@ public class SerialCommunication extends Thread implements SerialInputListener
     //Controller addresses
     private static final byte CONTROLLER_ADDR_ELEVATOR = 0x05;
     private static final byte CONTROLLER_ADDR_LINEARBOT = 0x03;
-    
+
     private static final String CONTROLLER_COM_ADDR_ELEVATOR = "ttyACM0";
     private static final String CONTROLLER_COM_ADDR_LINEARBOT = "ttyUSB0";
-    
+
     private static final String CONTROLLER_STRADDR_ELEVATOR = "dev2";
     private static final String CONTROLLER_STRADDR_LINEARBOT = "dev1";
 
@@ -65,8 +64,6 @@ public class SerialCommunication extends Thread implements SerialInputListener
     //Commports to the controllers
     SerialJComm linearBot;
     SerialJComm elevatorBot;
-
-
 
     // Flag for incomming data and storage
     boolean newDataRecieved = false;
@@ -95,14 +92,20 @@ public class SerialCommunication extends Thread implements SerialInputListener
      */
     public SerialCommunication()
     {
-        
+        //
         sendQeue = new LinkedList<Commando>();
         linearBot = new SerialJComm(CONTROLLER_COM_ADDR_LINEARBOT);
         elevatorBot = new SerialJComm(CONTROLLER_COM_ADDR_ELEVATOR);
-        
+
+        listenerList = new ArrayList<StatusListener>();
+
         //Add the listeners
         linearBot.addListener(this);
         elevatorBot.addListener(this);
+
+        //Create the calib param status for checks
+        calibrationParams = new Parameters();
+
     }
 
     /**
@@ -125,18 +128,15 @@ public class SerialCommunication extends Thread implements SerialInputListener
         // check if there is a instance of a serialport
         if (this.elevatorBot != null)
         {
-           elevatorBot.close();
+            elevatorBot.close();
         }
-         // check if there is a instance of a serialport
+        // check if there is a instance of a serialport
         if (this.linearBot != null)
         {
-           linearBot.close();
+            linearBot.close();
         }
-        
+
     }
-
-
-
 
     /**
      * ******************* SERIAL SETUP/FUNCTIONS ***********************
@@ -152,26 +152,45 @@ public class SerialCommunication extends Thread implements SerialInputListener
     @Override
     public synchronized void serialDataAvailable(byte[] data)
     {
-        System.out.println("Got new data: ");
-        
+        System.out.println("Got byte new data: ");
+
         //Set the new data bool to true
         newDataRecieved = true;
-        
+
         incommingData = null;
         //Save the incomming data
         incommingData = fromByteToStringArr(data);
-        
+
         //Print the incomming data as a string
         String dataString = new String(data, StandardCharsets.UTF_8);
         System.out.println(dataString);
-        
+
         //Check and parse data
-        if(!checkAckAndToggle(incommingData))
-                {
-                        //Parse the newly recieved data
-                     parseInputData(incommingData);
-                }
-        
+        if (!checkAckAndToggle(incommingData))
+        {
+            //Parse the newly recieved data
+            parseInputData(incommingData);
+        }
+
+    }
+
+    @Override
+    public void serialDataAvailable(String[] data)
+    {
+        System.out.println("Got string new data: ");
+
+        incommingData = null;
+        //Save the incomming data
+        incommingData = data;
+        System.out.println(Arrays.toString(data));
+        //Check and parse data
+        if (!checkAckAndToggle(incommingData))
+        {
+            //Set the new data bool to true
+            newDataRecieved = true;
+            //Parse the newly recieved data
+            parseInputData(incommingData);
+        }
     }
 
     /**
@@ -217,6 +236,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
         {
             return status.getStatusAddress();
         }
+
         //
         public static State get(byte address)
         {
@@ -224,6 +244,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
             //the value from the lookup HsahMap. 
             return lookup.get(address);
         }
+
         //Return the status
         public Status getStatus()
         {
@@ -243,7 +264,6 @@ public class SerialCommunication extends Thread implements SerialInputListener
 
             if (getSendQSize() != 0)
             {    //Send the commands in the qeue
-                System.out.println("Got CMD");
                 sendCommand(popSendQ());
 
                 // Only recieve if something is sent
@@ -253,19 +273,12 @@ public class SerialCommunication extends Thread implements SerialInputListener
             //New data is recieved
             if (newDataRecieved)
             {
-                //Check the new data if it was an ACK/NACK or something else
-                //If something else, then will parse data
-                /*if(!checkAckAndToggle(incommingData))
+                //Check the new statuses and trigger if needed
+                if (checkStatesAndTrigger(this.elevatorState, this.linearBotState))
                 {
-                        //Parse the newly recieved data
-                     parseInputData(incommingData);
-                    
-                }*/
-                
-                 //Check the new statuses and trigger if needed
-                     checkStatesAndTrigger(elevatorState, linearBotState);
-                //Reset flag, as data have been parsed
-                newDataRecieved = false;
+                    //Reset flag, as data have been parsed
+                    newDataRecieved = false;
+                }
             }
         }
 
@@ -290,6 +303,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
     {
         return sendQeue.pop();
     }
+
     /*
     /**
      * Handle the task of sending StateRequest to the defined controllers Reads
@@ -298,7 +312,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
      *
      * @param request The given StateRequest
      */
-    /*
+ /*
     private void requestStatus(Commando request)
     {
 
@@ -371,10 +385,10 @@ public class SerialCommunication extends Thread implements SerialInputListener
             }
         }
     }
-    */
-    
-       /**
+     */
+    /**
      * Send the data in string to both controllers
+     *
      * @param sendString String to send
      */
     private void writeString(String sendString)
@@ -388,42 +402,40 @@ public class SerialCommunication extends Thread implements SerialInputListener
             Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    
+
     /**
      * Send the data in string to linear bot
+     *
      * @param sendString
      */
     private void writeStringLinear(String sendString)
     {
         try
         {
-            System.out.print("Sent linear string: ");
-            System.out.println(sendString);
+            //System.out.print("Sent linear string: ");
+            // System.out.println(sendString);
             this.linearBot.sendData(sendString.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException ex)
         {
             Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-       /**
+
+    /**
      * Send the data in string to elevator
+     *
      * @param sendString
      */
     private void writeStringElevator(String sendString)
     {
         try
         {
-             System.out.print("Sent elevator string: ");
-            System.out.println(sendString);
             this.elevatorBot.sendData(sendString.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException ex)
         {
             Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
 
     /**
      * Send the data in byte[] to both controllers
@@ -435,8 +447,8 @@ public class SerialCommunication extends Thread implements SerialInputListener
         this.elevatorBot.sendData(sendByte);
         this.linearBot.sendData(sendByte);
     }
-    
-      /**
+
+    /**
      * Send the data in byte[] to elevator controller
      *
      * @param sendString
@@ -445,7 +457,8 @@ public class SerialCommunication extends Thread implements SerialInputListener
     {
         this.elevatorBot.sendData(sendByte);
     }
-     /**
+
+    /**
      * Send the data in byte[] to linear controller
      *
      * @param sendString
@@ -454,8 +467,6 @@ public class SerialCommunication extends Thread implements SerialInputListener
     {
         this.linearBot.sendData(sendByte);
     }
-
-    
 
     /**
      * Return a string containing both dev-address and cmd-address
@@ -493,33 +504,27 @@ public class SerialCommunication extends Thread implements SerialInputListener
             //Check for address
             if (addr.compareTo(CONTROLLER_STRADDR_LINEARBOT) == 0)
             {
-                System.out.println("Got linearbot answer in AckCheck");
                 //Check for length
                 if (incommingData.length > 1)
                 {
-                    
+
                     //Save the data from incdata
                     feedback = incommingData[1];
-                    System.out.print("feedBack:");
-                    System.out.println(feedback);
                     //CHECK FOR ACK
                     if (feedback.compareToIgnoreCase("1") == 0)
                     {
                         //Update bools
                         returnBool = true;
                         linearBotAwaitingACK = false;
-                        System.out.print("Got linear ACK");
                     } //Check for NACK
-                    else if (Integer.getInteger(feedback).compareTo(0) == 0)
+                    else if (feedback.compareToIgnoreCase("0") == 0)
                     {
                         returnBool = true;
                         linearBotAwaitingACK = false;
-                        System.out.print("Got linear NACK");
                     }
                 }
             } else if (incommingData[0].compareTo(CONTROLLER_STRADDR_ELEVATOR) == 0)
             {
-                System.out.println("Got elevatorBot answer in AckCheck");
                 //Check for length
                 if (incommingData.length > 1)
                 {
@@ -528,14 +533,12 @@ public class SerialCommunication extends Thread implements SerialInputListener
                     //CHECK FOR ACK
                     if (feedback.compareToIgnoreCase("1") == 0)
                     {
-                        System.out.print("Got eleva ACK");
                         //Update bools
                         returnBool = true;
                         elevatorBotAwaitingACK = false;
                     } //Check for NACK
-                    else if (Integer.getInteger(feedback).compareTo(0) == 0)
+                    else if (feedback.compareToIgnoreCase("0") == 0)
                     {
-                        System.out.print("Got eleva Nack");
                         elevatorBotAwaitingACK = false;
                         returnBool = true;
                     }
@@ -548,6 +551,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
 
     /**
      * Returns a string array from an byte array
+     *
      * @param byteArr Byte array to make string array from
      * @return Returns a string array from an byte array param
      */
@@ -565,8 +569,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
         }
         return arrString;
     }
-    
-    
+
     /**
      * Parses the string array in the incomming data parameter. Makes the
      * appropriate
@@ -576,51 +579,113 @@ public class SerialCommunication extends Thread implements SerialInputListener
     private synchronized void parseInputData(String[] incommingData)
     {
         System.out.print("Parsing the input data");
-        if(incommingData != null)
+        if (incommingData != null)
         {
-        int arrCnt = 0;
-        //Save the device address
-        String addrStr = incommingData[arrCnt++];
-        //Create new value str[]
-        String[] valueStr = new String[incommingData.length];
+            int arrCnt = 0;
 
-        //Copy the values
-        for (int i = arrCnt; i < incommingData.length; ++i)
-        {
-            valueStr[i - arrCnt] = incommingData[i];
-        }
-        //Check for linear address
-        if (addrStr.compareTo(CONTROLLER_STRADDR_LINEARBOT) == 0)
-        {
-            //Make state for the linearbot
-            System.out.print("Making Linear bot state");
-            linearBotState = makeState(valueStr);
-            System.out.print("Made state: ");
-            System.out.println(linearBotState.getString());
+            //Save the device address
+            String addrStr = incommingData[arrCnt++];
 
-            //Check if it is a calibration status, and set values if so
-            if (checkForCalibParam(linearBotState))
+            //Create new value str[]
+            String[] valueStr = new String[incommingData.length - 1];
+
+            //Copy the values
+            for (int i = arrCnt; i < incommingData.length; ++i)
             {
-                calibrationParams.putValue(valueStr);
-                calibrationParams.setSend(true);
+                valueStr[i - arrCnt] = incommingData[i];
             }
 
-        } //Check for elevator address
-        else if (addrStr.compareTo(CONTROLLER_STRADDR_ELEVATOR) == 0)
-        {
-
-            System.out.print("Making elevator bot state");
-            elevatorState = makeState(valueStr);
-            System.out.print("Made state: ");
-            System.out.println(elevatorState.getString());
-
-            //Check if it is a calibration status, and set values if so
-            if (checkForCalibParam(elevatorState))
+            //Check for linear address
+            if (addrStr.compareTo(CONTROLLER_STRADDR_LINEARBOT) == 0)
             {
-                calibrationParams.putValue(valueStr);
-                calibrationParams.setSend(true);
+                //Make state for the linearbot
+                //System.out.print("Making Linear bot state");
+                this.linearBotState = makeState(valueStr);
+                // System.out.print("Made state: ");
+                // System.out.println(this.linearBotState.getString());
+
+                //Check if it is a calibration status, and set values if so
+                if (checkForCalibParam(this.linearBotState))
+                {
+                    //System.out.print("Its a LINEAR PARAMETER Status");
+
+                    //Copy all the values
+                    String[] onlyValues = new String[valueStr.length - 1];
+                    System.arraycopy(valueStr, 1, onlyValues, 0, valueStr.length - 1);
+                    //Put the values
+                    calibrationParams.putValue(onlyValues);
+
+                    //Check if send should be set
+                    if (calibrationParams.isElevatorCalib())
+                    {
+                        //Check if the calib has been sent
+                        //So it doesnt add listeners multiple times
+                        if (!calibrationParams.isSent())
+                        {
+                            //Check for nullpointer
+                            //And add the listeners to the calib param status before notifying
+                            if (listenerList != null)
+                            {
+                                // add listeners to the new state  
+                                for (StatusListener listener : this.listenerList)
+                                {
+                                    calibrationParams.addListener(listener);
+                                }
+                            }
+                        }
+                        calibrationParams.setSend(true);
+                    }
+
+                    //  System.out.print("Made linear status with");
+                    //  System.out.print("X:" + calibrationParams.getxCalibRange() + " Y:" + calibrationParams.getyCalibRange());                    
+                }
+
+            } //Check for elevator address
+            else if (addrStr.compareTo(CONTROLLER_STRADDR_ELEVATOR) == 0)
+            {
+
+                //  System.out.print("Making elevator bot state");
+                this.elevatorState = makeState(valueStr);
+                //  System.out.print("Made state: ");
+                //  System.out.println(elevatorState.getString());
+
+                //Check if it is a calibration status, and set values if so
+                if (checkForCalibParam(elevatorState))
+                {
+                    //System.out.print("Its a ELEVATOR PARAMETER Status");
+
+                    //Copy all the values
+                    String[] onlyValues = new String[valueStr.length - 1];
+                    System.arraycopy(valueStr, 1, onlyValues, 0, valueStr.length - 1);
+
+                    //Put values in the calib param
+                    calibrationParams.putValue(onlyValues);
+
+                    //Check if send should be set
+                    if (calibrationParams.isLinearCalib())
+                    {
+                        //Check if the calib has been sent
+                        //So it doesnt add listeners multiple times
+                        if (!calibrationParams.isSent())
+                        {
+                            //Check for nullpointer
+                            //And add the listeners to the calib param status before notifying
+                            if (listenerList != null)
+                            {
+                                // add listeners to the new state  
+                                for (StatusListener listener : this.listenerList)
+                                {
+                                    calibrationParams.addListener(listener);
+                                }
+                            }
+                        }
+                        calibrationParams.setSend(true);
+                    }
+
+                    //  System.out.print("Made elevator status with");
+                    //  System.out.print("Z:" + calibrationParams.getzCalibRange() + " Trays:" + calibrationParams.getNumberOfTrays());
+                }
             }
-        }
         }
     }
 
@@ -630,46 +695,72 @@ public class SerialCommunication extends Thread implements SerialInputListener
      *
      * @param elevatorState The elevator State
      * @param linearBotState The linearbot state
+     * @return Returns true if status was updated
      */
-    private void checkStatesAndTrigger(Status elevatorState, Status linearBotState)
+    private boolean checkStatesAndTrigger(Status elevatorState, Status linearBotState)
     {
+        //
+        boolean sentStatus = false;
+
         //Safeguarding against null-pointer
         if (elevatorState != null && linearBotState != null)
         {
-            
+
             //CHECK FOR CALIBRATION PARAMETER STATUS
-            if (this.checkForCalibParam(elevatorState) || this.checkForCalibParam(linearBotState))
+            //Check if calibration parameter is updated and should be sent
+            if (calibrationParams.isElevatorCalib() && calibrationParams.isLinearCalib())
             {
-                System.out.println("Recieved calib param");
-                //Check if calibration parameter is updated and should be sent
-                if (calibrationParams.isElevatorCalib() && calibrationParams.isLinearCalib())
+                if (calibrationParams.isSend())
                 {
-                    if (calibrationParams.isSend())
+                    calibrationParams.setSend(false);
+                    calibrationParams.setSent(true);
+                    calibrationParams.notifyListeners();
+                    sentStatus = true;
+                }
+            }
+
+            //Check for States
+            if (!elevatorState.isSent() || !linearBotState.isSent())
+            {
+
+                //CHECK IF BOTH STATUSES ARE READY TO RECIEVE
+                if (this.checkForReady(elevatorState) && this.checkForReady(linearBotState))
+                {
+                    //TODO: Trigger ready to recieve
+                    System.out.println("ReadyToRecieve triggered");
+                    elevatorState.setSent(true);
+                    linearBotState.setSent(true);
+                    elevatorState.notifyListeners();
+                    sentStatus = true;
+
+                } //Check which are not ready
+                else if (!this.checkForReady(elevatorState))
+                {
+                    if (!checkForCalibParam(elevatorState))
                     {
-                        calibrationParams.notifyListeners();
-                        calibrationParams.setSend(false);
+                        //TODO: Trigger this state / send notify
+                        System.out.println("Elevator state triggered");
+                        elevatorState.setSent(true);
+                        elevatorState.notifyListeners();
+                        sentStatus = true;
+                        //Check which are not ready
+                    }
+                } else if (!this.checkForReady(linearBotState))
+                {
+
+                    if (!checkForCalibParam(elevatorState))
+                    {
+                        //Trigger this state / send notify
+                        System.out.println("LinearBotState triggered");
+                        linearBotState.setSent(true);
+                        linearBotState.notifyListeners();
+                        sentStatus = true;
+                        //Check which are not ready
                     }
                 }
-            } //CHECK IF BOTH STATUSES ARE READY TO RECIEVE
-            else if (this.checkForReady(elevatorState) && this.checkForReady(linearBotState))
-            {
-                //TODO: Trigger ready to recieve
-                System.out.println("ReadyToRecieve triggered");
-                elevatorState.notifyListeners();
-            } //Check which are not ready
-            else if (!this.checkForReady(elevatorState))
-            {
-                //TODO: Trigger this state / send notify
-                System.out.println("Elevator state triggered");
-                elevatorState.notifyListeners();
-            } //Check which are not ready
-            else if (!this.checkForReady(linearBotState))
-            {
-                System.out.println("LinearBotState triggered");
-                linearBotState.notifyListeners();
             }
         }
-        System.out.println("Checking done");
+        return sentStatus;
     }
 
     /**
@@ -694,7 +785,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
     private boolean checkForCalibParam(Status checkState)
     {
         boolean wasCalib = false;
-        if (Byte.compare(checkState.getStatusAddress(), State.PARAMETER.getStateValue()) == 0)
+        if (checkState.getString().compareTo(State.PARAMETER.getStatus().getString()) == 0)
         {
             wasCalib = true;
         }
@@ -719,16 +810,12 @@ public class SerialCommunication extends Thread implements SerialInputListener
         //Nullpointer check
         if (state != null)
         {
-            System.out.println("State addr: ");
-            System.out.print(cmdAddr);
-
-            System.out.println("Value:");
-            System.out.println(state.getStateValue());
-
             //Create new status based on the returned state
             Status status = state.getStatus();
             returnState = status.returnNew();
 
+            // System.out.println("Return state: ");
+            //  System.out.print(returnState.getString());
             //CHECK FOR VALUES
             if (stateByte.length > 1)
             {
@@ -751,8 +838,8 @@ public class SerialCommunication extends Thread implements SerialInputListener
                     returnState.addListener(listener);
                 }
             }
-        }
 
+        }
         return returnState;
     }
 
@@ -814,8 +901,6 @@ public class SerialCommunication extends Thread implements SerialInputListener
      */
     public void sendCommand(Commando cmd)
     {
-        System.out.print("Commando address: ");
-        System.out.println(cmd.getCmdAddr());
 
         String elevatorString = null;
         String linearString = null;
@@ -829,43 +914,75 @@ public class SerialCommunication extends Thread implements SerialInputListener
             //Do the X-Y movement first and send to the controller
             Move cmdMove = (Move) cmd;
 
-            //Check for x and y values, and write them to the linearbot
+            if ((cmdMove.isxMoveBool() == true) && (cmdMove.isyMoveBool() == true))
+            {
+                String sendString = makeCMDString(CONTROLLER_STRADDR_LINEARBOT, cmdMove.getCmdAddr());
+                String valueString = new String(String.valueOf(cmdMove.getxMove())+ ", " + String.valueOf(cmdMove.getyMove()));
+
+                sendString +=  ", " + valueString;
+                System.out.print("Sent the XY string: ");
+                System.out.println(sendString);
+
+                //Send the data
+                this.writeStringLinear(sendString);
+            }
+            //Check for z move should be sent
+            if ((cmdMove.iszMoveBool() == true))
+            {
+                String sendString = makeCMDString(CONTROLLER_STRADDR_ELEVATOR, cmdMove.getCmdAddr());
+                String valueString = String.valueOf(cmdMove.getzMove());
+
+                sendString += ", " + valueString;
+                System.out.print("Sent the Z string: ");
+                System.out.println(sendString);
+
+                //Send the data
+                this.writeStringElevator(sendString);
+            }
+
+            /* //Check for x and y values, and write them to the linearbot
             if ((cmdMove.getxValue() != null) && (cmdMove.getyValue() != null))
             {
                 //SEND THE BYTES
                 byte[] XYbyte = cmdMove.makeCompleteXYByte();
                 //Make new byte for dev addr, cmd addr and payload
-               // byte[] sendByte = addBytes(Byte.decode(CONTROLLER_STRADDR_LINEARBOT), cmd.getCmdAddr(), XYbyte);
+                // byte[] sendByte = addBytes(Byte.decode(CONTROLLER_STRADDR_LINEARBOT), cmd.getCmdAddr(), XYbyte);
 
-                String sendString = makeString(CONTROLLER_STRADDR_LINEARBOT, XYbyte);
-                
+                String sendString = makeCMDString(CONTROLLER_STRADDR_LINEARBOT, cmdMove.getCmdAddr());
+
                 System.out.print("Sent the XY byte: ");
                 System.out.println(sendString);
-                
+
                 //Send the data
                 this.writeStringLinear(sendString);
 
-            }
+                try
+                {
+                    Thread.sleep(5);
+                } catch (InterruptedException ex)
+                {
+                    Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        }
 
-            //Z value should be written to elevator robot
-            if (cmdMove.getzValue() != null)
-            {
-                //SEND THE BYTES
-                byte[] Zbyte = cmdMove.makeCompleteZByte();
-                //Make new byte for dev addr, cmd addr and payload
-               // byte[] sendByte = addBytes(CONTROLLER_ADDR_ELEVATOR, cmd.getCmdAddr(), Zbyte);
+        //Z value should be written to elevator robot
+        if (cmdMove.getzValue() != null)
+        {
+            //SEND THE BYTES
+            byte[] Zbyte = cmdMove.makeCompleteZByte();
+            //Make new byte for dev addr, cmd addr and payload
+            // byte[] sendByte = addBytes(CONTROLLER_ADDR_ELEVATOR, cmd.getCmdAddr(), Zbyte);
 
-                //Send the data
-               String sendString = makeString(CONTROLLER_STRADDR_ELEVATOR, Zbyte);
-               System.out.print("Sent the Z byte: ");
-               System.out.println(sendString);
-               //SENDING THE Z BYTE DATA
-                this.writeStringElevator(sendString);
+            //Send the data
+            String sendString = makeString(CONTROLLER_STRADDR_ELEVATOR, Zbyte);
+            System.out.print("Sent the Z byte: ");
+            System.out.println(sendString);
+            //SENDING THE Z BYTE DATA
+            this.writeStringElevator(sendString);
 
-            }
-
-            System.out.println("Sending Move done");
-        } //Send command
+        } */
+        } 
+        //Send command
         else if (cmd != null)
         {
             //Make string for elevator
@@ -874,24 +991,32 @@ public class SerialCommunication extends Thread implements SerialInputListener
             this.writeStringElevator(elevatorString);
             elevatorBotAwaitingACK = true;
 
-            
+            try
+            {
+                Thread.sleep(10);
+            } catch (InterruptedException ex)
+            {
+                Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
             //Send linear data and set bool
             linearString = makeCMDString(CONTROLLER_STRADDR_LINEARBOT, cmd.getCmdAddr());
             this.writeStringLinear(linearString);
             linearBotAwaitingACK = true;
         }
-        
-         //Loop until all acks of message are recieved
-      /*  while (elevatorBotAwaitingACK || linearBotAwaitingACK)
+
+        //Loop until all acks of message are recieved
+        /*  while (elevatorBotAwaitingACK || linearBotAwaitingACK)
             {
-            */
-                //New data has been recieved, check if it was ACK or NACK or not APPLICABLE
-                 if (newDataRecieved)
-                 {
-                System.out.print("Waiting ack & got new data");
-                checkAckAndToggle(incommingData);
-                 }
-                 /*
+         */
+        //New data has been recieved, check if it was ACK or NACK or not APPLICABLE
+        /*
+        if (newDataRecieved)
+        {
+            checkAckAndToggle(incommingData);
+        }
+         */
+ /*
                   //TODO: ADD TIMEOUT
                   if (elevatorBotAwaitingACK && elevatorString != null)
                   {
@@ -904,59 +1029,32 @@ public class SerialCommunication extends Thread implements SerialInputListener
                  }
                  
             }*/
-        
     }
+
     /**
      * Return a string
+     *
      * @param devAddr
      * @param cmdString
      * @param payload
-     * @return 
+     * @return
      */
     private String makeString(String devAddr, String cmdString, byte[] payload)
     {
         return (devAddr + "," + cmdString + "," + Arrays.toString(payload));
     }
-    
-      /**
+
+    /**
      * Return a string
+     *
      * @param devAddr
      * @param cmdString
      * @param payload
-     * @return 
+     * @return
      */
-    private String makeString(String devAddr,  byte[] payload)
+    private String makeString(String devAddr, byte[] payload)
     {
         return (devAddr + "," + Arrays.toString(payload));
-    }
-
-    
-    
-    /**
-     * Do the move command as specified
-     *
-     * @param cmd The command with attached values
-     */
-    private void doMove(Commando cmd)
-    {
-        //Do the X-Y movement first and send to the controller
-        Move cmdMove = (Move) cmd;
-        byte[] xyByte = new byte[cmdMove.getxValue().length + cmdMove.getyValue().length];
-        //Combine the xyByte from the cmd move
-        if ((cmdMove.getxValue() != null) && (cmdMove.getyValue() != null))
-        {
-            //SEND THE BYTES
-            // cmdMove.getCompleteXYstring();
-            //writeBytes(linearRobot, cmdMove.makeCompleteXYByte());
-        }
-
-        //Z value should be written to elevator robot
-        if (cmdMove.getzValue() != null)
-        {
-
-        }
-
-        System.out.println("Sending Move done");
     }
 
     /**

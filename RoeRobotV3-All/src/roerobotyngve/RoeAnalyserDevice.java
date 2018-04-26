@@ -52,38 +52,61 @@ public class RoeAnalyserDevice implements StatusListener
     public RoeAnalyserDevice(SerialCommunication serial)
     {
         this.serialComm = serial;
-
+        this.calibrationParam = new Parameters();
     }
-    
+
     private synchronized Status getCurrentStatus()
     {
         return this.currentStatus;
     }
+
     private synchronized void setCurrentStatus(Status setStatus)
     {
         this.currentStatus = setStatus;
     }
     //TODO: add calibration return functions
-    
+
     /**
-     * Notification of incoming statuses 
-     * 
+     * Notification of incoming statuses
+     *
      * @param status being trigged
      */
     @Override
-    public synchronized void notifyNewStatus(Status status) 
+    public synchronized void notifyNewStatus(Status status)
     {
+        System.out.println("NOTIFY NEW STATUS TRIGGED");
+        System.out.println(status.getString());
         //Check if its parameter
-        if(State.PARAMETER.getStateStatus().getString().contains(status.getString()))
+        if (State.PARAMETER.getStateStatus().getString().contentEquals(status.getString()))
         {
-          calibrationParam = status;
+            System.out.println("ROE ANAL DEVICE RECIEVED PARAMETERS");
+            calibrationParam = (Parameters) status;
+            printCalib();
         }
-        
-        setCurrentStatus(status);    
+
+        setCurrentStatus(status);
     }
 
-    
-    
+    private void printCalib()
+    {
+        System.out.print("X:" + calibrationParam.getxCalibRange());
+        System.out.print("Y:");
+        System.out.println(calibrationParam.getyCalibRange());
+        System.out.print("Z:");
+        System.out.println(calibrationParam.getzCalibRange());
+        System.out.print("Trays:");
+        System.out.println(calibrationParam.getNumberOfTrays());
+    }
+
+    /**
+     * Update the necessary parameter stuff
+     */
+    private void updateCalibParams()
+    {
+        this.trayReg = this.calibrationParam.getTrayReg();
+
+    }
+
     //Enum for holding the states
     private enum State
     {
@@ -100,8 +123,7 @@ public class RoeAnalyserDevice implements StatusListener
         ENCODER_OUT_OF_RANGE(new EncoderOutOfRange()),
         PARAMETER(new Parameters()),
         FLAG_POS(new FlagPos());
-        
-        
+
         //Hashmap for lookup
         private static final HashMap<Status, State> lookup = new HashMap<Status, State>();
 
@@ -147,15 +169,12 @@ public class RoeAnalyserDevice implements StatusListener
     //Timer timer = new Timer();
     //Timer variabales
     private long timerTime = 0;
-    private long waitTime = 20000;
+    private long waitTime = 10000;
 
     //Holds the current status sent by the roerobot
     Status currentStatus = null;
-   //The calibration params
-    Status calibrationParam = null;
-
-    
-
+    //The calibration params
+    Parameters calibrationParam = null;
 
     //I2c communication 
     SerialCommunication serialComm;
@@ -167,9 +186,7 @@ public class RoeAnalyserDevice implements StatusListener
     //Flag bool to know if a faulty status has been recieved
     private boolean robotFault = false;
 
-    
-    
-     //Enum for holding the states
+    //Enum for holding the states
     /*
     private enum CurrentTray
     {
@@ -190,9 +207,7 @@ public class RoeAnalyserDevice implements StatusListener
         }
             
     }
-    */
-    
-
+     */
     /**
      * Open tray will open a tray with a specific number.
      *
@@ -201,8 +216,7 @@ public class RoeAnalyserDevice implements StatusListener
      */
     public boolean openTray(int trayNumber)
     {
-    
-        
+
         //Return bool how the task went
         boolean succesful = true;
 
@@ -210,16 +224,16 @@ public class RoeAnalyserDevice implements StatusListener
         int task = 0;
         // the tasks to be completed
         final int moveRobotToHandle = 0, lockGripper = 1, moveOpenTray = 2, releaseGripper = 3, moveToDefault = 4, done = 5;
-        
+
         //Get the tray to work on
-         Tray workTray = trayReg.getTray(trayNumber);
-         //Check if the tray was retrieved succesfully, else exit the method
-         if(workTray.equals(null))
-         {
-             task = done;
-             succesful = false;
-         }
-        
+        Tray workTray = trayReg.getTray(trayNumber);
+        //Check if the tray was retrieved succesfully, else exit the method
+        if (workTray.equals(null))
+        {
+            task = done;
+            succesful = false;
+        }
+
         //Switch case to do the tasks;
         switch (task)
         {
@@ -231,8 +245,15 @@ public class RoeAnalyserDevice implements StatusListener
                     //Move command
                     Move cmdMove = new Move();
                     //Get the coordinates from the handle
-                    Coordinate handleCord = workTray.getHandleCoordinate();
-                    this.move(workTray.getHandleCoordinate());
+                    Coordinate handleCord = new Coordinate((this.calibrationParam.getxCalibRange() / 2), (this.calibrationParam.getyCalibRange() / 2), workTray.getFlagPosZ());
+                    this.move(handleCord);
+                    try
+                    {
+                        Thread.sleep(500);
+                    } catch (InterruptedException ex)
+                    {
+                        Logger.getLogger(RoeAnalyserDevice.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 } //Something is faulty, end the task
                 else
                 {
@@ -241,7 +262,7 @@ public class RoeAnalyserDevice implements StatusListener
                 }
 
             case lockGripper:
-              //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
                 if (robotIsReady(waitTime))
                 {
                     //Create the lock grip command
@@ -254,20 +275,24 @@ public class RoeAnalyserDevice implements StatusListener
                     succesful = false; //Set succesful to false
                     task = done;        //End the task
                 }
-                
-                  case moveOpenTray:
-              //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+
+            case moveOpenTray:
+                //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
                 if (robotIsReady(waitTime))
                 {
                     //Send move command to open the tray;
-                    move(workTray.getOpenCoord());
+                    if(workTray.getOpenCoord() == null)
+                    {
+                        move(workTray.getOpenCoord());
+                    }
+                    
                 } //Something is faulty, end the task
                 else
                 {
                     succesful = false; //Set succesful to false
                     task = done;        //End the task
                 }
-                
+
             case releaseGripper:
                 //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
                 if (robotIsReady(waitTime))
@@ -282,15 +307,15 @@ public class RoeAnalyserDevice implements StatusListener
                     succesful = false; //Set succesful to false
                     task = done;        //End the task
                 }
-                
+
             case moveToDefault:
-                  //Move to default after opening tray
-                   move(workTray.getDefaultCoord());
-                   
+                //Move to default after opening tray
+                move(workTray.getDefaultCoord());
+
             case done:
                 break;
         }
-        
+
         //Save this opening tray to the currentTray
         currentTray = workTray;
 
@@ -306,24 +331,24 @@ public class RoeAnalyserDevice implements StatusListener
      */
     public boolean closeTray(int trayNumber)
     {
-        
-       //Return bool how the task went
+
+        //Return bool how the task went
         boolean sucessful = true;
 
         //Switch case variables
         int task = 0;
         // the tasks to be completed
         final int moveRobotToCloseHandle = 0, lockGripper = 1, moveCloseTray = 2, releaseGripper = 3, moveToDefault = 4, done = 5;
-        
+
         //Get the tray to work on, or use the current tray
-         Tray workTray = trayReg.getTray(trayNumber);
-         //Check if the tray was retrieved succesfully, else exit the method
-         if(workTray.equals(null))
-         {
-             task = done;
-             sucessful = false;
-         }
-        
+        Tray workTray = trayReg.getTray(trayNumber);
+        //Check if the tray was retrieved succesfully, else exit the method
+        if (workTray.equals(null))
+        {
+            task = done;
+            sucessful = false;
+        }
+
         //Switch case to do the tasks;
         switch (task)
         {
@@ -345,7 +370,7 @@ public class RoeAnalyserDevice implements StatusListener
                 }
 
             case lockGripper:
-              //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
                 if (robotIsReady(waitTime))
                 {
                     //Create the lock grip command
@@ -358,9 +383,9 @@ public class RoeAnalyserDevice implements StatusListener
                     sucessful = false; //Set succesful to false
                     task = done;        //End the task
                 }
-                
-              case moveCloseTray:
-              //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+
+            case moveCloseTray:
+                //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
                 if (robotIsReady(waitTime))
                 {
                     //Send move command to open the tray;
@@ -371,7 +396,7 @@ public class RoeAnalyserDevice implements StatusListener
                     sucessful = false; //Set succesful to false
                     task = done;        //End the task
                 }
-                
+
             case releaseGripper:
                 //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
                 if (robotIsReady(waitTime))
@@ -386,18 +411,18 @@ public class RoeAnalyserDevice implements StatusListener
                     sucessful = false; //Set succesful to false
                     task = done;        //End the task
                 }
-                
+
             case moveToDefault:
-                  //Move to default after opening tray
-                   move(workTray.getDefaultCoord());
-                   
+                //Move to default after opening tray
+                move(workTray.getDefaultCoord());
+
             case done:
                 break;
         }
-        
+
         //set current tray to null
         currentTray = null;
-        
+
         //Return the completion bool
         return sucessful;
     }
@@ -459,25 +484,40 @@ public class RoeAnalyserDevice implements StatusListener
         Calibrate calicmd = new Calibrate();
         serialComm.addSendQ(calicmd);
         System.out.println("Sent calibrate to S-COMM");
-                //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
-//        delay(300); //TODO: ONLY FOR TEST
-        
+        //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+
+        //This will but the robot to ask about state until it is ready for next command
         if (robotIsReady(waitTime))
         {
-            //Send calib param command to get calibration parameters
-            CalibParam cmdCalibPar = new CalibParam();
-            serialComm.sendQ(cmdCalibPar);
-            
-            //Check the calibration param
-            if(this.getCalibrationParams()  != null)
+            //Check if calib parameter has been updated with both
+            //Set in loop until both calibration parameters are returned
+            while (!this.calibrationParam.isSent())
             {
-                System.out.println("Calib params not attained yet..");   
+                System.out.println("Waiting for calib params");
+                //Send calib param command to get calibration parameters
+                CalibParam cmdCalibPar = new CalibParam();
+                serialComm.sendQ(cmdCalibPar);
+
+                //TODO: ONLY FOR TESTING
+                try
+                {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex)
+                {
+                    System.out.println("Timer has been interrupted");
+                    System.out.println(ex.getMessage());
+                    Logger.getLogger(RoeAnalyserDevice.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         } //Something is faulty, end the task
         else
         {
             succesful = false;
         }
+
+        updateCalibParams();
+
+        System.out.println("DONE WITH CALIB");
 
         return succesful;
     }
@@ -500,7 +540,6 @@ public class RoeAnalyserDevice implements StatusListener
         //Return bool for result of task
         boolean succesful = true;
 
-       
         //Switch case variables
         int task = 0;
         // the tasks to be completed
@@ -509,7 +548,7 @@ public class RoeAnalyserDevice implements StatusListener
         //Switch case to do the tasks;
         switch (task)
         {
-            
+
             case moveDown:
                 System.out.println("moveDown");
                 //Send command if robot becomes ready
@@ -537,7 +576,7 @@ public class RoeAnalyserDevice implements StatusListener
                     succesful = false;
                     task = done;
                 }
-            
+
             //Move the robot up, from the tray
             case moveUp:
                 //Send command if robot becomes ready
@@ -550,12 +589,12 @@ public class RoeAnalyserDevice implements StatusListener
                     succesful = false;
                     task = done;
                 }
-                
-                //The task is done, break
+
+            //The task is done, break
             case done:
                 break;
         }
-        
+
         return succesful;
     }
 
@@ -569,28 +608,27 @@ public class RoeAnalyserDevice implements StatusListener
     {
         boolean robotState = true;
         //Reset the timer
-         resetTimer();
-        
+        resetTimer();
+
         //Check if robot is ready for new command & no faults are present
-       
         while (!isReady() && !robotFaultyStatus())
         {
             //After a set wait time, update the status
             if (timerHasPassed(pollTime))
             {
+                updateStatus(); //Send status update request
+                resetTimer();   //Reset timer
+
                 //TODO: ONLY FOR TESTING
                 try
                 {
-                    Thread.sleep(pollTime);
+                    Thread.sleep(4000);
                 } catch (InterruptedException ex)
                 {
                     System.out.println("Timer has been interrupted");
                     System.out.println(ex.getMessage());
                     Logger.getLogger(RoeAnalyserDevice.class.getName()).log(Level.SEVERE, null, ex);
                 }
-        //        delay(1000);//TODO: ONLY FOR TEST
-                 updateStatus(); //Send status update request
-                 resetTimer();   //Reset timer
             }
         }
         //Check if robot has a critical error
@@ -604,6 +642,7 @@ public class RoeAnalyserDevice implements StatusListener
 
     /**
      * Wait for status to be ready, return true if status is ready, false if not
+     *
      * @return Return true if status is ready
      */
     private boolean isReady()
@@ -623,7 +662,6 @@ public class RoeAnalyserDevice implements StatusListener
         return ready;
     }
 
-    
     /**
      * Return the number of trays.
      *
@@ -633,10 +671,9 @@ public class RoeAnalyserDevice implements StatusListener
     {
         // TODO: Fill method
         // Generate cmd for requesting nr of trays in rack from arduino.         
-        return 3; // TODO: Return number of trays in rack. 
+        return this.calibrationParam.getNumberOfTrays(); // TODO: Return number of trays in rack. 
     }
 
-    
     /**
      * Move method used for moving the end-effector to a specific X,Y,Z
      * coordinat
@@ -648,17 +685,20 @@ public class RoeAnalyserDevice implements StatusListener
         //Do what necessary form moving the end-effector to a spesific coordinat. 
         //Create the command and set the appropriate values
         Move moveCmd = new Move();
-        moveCmd.setIntXValue(cordinat.getxCoord());
-        moveCmd.setIntYValue(cordinat.getxCoord());
-        moveCmd.setIntZValue(cordinat.getxCoord());
+        moveCmd.setxMove(cordinat.getxCoord());
+        moveCmd.setxMoveBool(true);
+        moveCmd.setyMove(cordinat.getyCoord());
+        moveCmd.setyMoveBool(true);
+        moveCmd.setzMove(cordinat.getzCoord());
+        moveCmd.setzMoveBool(true);
         //Add to the communication sending queue
         serialComm.addSendQ(moveCmd);
     }
-    
-    
+
     /**
-     * Take a picture at an specific frame number.
-     * Return true if completed, false if frame couldn't be found or robot got faulty status
+     * Take a picture at an specific frame number. Return true if completed,
+     * false if frame couldn't be found or robot got faulty status
+     *
      * @param frameNumber The number wanted to take picture of
      */
     public boolean takePicture(int frameNumber)
@@ -666,7 +706,6 @@ public class RoeAnalyserDevice implements StatusListener
         //Return bool for result of task
         boolean succesful = true;
 
-       
         //Switch case variables
         int task = 0;
         // the tasks to be completed
@@ -683,17 +722,16 @@ public class RoeAnalyserDevice implements StatusListener
                     //Get the frame coord from the current tray
                     Coordinate frameCord = currentTray.getFrameCoord(frameNumber);
                     //Check if the frame was found
-                    if(frameCord != null)
+                    if (frameCord != null)
                     {
                         this.move(frameCord);
-                    }
-                    //Set the completion of this task to fail and exit it
+                    } //Set the completion of this task to fail and exit it
                     else
                     {
                         succesful = false;
                         task = done;
                     }
-                    
+
                 } //Something is faulty, end the task
                 else
                 {
@@ -706,19 +744,19 @@ public class RoeAnalyserDevice implements StatusListener
                 //Send command if robot becomes ready
                 if (robotIsReady(waitTime))
                 {
-                   //Take the pic
+                    //Take the pic
                 } //Something is faulty, end task
                 else
                 {
                     succesful = false;
                     task = done;
                 }
-          
-                
-                //The task is done, break
+
+            //The task is done, break
             case done:
                 break;
-        }   
+        }
+
         return succesful;
     }
 
@@ -841,7 +879,7 @@ public class RoeAnalyserDevice implements StatusListener
         {
             timerPassed = true;
         }
-        
+
         return timerPassed;
     }
 
@@ -853,24 +891,25 @@ public class RoeAnalyserDevice implements StatusListener
     private boolean robotFaultyStatus()
     {
         boolean returnThis = false;
-        if(getCurrentStatus() != null)
+        if (getCurrentStatus() != null)
         {
             returnThis = getCurrentStatus().critical();
         }
         return returnThis;
-                
+
     }
-    
+
     public void testElevatorCMD(Commando cmd)
-        {
+    {
         serialComm.sendQ(cmd);
-        }
-    
+    }
+
     /**
      * Return the calibration parameter status
+     *
      * @return Return the status with the calibration parameters
      */
-    public Status getCalibrationParams()
+    public Parameters getCalibrationParams()
     {
         return this.calibrationParam;
     }

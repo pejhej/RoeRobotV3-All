@@ -4,15 +4,18 @@
  * and open the template in the editor.
  */
 package Status;
+
 import java.nio.ByteBuffer;
 import roerobotyngve.Tray;
 import roerobotyngve.TrayRegister;
+
 /**
  *
  * @author PerEspen
  */
 public class Parameters extends Status
-{   
+{
+
     //Status name for this class
     private static final String STATUS = "PARAMETERS";
 
@@ -24,25 +27,24 @@ public class Parameters extends Status
     /**
      * PARAMETERS*
      */
-    private byte[] xRange;
-    private byte[] yRange;
-    private byte[] zRange;
+    private byte[] xRange = null;
+    private byte[] yRange = null;
+    private byte[] zRange = null;
 
-
-    
     //Calibrated values
-    private int xCalibRange;
-    private int yCalibRange;
-    private int zCalibRange;
-    private int numberOfTrays;
+    private int xCalibRange = 0;
+    private int yCalibRange = 0;
+    private int zCalibRange = 0;
+    private int numberOfTrays = 0;
     //Tray reg to put the trays in
     private TrayRegister trayReg;
+
+  
     //Bools to track which calibs are updated etc
     private boolean linearCalib = false;
     private boolean elevatorCalib = false;
     private boolean send = false;
 
-  
     public Parameters()
     {
         //Put superclass params
@@ -51,9 +53,12 @@ public class Parameters extends Status
         this.setShortXValue((short) 0);
         this.setShortYValue((short) 0);
         this.setShortZValue((short) 0);
-        
+
         trayReg = new TrayRegister();
-        
+
+        linearCalib = false;
+        elevatorCalib = false;
+        send = false;
     }
 
     /**
@@ -200,6 +205,7 @@ public class Parameters extends Status
 
     /**
      * Returns byte[] value as Short
+     *
      * @return Returns byte[] value as Short
      */
     public short getShortXValue()
@@ -216,19 +222,20 @@ public class Parameters extends Status
 
     /**
      * Returns byte[] value as Short
+     *
      * @return Returns byte[] value as Short
      */
     public short getShortYValue()
-    {     
+    {
         short num = 0;
-        
+
         if (yRange != null)
         {
             byte[] arr = yRange;
             ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
             num = wrapped.getShort();// 1
         }
-        
+
         return num;
     }
 
@@ -252,8 +259,8 @@ public class Parameters extends Status
 
     /**
      * ***********************BYTE METHODS***************
-     * 
-     * 
+     *
+     *
      * @param byteArr
      */
     public void setXByteArr(byte[] byteArr)
@@ -290,7 +297,8 @@ public class Parameters extends Status
     {
         return COMMAND_ADDRESS;
     }
-/*
+
+    /*
     @Override
     public void putValue(byte[] inputVal)
     {
@@ -345,62 +353,77 @@ public class Parameters extends Status
             lenghtCnt = lenghtCnt + DEFAULT_BYTE_RANGE;
         }
     }
-    */
-       @Override
-     public void trigger(byte[] val)
-     {
-         System.out.print("X value: ");
-         System.out.println(this.getShortXValue());
-         
-          System.out.print("Y value: ");
-         System.out.println(this.getShortYValue());
-         
-          System.out.print("Z value: ");
-         System.out.println(this.getShortZValue());
-     }
-    
-    
-    
+     */
+    @Override
+    public void trigger(byte[] val)
+    {
+        System.out.print("X value: ");
+        System.out.println(this.getShortXValue());
+
+        System.out.print("Y value: ");
+        System.out.println(this.getShortYValue());
+
+        System.out.print("Z value: ");
+        System.out.println(this.getShortZValue());
+    }
+
     /**
-     * Put the value 
-     * @param inputVal 
+     * Put the value
+     *
+     * @param inputVal
      */
     @Override
     public void putValue(String[] inputVal)
     {
         int inputCnt = 0;
-        
-        /**Check length on input value to decide what values to store**/
+
+        /**
+         * Check length on input value to decide what values to store*
+         */
         //Bigger or equals to 3 means its Z coord +
-        if(inputVal.length >= 3)
+        if (inputVal.length >= 3 || inputVal.length == 1)
         {
-            this.setElevatorCalib(true);
-            int trayCounter = 1;
+           // System.out.println("if(inputVal.length >= 3)");
+       
+            
             //Save the Z position
-            this.setzCalibRange(Integer.getInteger(inputVal[inputCnt++]));
+            this.setzCalibRange(Integer.parseUnsignedInt(inputVal[inputCnt++]));
+
+           // System.out.println("this.setzCalibRange");
+            int trayCounter = 0;
+            this.setNumberOfTrays(numberOfTrays);
+            
             //Iterate through all the values and create a tray
-            for(int i = inputCnt; i<inputVal.length; ++i)
+            for (int i = inputCnt; i < inputVal.length; ++i)
             {
-                Tray tempTray = new Tray(trayCounter++, Integer.getInteger(inputVal[i]));
+                ++trayCounter;
+               // System.out.println(" trayReg.addToRegister(tempTray);");
+                Tray tempTray = new Tray(trayCounter, Integer.parseUnsignedInt(inputVal[i]));
                 trayReg.addToRegister(tempTray);
             }
+            this.setNumberOfTrays(trayCounter);
+            
+            this.setElevatorCalib(true);
         }
         //If the value length is 2 that means it is calibrated X and Y values
-        if(inputVal.length == 2)
+        if (inputVal.length == 2)
         {
-         this.setLinearCalib(true);
-         this.setxCalibRange(Integer.getInteger(inputVal[inputCnt++]));
-         this.setyCalibRange(Integer.getInteger(inputVal[inputCnt++]));
+           // System.out.println("if(inputVal.length == 2)");
+            
+            
+            this.setxCalibRange(Integer.parseUnsignedInt(inputVal[inputCnt++]));
+            this.setyCalibRange(Integer.parseUnsignedInt(inputVal[inputCnt]));
+            
+            this.setLinearCalib(true);
+           // System.out.println("setyCalibRange-setxCalibRange DONE");
         }
+
+        //System.out.println("Finished put values");
     }
-    
-    
-    
-     
-     
-         public int getxCalibRange()
+
+    public int getxCalibRange()
     {
-        return xCalibRange;
+        return this.xCalibRange;
     }
 
     public void setxCalibRange(int xCalibRange)
@@ -410,7 +433,7 @@ public class Parameters extends Status
 
     public int getyCalibRange()
     {
-        return yCalibRange;
+        return this.yCalibRange;
     }
 
     public void setyCalibRange(int yCalibRange)
@@ -457,9 +480,8 @@ public class Parameters extends Status
     {
         this.elevatorCalib = elevatorCalib;
     }
-    
-    
-      public boolean isSend()
+
+    public boolean isSend()
     {
         return send;
     }
@@ -468,5 +490,12 @@ public class Parameters extends Status
     {
         this.send = send;
     }
+    
+    
+      public TrayRegister getTrayReg()
+    {
+        return trayReg;
+    }
+    
 
 }

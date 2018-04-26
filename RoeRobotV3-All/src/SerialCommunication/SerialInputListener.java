@@ -15,5 +15,6 @@ public interface SerialInputListener
      * Method called by classes implementing this interface.
      */
     public void serialDataAvailable(byte[] data);
+    public void serialDataAvailable(String[] data);
 }
 

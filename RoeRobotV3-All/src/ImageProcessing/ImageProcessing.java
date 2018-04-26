@@ -1,4 +1,3 @@
-
 package ImageProcessing;
 
 
@@ -279,4 +278,3 @@ public class ImageProcessing implements Runnable
         }
     }
 }
-

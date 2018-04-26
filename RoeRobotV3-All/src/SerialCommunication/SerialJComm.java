@@ -63,10 +63,6 @@ public class SerialJComm
         this.listeners = new ArrayList<>();
 
         this.inputStringData = new String[20];
-
-        
-     
-
     }
     /**
      * Connect to the serial port, with the portname in the constructor
@@ -110,20 +106,20 @@ public class SerialJComm
     {
         //Opening the port and setting the buad rate
        // this.port = SerialPort.getCommPort(portName);
-        this.port.setBaudRate(9600);
+        this.port.setBaudRate(19200);
+        this.port.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 5000, 100);
         //Try to open the port
         this.port.openPort();
         //Return the writer stream
         writer = port.getOutputStream();
-        
-        
+
         //Return the input stream
         reader = port.getInputStream();
         
         // creates an inputstream for reading data
         this.input = new BufferedReader(new InputStreamReader(this.port.getInputStream()));
 
-        System.out.println("Settings for port is done");
+       // System.out.println("Settings for port is done");
         //Adding listener and implementing the serial event
         // add eventlisteners   
         port.addDataListener(new SerialPortDataListener()
@@ -142,38 +138,46 @@ public class SerialJComm
                     return;
                 }
          
-                try
-                {
-                    if(reader.available() > 0)
-                    {
-                        try
-                        {
-                            //A little sleep for to get all data on the line
-                            Thread.sleep(5);
-                        } catch (InterruptedException ex)
-                        {
-                            Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        //ByteArr to store the incomming data in
-                         byte[] newData = new byte[reader.available()];
-                        int numRead = reader.read(newData);
-                        System.out.println("Read " + numRead + " bytes.");
-                            //Print the string
-                        printByteArr(newData);
-                        //Send notify
-                        notifyListeners(newData);
-                    }
-                              
-                } catch (IOException ex)
-                {
-                    Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
-                }   
+               if(port.bytesAvailable() > 0)
+               {
+                  
+                       try
+                       {
+                           //A little sleep for to get all data on the line
+                           Thread.sleep(5);
+                       } catch (InterruptedException ex)
+                       {
+                           Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
+                       }
+                   try                       
+                   {
+                       String[] inputStringArr = input.readLine().split(",");
+                       //Send notify
+                       notifyListeners(inputStringArr);
+                   } catch (IOException ex)
+                   {
+                        System.out.println("Reader threw exception");
+                       Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
+                   }
+                      
+               }   
             }
-        });
+        });  
+    }
 
-       
-
-        
+    
+      /**
+     * Print the given byte arr
+     */
+    private void printStringArr(String[] stringArr)
+    {
+          String inputString;
+          System.out.println("INPUT ARR");
+          int size = stringArr.length;
+          for(int i=0; i<size; ++i)
+          {
+              System.out.println(stringArr[i]);
+          }
     }
 
     
@@ -183,7 +187,6 @@ public class SerialJComm
      */
     private void printByteArr(byte[] byteArr)
     {
-     
           String inputString;
         try
         {
@@ -194,8 +197,7 @@ public class SerialJComm
         {
             System.out.print("Tried creating string from byte arr");
             Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
-        }
-                    
+        }            
     }
 
     /**
@@ -205,6 +207,7 @@ public class SerialJComm
      */
     private String[] getPortNames()
     {
+        System.out.println("Finding ports");
         SerialPort[] ports = SerialPort.getCommPorts();
         String[] result = new String[ports.length];
         for (int i = 0; i < ports.length; i++)
@@ -351,7 +354,7 @@ public class SerialJComm
      * Method notifying notify all listeners of data now available for reading
      * listener has to implement the CalculationListener interface
      */
-    private synchronized void notifyListeners(byte[] input)
+    private synchronized void notifyListeners(String[] input)
     {
         if (this.listeners != null)
         {

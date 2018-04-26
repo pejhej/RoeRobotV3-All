@@ -1,4 +1,3 @@
-
 package ImageProcessing;
 
 import org.opencv.core.Mat;
