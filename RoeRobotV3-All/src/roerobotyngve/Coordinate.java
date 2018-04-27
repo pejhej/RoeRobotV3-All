@@ -59,5 +59,11 @@ public class Coordinate {
         return this.zCoord;
     }  
 
+    public String toStringXYCoord() {
+        String XYCoordString = "X: " + this.xCoord +  " Y: " + this.yCoord;
+        return XYCoordString;
+    }
+
+    
 }
 

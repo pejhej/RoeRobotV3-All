@@ -20,8 +20,7 @@ public class testing implements ImageProcessingListener
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         //System.load("/home/odroid/NetBeansProjects/RoeRobotV3-All/RoeRobotV3-All/lib/opencv-package-xu4/libopencv_java310.so"); ----- denne i odroid
         testing tester = new testing();
-        tester.test();
-        
+        tester.test();   
         
     }
     
@@ -31,10 +30,8 @@ public class testing implements ImageProcessingListener
         ImageProcessing ip = new ImageProcessing();
         Mat img = Imgcodecs.imread("RoeRobotV3-All/lib/1.jpg");
         RoeImage im = new RoeImage(80, 78);
-        im.SetImage(img);
-        
-        ip.addListener(this);
-        
+        im.SetImage(img);    
+        ip.addListener(this);   
         ip.run();
         
     }   

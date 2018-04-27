@@ -22,15 +22,16 @@ public class Population {
     // list of tours (chromosomes) in the population. 
     private Tour[] tours;
 
-    public Population(int populationSize, boolean initialise) {
+    public Population(int populationSize, List coordList , boolean initialise) {
         this.tours = new Tour[populationSize];
         if (initialise) {
             for (int index = 0; index <= populationSize - 1; index++) {
-                Tour tour = new Tour(true);
+                Tour tour = new Tour(coordList, true);
                 this.tours[index] = tour;
             }
         }
     }
+
 
     /**
      * Adds a tour to the list of tours.

@@ -27,7 +27,7 @@ public class RoeRobotV3All
 
 
 
-            /**ALL THE COMMAND ADDRESSES FOR THE DIFFERENT COMMANDS **/
+    /**ALL THE COMMAND ADDRESSES FOR THE DIFFERENT COMMANDS **/
     /*FROM THE JAVA/Communication PROGRAM */
 
    private static final int MAX_CLIENT_THREADS = 20;

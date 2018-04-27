@@ -21,7 +21,7 @@ import java.util.List;
 public class Tour {
 
     // Arraylist containing all destinations. 
-    private ArrayList<Coordinate> destinations;
+    private ArrayList<Coordinate> coordinates;
     private double fitness = 0;
     private double totalDistance = 0;
 
@@ -31,23 +31,26 @@ public class Tour {
      *
      * @param fillWithDestinations
      */
-    public Tour(boolean fillWithDestinations) {
-        this.destinations = new ArrayList<>();
+    public Tour(List coordList, boolean fillWithDestinations) {
+        this.coordinates = new ArrayList<>();
         if (fillWithDestinations) {
-            this.destinations.addAll(CoordinateManager.getCoordinates());
+            this.coordinates.addAll(coordList);
             this.shuffleDestinations();
             this.calcTotalDist();
         }
-
     }
-
+    
+    
+    /**
+     * Randomly shuffla all destinations except the start destination 
+     */
     private void shuffleDestinations() {
         // find start destinatio 
-        Coordinate dest = this.destinations.get(0);
-        this.destinations.remove(dest);
+        Coordinate dest = this.coordinates.get(0);
+        this.coordinates.remove(dest);
         // Randomly reorder the tour
-        Collections.shuffle(this.destinations);
-        this.destinations.add(0, dest);
+        Collections.shuffle(this.coordinates);
+        this.coordinates.add(0, dest);
     }
 
     /**
@@ -56,7 +59,7 @@ public class Tour {
      * @return fitness of the tour.
      */
     public double getFitness() {
-        this.fitness = 1 / this.totalDistance;
+        this.fitness = (1 / this.totalDistance);
         return this.fitness;
     }
 
@@ -72,9 +75,9 @@ public class Tour {
 
     public String destinationsToString() {
         String destinationsString = "There are no destinations";
-        if (!this.destinations.isEmpty()) {
+        if (!this.coordinates.isEmpty()) {
             destinationsString = "";
-            for (Coordinate destination : this.destinations) {
+            for (Coordinate destination : this.coordinates) {
                 destinationsString = destinationsString + destination.toStringXYCoord();
             }
         }
@@ -82,7 +85,7 @@ public class Tour {
     }
 
     public List<Coordinate> getList() {
-        return this.destinations;
+        return this.coordinates;
     }
 
     /**
@@ -90,11 +93,11 @@ public class Tour {
      */
     private void calcTotalDist() {
         this.totalDistance = 0;
-        for (int i = 0; i <= this.destinations.size() - 2; i++) {
-            double fromX = this.destinations.get(i).getxCoord();
-            double fromY = this.destinations.get(i).getyCoord();
-            double toX = this.destinations.get(i + 1).getxCoord();
-            double toY = this.destinations.get(i + 1).getyCoord();
+        for (int i = 0; i <= this.coordinates.size() - 2; i++) {
+            double fromX = this.coordinates.get(i).getxCoord();
+            double fromY = this.coordinates.get(i).getyCoord();
+            double toX = this.coordinates.get(i + 1).getxCoord();
+            double toY = this.coordinates.get(i + 1).getyCoord();
             double deltaX = Math.abs(toX - fromX);
             double deltaY = Math.abs(toY - fromY);
             this.totalDistance = this.totalDistance + Math.sqrt(deltaX * deltaX + deltaY * deltaY);
