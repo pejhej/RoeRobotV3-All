@@ -9,15 +9,14 @@ package Commands;
  *
  * @author PerEspen
  */
-public class LockGripper extends Commando
+public class ChangeLedColor extends Commando
 {
+        private static final byte COMMAND_ADDRESS = 0x12;
     
-    private static final byte COMMAND_ADDRESS = 0x23;
-
-     
-    public LockGripper( )
+    public ChangeLedColor( )
     {
         super(COMMAND_ADDRESS);
     }
+
     
 }

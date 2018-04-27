@@ -9,14 +9,15 @@ package Commands;
  *
  * @author PerEspen
  */
-public class ReleaseGripper extends Commando
+public class MagnetOff extends Commando
 {
-    private static final byte COMMAND_ADDRESS = 0x22;
+    private static final byte COMMAND_ADDRESS = 0x23;
 
      
-    public ReleaseGripper( )
+    public MagnetOff( )
     {
         super(COMMAND_ADDRESS);
+        super.setForElevatorRobot(false);
     }
     
 }

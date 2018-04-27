@@ -143,7 +143,6 @@ public class Status
       */
      public void addListener(StatusListener listener)
      {
-         System.out.println("addListener(StatusListener listener)");
          this.listeners.add(listener);
      }
      

@@ -9,15 +9,16 @@ package Commands;
  *
  * @author PerEspen
  */
-public class DiscoLight extends Commando
+public class MagnetOn extends Commando
 {
-        private static final byte COMMAND_ADDRESS = 0x13;
     
-    public DiscoLight( )
+    private static final byte COMMAND_ADDRESS = 0x22;
+
+     
+    public MagnetOn( )
     {
         super(COMMAND_ADDRESS);
         super.setForElevatorRobot(false);
     }
-
     
 }

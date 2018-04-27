@@ -27,7 +27,7 @@ public class RoeRobotV3All
 
 
 
-    /**ALL THE COMMAND ADDRESSES FOR THE DIFFERENT COMMANDS **/
+            /**ALL THE COMMAND ADDRESSES FOR THE DIFFERENT COMMANDS **/
     /*FROM THE JAVA/Communication PROGRAM */
 
    private static final int MAX_CLIENT_THREADS = 20;
@@ -49,25 +49,24 @@ public class RoeRobotV3All
    
      
      
-     
      public void roeAnalyserDevTest()
      {
          roeb.calibrate();
-         
+        // roeb.discoLights();
          Parameters calib = roeb.getCalibrationParams();
+         
+         
          System.out.println("Moving");
-         //
-         this.sleeping(1000);
-         Coordinate moveHalfCord = new Coordinate((calib.getxCalibRange()/2), (calib.getyCalibRange()/2), (calib.getzCalibRange()/2));        
-         roeb.move(moveHalfCord);
-         this.sleeping(2000);
          //Opening tray
          int trays = roeb.getNumberOfTrays();
-         if(trays > 0)
+         for(int i=1; i<=trays; ++i)
          {
-             roeb.openTray(1);
+                 System.out.println("OPEN TRAY");
+             roeb.openTray(i);
+             System.out.println("CLOSE TRAY");
+             roeb.closeTray(i);
          }
-         
+         System.out.println("DONE");
      }
      
      

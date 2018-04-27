@@ -22,9 +22,9 @@ public class Move extends Commando
     private byte[] yValue;
     private byte[] zValue;
     
-    private double xMove;
-    private double yMove;
-    private double zMove;
+    private int xMove;
+    private int yMove;
+    private int zMove;
     
     private boolean xMoveBool;
 
@@ -266,34 +266,34 @@ public class Move extends Commando
                 return returnByte;
             }
     
-    public double getxMove()
+    public int getxMove()
     {
         return xMove;
     }
 
     public void setxMove(double xMove)
     {
-        this.xMove = xMove;
+        this.xMove = (int) Math.round(xMove);
     }
 
-    public double getyMove()
+    public int getyMove()
     {
         return yMove;
     }
 
     public void setyMove(double yMove)
     {
-        this.yMove = yMove;
+        this.yMove = (int) Math.round(yMove);
     }
 
-    public double getzMove()
+    public int getzMove()
     {
         return zMove;
     }
 
     public void setzMove(double zMove)
     {
-        this.zMove = zMove;
+        this.zMove = (int) Math.round(zMove);
     }
     
 }

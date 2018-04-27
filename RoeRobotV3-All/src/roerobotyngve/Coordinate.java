@@ -19,17 +19,26 @@ public class Coordinate {
     private final double zCoord;
     
     
+    
     public Coordinate(double xCoord, double yCoord, double zCoord) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.zCoord = zCoord;
+
     }
     
     public Coordinate(double xCoord, double yCoord)
     {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
-        this.zCoord = 0;
+        this.zCoord = -1;
+    }
+    
+      public Coordinate(double zCoord)
+    {
+        this.xCoord = -1;
+        this.yCoord = -1;
+        this.zCoord = zCoord;
     }
 
     /**
@@ -58,12 +67,12 @@ public class Coordinate {
     public double getzCoord() {
         return this.zCoord;
     }  
-
-    public String toStringXYCoord() {
+    
+    
+     public String toStringXYCoord() {
         String XYCoordString = "X: " + this.xCoord +  " Y: " + this.yCoord;
         return XYCoordString;
     }
 
-    
 }
 

@@ -36,9 +36,11 @@ public class Commando
     //Default is 1 bytes
     private int nrOfBytes = 1;
     
+   
     //Flag for what controller this command is designated
-    //public boolean linearRobot = false;
-    //public boolean elevatorRobot = false;
+    public boolean forLinearRobot = true;
+
+
     
 
     
@@ -231,4 +233,27 @@ public class Commando
                 
                 return returnByte;
             }
+    
+    
+    
+        public boolean isForLinearRobot()
+    {
+        return forLinearRobot;
+    }
+
+    public void setForLinearRobot(boolean forLinearRobot)
+    {
+        this.forLinearRobot = forLinearRobot;
+    }
+
+    public boolean isForElevatorRobot()
+    {
+        return forElevatorRobot;
+    }
+
+    public void setForElevatorRobot(boolean forElevatorRobot)
+    {
+        this.forElevatorRobot = forElevatorRobot;
+    }
+    public boolean forElevatorRobot = true;
 }

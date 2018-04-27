@@ -9,11 +9,12 @@ package Commands;
  *
  * @author PerEspen
  */
-public class DiscoLight extends Commando
+
+public class FindTray extends Commando
 {
-        private static final byte COMMAND_ADDRESS = 0x13;
+        private static final byte COMMAND_ADDRESS = 0x14;
     
-    public DiscoLight( )
+    public FindTray( )
     {
         super(COMMAND_ADDRESS);
         super.setForElevatorRobot(false);

@@ -14,7 +14,7 @@ public class SafetySwitchUpper extends Status
       //Status name for this class
     private static final String STATUS = "SAFETY_SWITCH_UPPER";
     //Address for this status
-    private static final byte COMMAND_ADDRESS = 0x62;
+    private static final byte COMMAND_ADDRESS = 0x61;
     
     public SafetySwitchUpper()
     {

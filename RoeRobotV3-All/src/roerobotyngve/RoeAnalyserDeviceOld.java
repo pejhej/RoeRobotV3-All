@@ -1,9 +1,11 @@
+package roerobotyngve;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package roerobotyngve;
+
 
 import Commands.CalibParam;
 import Commands.Calibrate;
@@ -51,10 +53,10 @@ import org.opencv.core.Mat;
  *
  * @author Yngve & Per Espen
  */
-public class RoeAnalyserDevice implements StatusListener
+public class RoeAnalyserDeviceOld implements StatusListener
 {
 
-    public RoeAnalyserDevice(SerialCommunication serial)
+    public RoeAnalyserDeviceOld(SerialCommunication serial)
     {
         this.serialComm = serial;
         this.calibrationParam = new Parameters();
@@ -188,7 +190,7 @@ public class RoeAnalyserDevice implements StatusListener
     //Timer timer = new Timer();
     //Timer variabales
     private long timerTime = 0;
-    private long waitTime = 7000;
+    private long waitTime = 4000;
 
     //Holds the current status sent by the roerobot
     Status currentStatus = null;

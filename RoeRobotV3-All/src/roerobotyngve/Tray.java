@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class Tray{
     //Number for this tray
     private final int nr;
-    private final int handleOffset = 0;
+ 
     private final int width = 10; // defined in mm 
     private final int depth = 10; // defined in mm 
     private final int distUpperLowerPos = 20; // Distanse form the upper position to the lowest point in the tray
@@ -29,6 +29,22 @@ public class Tray{
     private int nrOfRemovedRoe;
     private int flagPosZ;
     
+    
+    //**** OFFSETS IN "mm"****
+   // x and y coordinates of first camera position
+    private double imageCoordX = 10; //======================ENDRES
+    private double imageCoordY = 10;  //======================ENDRES
+    //Distance from the flag Z pos to the magnet -> Z value offset
+    private double distFlagPosToMagnetZ = 30;
+    //Distance from the flag Z pos to the default position of the robot on this tray -> Z value offset
+    private double distFlagPosToDefaultZ = 60;
+    //Distance from flag Z pos to the suction point. In reality, from bottom sensor to the suction end. Z offset
+    private double distFlagPosToSucktionZ = 5;
+    //Distance from the calibrated Y MAX pos to where the tray should be put back. In reality, where the robot should leave the tray. in Y position.
+    private double closeTrayOffset = 15;
+    //The default Z position....
+    private double defaultZ;
+    
     //Coordinate for diff positions related to the tray
     //Coord for the handle when tray is close
     private Coordinate getHandleCoord;
@@ -38,10 +54,12 @@ public class Tray{
     private Coordinate openTrayCoord;
     //Coordinate for Z coordinate(down to tray roe level)
     private Coordinate pickupRoeZCoord;
+     //Default Z pos for roebot
+    private Coordinate defaultZPosCoord;
+
     
-    // x and y coordinates of first camera position
-    private double imageCoordX = 10; //======================ENDRES
-    private double imageCoordY = 10;  //======================ENDRES
+     //Coordinate for closing the tray, no Z movement
+    private Coordinate closeTrayCoord;
     
     // image width and height in mm
     private double imageWidth = 50;
@@ -54,6 +72,12 @@ public class Tray{
     {
         this.flagPosZ = flagposZ;
         this.nr = nr;
+        //Set all the  coords to null
+        getHandleCoord = null;
+        defaultPosCoord = null;
+        openTrayCoord = null;
+        pickupRoeZCoord = null;
+        closeTrayCoord = null;
         
         this.cameraPositions = new ArrayList<Coordinate>();
         
@@ -164,7 +188,7 @@ public class Tray{
      */
     public Coordinate getHandleCoordinate()
     {
-        return this.getHandleCoordinate();
+        return this.getHandleCoord;
     }
     
     
@@ -196,6 +220,13 @@ public class Tray{
        return this.defaultPosCoord;
     }
     
+    
+    public Coordinate getDefaultZPosCoord()
+    {
+        return defaultZPosCoord;
+    }
+    
+    
     /**
      * Return the z coord where roe should be pickuped up
      * @return Return the z coord where roe should be pickuped up
@@ -211,8 +242,7 @@ public class Tray{
      */
     public Coordinate getCloseTrayCoord()
     {
-     Coordinate returnCord = new Coordinate(this.getOpenCoord().getxCoord()+2, this.getOpenCoord().getyCoord(), this.getOpenCoord().getzCoord());
-     return returnCord;
+     return this.closeTrayCoord;
     }
     
     /**
@@ -240,5 +270,25 @@ public class Tray{
     {
         return flagPosZ;
     }
+       
+      /**
+       * Take all the calib parameters and create the coordinates required for this tray to be handled by the system
+       */
+       public void createTrayCoords(int xParam, int yParam)
+       {
+           //Calculate the default pos'es
+           this.defaultZ = this.flagPosZ + distFlagPosToDefaultZ;
+           this.defaultPosCoord = new Coordinate(xParam/2, yParam/2, this.defaultZ);
+           this.defaultZPosCoord = new Coordinate(this.defaultZ);
+           
+           //Calculate the handle coordinate
+           this.getHandleCoord = new Coordinate(xParam/2, yParam/10, this.flagPosZ-this.distFlagPosToMagnetZ);
+           //Create the open tray coordinate
+           this.openTrayCoord = new Coordinate(xParam/2, 10);
+           //Create the coordinate for closing the tray, just Y movement in reality
+           this.closeTrayCoord = new Coordinate(xParam/2, yParam-this.closeTrayOffset);
+           //this.closeTrayZCoord = new Coordinate(xParam/2, yParam-this.closeTrayOffset);
+       }
+       
   
 }

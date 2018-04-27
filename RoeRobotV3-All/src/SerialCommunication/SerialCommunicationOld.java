@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  *
  * @author kristianandrelilleindset
  */
-public class SerialCommunication extends Thread implements SerialInputListener
+public class SerialCommunicationOld extends Thread implements SerialInputListener
 {
 
     /**
@@ -94,7 +94,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
      * Constructor
      *
      */
-    public SerialCommunication()
+    public SerialCommunicationOld()
     {
         //
         sendQeue = new LinkedList<Commando>();
@@ -406,7 +406,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
             this.elevatorBot.sendData(sendString.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException ex)
         {
-            Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SerialCommunicationOld.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -578,7 +578,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
             arrString = newString.split(",");
         } catch (UnsupportedEncodingException ex)
         {
-            Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SerialCommunicationOld.class.getName()).log(Level.SEVERE, null, ex);
         }
         return arrString;
     }
@@ -1051,8 +1051,8 @@ public class SerialCommunication extends Thread implements SerialInputListener
         
         }
         
-       // this.elevatorState = State.Busy.getStatus();
-       // this.linearBotState = State.Busy.getStatus();
+        this.elevatorState = State.Busy.getStatus();
+        this.linearBotState = State.Busy.getStatus();
 
         //Loop until all acks of message are recieved
         /*  while (elevatorBotAwaitingACK || linearBotAwaitingACK)
