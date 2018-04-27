@@ -836,10 +836,14 @@ public class SerialCommunication extends Thread implements SerialInputListener
     private boolean checkForCalibParam(Status checkState)
     {
         boolean wasCalib = false;
-        if (checkState.getString().compareTo(State.PARAMETER.getStatus().getString()) == 0)
+        if(checkState != null)
         {
+              if (checkState.getString().compareTo(State.PARAMETER.getStatus().getString()) == 0)
+                {
             wasCalib = true;
+                }
         }
+      
         return wasCalib;
     }
 
@@ -853,8 +857,14 @@ public class SerialCommunication extends Thread implements SerialInputListener
     public Status makeState(String[] stateByte)
     {
         Status returnState = null;
+        
+        byte cmdAddr = 0;
         //Save the cmd byte
-        byte cmdAddr = Byte.valueOf(stateByte[0]);
+        if(stateByte[0].length() <= 3)
+        {
+            cmdAddr = Byte.valueOf(stateByte[0]);
+        }
+  
 
         //Get the status based on cmd address
         State state = State.get(cmdAddr);

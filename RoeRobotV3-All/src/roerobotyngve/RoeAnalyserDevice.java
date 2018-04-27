@@ -583,7 +583,7 @@ public class RoeAnalyserDevice implements StatusListener
         }
 
         updateCalibParams();
-
+        updateStatus();
         System.out.println("DONE WITH CALIB");
 
         return succesful;
