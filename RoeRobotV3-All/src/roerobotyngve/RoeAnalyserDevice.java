@@ -188,7 +188,7 @@ public class RoeAnalyserDevice implements StatusListener
     //Timer timer = new Timer();
     //Timer variabales
     private long timerTime = 0;
-    private long waitTime = 7000;
+    private long waitTime = 30000;
 
     //Holds the current status sent by the roerobot
     Status currentStatus = null;
@@ -230,6 +230,7 @@ public class RoeAnalyserDevice implements StatusListener
             task = done;
             succesful = false;
         }
+        //updateStatus();
         //While loop to keep in the case until done or failure
         while (succesful && searching)
         {
@@ -281,7 +282,7 @@ public class RoeAnalyserDevice implements StatusListener
                         MagnetOn cmdLockGripper = new MagnetOn();
                         //Lock the gripper
                         this.serialComm.addSendQ(cmdLockGripper);
-                        setStatusToBusy();
+                       // setStatusToBusy();
 
                         System.out.println("Magnet turned on");
                         task = moveOpenTray;
@@ -325,7 +326,7 @@ public class RoeAnalyserDevice implements StatusListener
                         MagnetOff cmdReleaseGrip = new MagnetOff();
                         //Send command to release the gripper
                         this.serialComm.addSendQ(cmdReleaseGrip);
-                        setStatusToBusy();
+                       // setStatusToBusy();
 
                         System.out.println("Release gripper");
                         task = moveToDefault;
@@ -367,6 +368,7 @@ public class RoeAnalyserDevice implements StatusListener
 
                 case done:
                     searching = false;
+                    //updateStatus();
                     break;
                 default:
                     break;
@@ -395,7 +397,7 @@ public class RoeAnalyserDevice implements StatusListener
         //Switch case variables
         int task = 0;
         // the tasks to be completed
-        final int moveRobotToCloseHandle = 0, lockGripper = 1, moveCloseTray = 2, releaseGripper = 3, moveToDefault = 4, done = 5;
+        final int moveRobotToCloseHandleXY = 0, lockGripper = 1, moveCloseTray = 2, releaseGripper = 3, moveToDefault = 4, done = 5, moveToZHandle = 6;
 
         //Get the tray to work on, or use the current tray
         Tray workTray = trayReg.getTray(trayNumber);
@@ -411,14 +413,30 @@ public class RoeAnalyserDevice implements StatusListener
             switch (task)
             {
                 //Move robot to the position of the handle
-                case moveRobotToCloseHandle:
+                case moveRobotToCloseHandleXY:
                     //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
                     if (robotIsReady(waitTime))
                     {
-                        System.out.println("Move to close tray coord");
+                        System.out.println("Move to close tray XY coord");
                         //Get the coordinates from the handle
-                        Coordinate openHandleCord = workTray.getCloseTrayCoord();
-                        this.move(openHandleCord);
+                        this.move(workTray.getOpenCoord());
+                        setStatusToBusy();
+                        task = moveToZHandle;
+                    } //Something is faulty, end the task
+                    else
+                    {
+                        sucessful = false; //Set succesful to false
+                        task = done;        //End the task
+                    }
+                    break;
+                    
+                     case moveToZHandle:
+                    //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
+                    if (robotIsReady(waitTime))
+                    {
+                        System.out.println("Move to close tray Z coord");
+                        //Get the coordinates from the handle
+                        this.move(workTray.getHandleZCoord());
                         setStatusToBusy();
                         task = lockGripper;
                     } //Something is faulty, end the task
@@ -428,6 +446,7 @@ public class RoeAnalyserDevice implements StatusListener
                         task = done;        //End the task
                     }
                     break;
+                    
                 case lockGripper:
                     //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
                     if (robotIsReady(waitTime))
@@ -436,7 +455,6 @@ public class RoeAnalyserDevice implements StatusListener
                         MagnetOn cmdLockGripper = new MagnetOn();
                         //Lock the gripper
                         this.serialComm.addSendQ(cmdLockGripper);
-                        setStatusToBusy();
                         task = moveCloseTray;
                         System.out.println("Magnet ON");
                     } //Something is faulty, end the task
@@ -449,9 +467,8 @@ public class RoeAnalyserDevice implements StatusListener
                 case moveCloseTray:
                     //Wait for the Robot to finish(get in ready to recieve state) before sending more requests to it
                     if (robotIsReady(waitTime))
-                    {
-                        //Send move command to open the tray;
-                        move(workTray.getHandleCoordinate());
+                    {   //Send move command to open the tray;
+                        move(workTray.getCloseTrayCoord());
                         setStatusToBusy();
                         task = releaseGripper;
                         System.out.println("Moving tray to close pos");
@@ -470,7 +487,7 @@ public class RoeAnalyserDevice implements StatusListener
                         MagnetOff cmdReleaseGrip = new MagnetOff();
                         //Send command to release the gripper
                         this.serialComm.addSendQ(cmdReleaseGrip);
-                        setStatusToBusy();
+                        //setStatusToBusy();
                         task = moveToDefault;
 
                         System.out.println("Magnet OFF");
@@ -688,14 +705,17 @@ public class RoeAnalyserDevice implements StatusListener
         //Check if robot is ready for new command & no faults are present
         while (!isReady() && !robotFaultyStatus())
         {
+            /*
             //After a set wait time, update the status
-           /* if (timerHasPassed(pollTime))
+            if (timerHasPassed(pollTime))
             {
                 //TODO: REMOVED for testing  //Send status update request
                 updateStatus();
                 resetTimer();   //Reset timer
             }
             */
+            
+            
         }
         //Check if robot has a critical error
         if (robotFaultyStatus())

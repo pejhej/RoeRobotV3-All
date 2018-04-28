@@ -46,15 +46,17 @@ public class Tray{
     private double defaultZ;
     
     //Coordinate for diff positions related to the tray
-    //Coord for the handle when tray is close
-    private Coordinate getHandleCoord;
+    //Coord for the handle when tray its closed
+    private Coordinate handleCoord;
+    //Coord for the handle when tray its closed
+    private Coordinate handleZCoord;
     //Default pos for roebot
     private Coordinate defaultPosCoord;
     //Coordinate for opening the tray - from holding tray handle to open
     private Coordinate openTrayCoord;
     //Coordinate for Z coordinate(down to tray roe level)
     private Coordinate pickupRoeZCoord;
-     //Default Z pos for roebot
+     //Default Z pos for roebot - Over working tray
     private Coordinate defaultZPosCoord;
 
     
@@ -73,7 +75,7 @@ public class Tray{
         this.flagPosZ = flagposZ;
         this.nr = nr;
         //Set all the  coords to null
-        getHandleCoord = null;
+        handleCoord = null;
         defaultPosCoord = null;
         openTrayCoord = null;
         pickupRoeZCoord = null;
@@ -114,7 +116,7 @@ public class Tray{
      * @return
      */
     public int getUpperPos() {
-        return upperPos;
+        return this.upperPos;
     }
 
     /**
@@ -188,7 +190,7 @@ public class Tray{
      */
     public Coordinate getHandleCoordinate()
     {
-        return this.getHandleCoord;
+        return this.handleCoord;
     }
     
     
@@ -196,12 +198,13 @@ public class Tray{
      * Return the Z Coordinates for the handle to this tray
      * @return Return the Z coordinate for the handle of this tray
      */
+    /*
     public Coordinate getZHandleCoord()
     {
         Coordinate zCord = new Coordinate(0,0, this.getHandleCoordinate().getzCoord());
-        
         return zCord;
     }
+    */
     /**
      * Return the coords for pulling the tray to open position
      * @return Return the coords for opening the tray
@@ -245,6 +248,17 @@ public class Tray{
      return this.closeTrayCoord;
     }
     
+        /**
+         * Return coordinate for the tray handle in Z position
+         * @return Return coordinate for the tray handle in Z position
+         */
+    
+      public Coordinate getHandleZCoord()
+    {
+        return this.handleZCoord;
+    }
+    
+    
     /**
      * Return the coordinate for the wanted frame
      * @param nr Number for the fram wanted
@@ -282,7 +296,9 @@ public class Tray{
            this.defaultZPosCoord = new Coordinate(this.defaultZ);
            
            //Calculate the handle coordinate
-           this.getHandleCoord = new Coordinate(xParam/2, yParam/10, this.flagPosZ-this.distFlagPosToMagnetZ);
+           this.handleCoord = new Coordinate(xParam/2, yParam/10, this.flagPosZ-this.distFlagPosToMagnetZ);
+           //Create the coordinate for the Z position for the handle on the tray
+           this.handleZCoord = new Coordinate(this.flagPosZ-this.distFlagPosToMagnetZ);
            //Create the open tray coordinate
            this.openTrayCoord = new Coordinate(xParam/2, 10);
            //Create the coordinate for closing the tray, just Y movement in reality

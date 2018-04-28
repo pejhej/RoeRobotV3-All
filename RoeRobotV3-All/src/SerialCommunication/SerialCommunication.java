@@ -740,7 +740,6 @@ public class SerialCommunication extends Thread implements SerialInputListener
         //Safeguarding against null-pointer
         if (elevatorState != null && linearBotState != null)
         {
-
             //CHECK FOR CALIBRATION PARAMETER STATUS
             //Check if calibration parameter is updated and should be sent
             if (calibrationParams.isElevatorCalib() && calibrationParams.isLinearCalib())
@@ -755,8 +754,8 @@ public class SerialCommunication extends Thread implements SerialInputListener
             }
 
             //Check for States
-            if (!elevatorState.isSent() || !linearBotState.isSent())
-            {
+           // if (!elevatorState.isSent() || !linearBotState.isSent())
+           // {
                 //Check for critical
                 //Check for elevator critical status
                 if(elevatorState.critical())
@@ -809,7 +808,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
                         //Check which are not ready
                     }
                 }
-            }
+           // }
         }
         return sentStatus;
     }
