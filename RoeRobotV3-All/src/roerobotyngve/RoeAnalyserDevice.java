@@ -201,7 +201,7 @@ public class RoeAnalyserDevice implements StatusListener
     //Tray
     Tray currentTray;
     TrayRegister trayReg;
-
+    
     //Flag bool to know if a faulty status has been recieved
     private boolean robotFault = false;
 
@@ -523,7 +523,7 @@ public class RoeAnalyserDevice implements StatusListener
      *
      * @param coordinates Arraylist of coordinates to be removed from.
      */
-    private boolean removeRoe(ArrayList<Coordinate> cordinates)
+    public boolean removeRoe(ArrayList<Coordinate> cordinates)
     {
 
         //Return bool if the task was completed or not
@@ -854,7 +854,7 @@ public class RoeAnalyserDevice implements StatusListener
                 //Send command if robot becomes ready
                 if (robotIsReady(waitTime))
                 {
-                    //Take the pic
+                    
                 } //Something is faulty, end task
                 else
                 {

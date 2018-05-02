@@ -6,6 +6,7 @@
  */
 package tsp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ public class Population {
     // list of tours (chromosomes) in the population. 
     private Tour[] tours;
 
-    public Population(int populationSize, List coordList , boolean initialise) {
+    public Population(int populationSize, ArrayList coordList , boolean initialise) {
         this.tours = new Tour[populationSize];
         if (initialise) {
             for (int index = 0; index <= populationSize - 1; index++) {

@@ -5,22 +5,44 @@
  */
 package roerobotyngve;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 /**
  *
  * @author Yngve
  */
 public class RoeRobotFasade {
 
-    
+    // Roe analyser. 
+    private RoeAnalyser roeAnalyser;
+
+    // Threadpoool for running roe analyser
+    private ScheduledExecutorService threadPool;
+
     /**
-     * @param args the command line arguments
+     * Constructor. Create the RoeAnalyser.
      */
-    public static void main(String[] args) {
-       RoeAnalyser roeAnalyser = new RoeAnalyser();
+    public RoeRobotFasade(RoeAnalyser roeAnalyser, ScheduledExecutorService threadPool) {
+        this.roeAnalyser = roeAnalyser;
+        this.threadPool = threadPool;
+
     }
-    
-    private void startCycle(){
-      
+
+    /**
+     * Start the dead roe detecting cycle.
+     */
+    public void startCycle() {
+        this.threadPool.execute(roeAnalyser);
+        this.roeAnalyser.startRobot();
+        this.roeAnalyser.run();
     }
-    
+
+    /**
+     * Stop the system. 
+     * 
+     */
+    public void stopCycle() {
+        this.threadPool.shutdownNow();
+    }
+
 }

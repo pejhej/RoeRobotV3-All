@@ -6,6 +6,8 @@
 package roerobotyngve;
 
 import com.pi4j.io.gpio.*;
+import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
+import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import com.pi4j.platform.Platform;
 import com.pi4j.platform.PlatformAlreadyAssignedException;
 import com.pi4j.platform.PlatformManager;
@@ -26,17 +28,30 @@ public class GPIO_HMI {
     private GpioPinDigitalOutput runningLamp;
     private GpioPinDigitalOutput faultLamp;
 
+    // The roe analyser fasade 
+    RoeRobotFasade roeFasade;
+
+    // GPIO litsener
+    GpioPinListenerDigital startLitsener;
+    GpioPinListenerDigital stopLitsener;
+    GpioPinListenerDigital emergencyLitsener;
+
+    // GPIO controller. 
+    private GpioController gpio;
+
     /**
      * Construcor
      *
+     * @param roeFasade
      * @throws PlatformAlreadyAssignedException
      */
-    public GPIO_HMI() throws PlatformAlreadyAssignedException {
+    public GPIO_HMI(RoeRobotFasade roeFasade) throws PlatformAlreadyAssignedException {
+        this.roeFasade = roeFasade;
 
         PlatformManager.setPlatform(Platform.ODROID);
 
         //Create gpio controller
-        final GpioController gpio = GpioFactory.getInstance();
+        this.gpio = GpioFactory.getInstance();
 
         // by default we will use gpio pin #01; however, if an argument
         // has been provided, then lookup the pin by address
@@ -54,16 +69,53 @@ public class GPIO_HMI {
         this.startBtn = gpio.provisionDigitalInputPin(startBtnPin, "Start button", pull);
         this.stopBtn = gpio.provisionDigitalInputPin(stopBtnPin, "Start button", pull);
         this.emergencyBtn = gpio.provisionDigitalInputPin(emergencyBtnPin, "Start button", pull);
+
+        // provision gpio pin as an output pin
+        this.runningLamp = gpio.provisionDigitalOutputPin(runningLampPin, "Running lamp: ");
+        this.faultLamp = gpio.provisionDigitalOutputPin(faultLampPin, "Fault lamp: ");
+        // Create listeners. 
+        this.createLitseners();
+
+    }
+
+    /**
+     * Create litseners.
+     *
+     */
+    private void createLitseners() {
+        // create GPIO startLitsener
+        this.startLitsener = (GpioPinDigitalStateChangeEvent event) -> {
+            this.startSequens();
+            // display pin state on console
+            System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
+        };
+        this.stopLitsener = (GpioPinDigitalStateChangeEvent event) -> {
+            this.stopSequens();
+            // display pin state on console
+            System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
+        };
+        this.emergencyLitsener = (GpioPinDigitalStateChangeEvent event) -> {
+            this.emegencySequens();
+            // display pin state on console
+            System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
+        };
+
+        // add buttonst to the startLitsener. 
+        gpio.addListener(this.startLitsener, this.startBtn);
+        gpio.addListener(this.stopLitsener, this.stopBtn);
+        gpio.addListener(this.emergencyLitsener, this.emergencyBtn);
+    }
+
+    public void startSequens() {
+        this.roeFasade.startCycle();
+    }
+
+    public void stopSequens() {
         
-         // provision gpio pin as an output pin
-         this.runningLamp = gpio.provisionDigitalOutputPin(runningLampPin, "Running lamp: ");
-         this.faultLamp = gpio.provisionDigitalOutputPin(faultLampPin, "Fault lamp: ");
-    }   
-    
-    public void startSequens(){
-        if(this.startBtn.isLow()){
-            this.runningLamp.high();
-        }
+    }
+
+    public void emegencySequens() {
+
     }
 
 }

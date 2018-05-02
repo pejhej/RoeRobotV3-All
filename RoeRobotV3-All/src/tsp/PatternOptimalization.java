@@ -6,7 +6,6 @@
 package tsp;
 
 import java.util.ArrayList;
-import java.util.List;
 import roerobotyngve.Coordinate;
 
 /**
@@ -36,7 +35,7 @@ public class PatternOptimalization {
      *
      * @param coordinateList
      */
-    public void addCoordinates(List coordinatesList) {
+    public void addCoordinates(ArrayList coordinatesList) {
         this.coordinatList.addAll(coordinatesList);
     }
 
@@ -56,8 +55,8 @@ public class PatternOptimalization {
         this.nrOfPopulations = nrOfPopulations;
     }
 
-    public List doOptimalization() {
-        List fittestTourList = null;
+    public ArrayList doOptimalization() {
+        ArrayList<Coordinate> fittestTourList = new ArrayList<>();
 
         // If cordinates added. 
         // Add Start coordinate. 

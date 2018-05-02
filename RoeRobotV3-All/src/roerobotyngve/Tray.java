@@ -260,7 +260,7 @@ public class Tray{
     
     
     /**
-     * Return the coordinate for the wanted frame
+     * Return the coordinate for the desired frame
      * @param nr Number for the fram wanted
      * @return Return the coordinate for the frame corresponding with the param famre number
      */
@@ -274,11 +274,15 @@ public class Tray{
        return returnCoord;
     }
     
-    
+    /**
+     * add position for camera
+     * @param camPos 
+     */
     private void addCameraPos(Coordinate camPos)
     {
         this.cameraPositions.add(camPos);
     }
+    
     
        public int getFlagPosZ()
     {
@@ -287,6 +291,8 @@ public class Tray{
        
       /**
        * Take all the calib parameters and create the coordinates required for this tray to be handled by the system
+     * @param xParam
+     * @param yParam
        */
        public void createTrayCoords(int xParam, int yParam)
        {
@@ -305,6 +311,14 @@ public class Tray{
            this.closeTrayCoord = new Coordinate(xParam/2, yParam-this.closeTrayOffset);
            //this.closeTrayZCoord = new Coordinate(xParam/2, yParam-this.closeTrayOffset);
        }
+
        
-  
+    /**
+    * Get number of camera coordinates
+    * @return number of camera coordinates
+    */
+    public int getNumberOfCameraCoordinates() 
+    {
+        return this.cameraPositions.size();
+    }
 }

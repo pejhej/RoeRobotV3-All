@@ -29,9 +29,10 @@ public class Tour {
      * The constructor adds all the destinations to the list of destinations and
      * Shuffeles them randomly
      *
+     * @param coordList
      * @param fillWithDestinations
      */
-    public Tour(List coordList, boolean fillWithDestinations) {
+    public Tour(ArrayList coordList, boolean fillWithDestinations) {
         this.coordinates = new ArrayList<>();
         if (fillWithDestinations) {
             this.coordinates.addAll(coordList);
@@ -84,7 +85,7 @@ public class Tour {
         return destinationsString;
     }
 
-    public List<Coordinate> getList() {
+    public ArrayList<Coordinate> getList() {
         return this.coordinates;
     }
 
