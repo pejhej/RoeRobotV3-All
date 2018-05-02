@@ -2,7 +2,7 @@ package ImageProcessing;
 
 import roerobotyngve.Coordinate;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 import org.opencv.core.Mat;
 
 
@@ -114,13 +114,13 @@ public class RoeImage
             
     
     /**
-     * Get iterator from list of roe postitions in pixels.
+     * Get list of roe postitions in pixels.
      * 
-     * @return iterator from list of roe positions in pixels. 
+     * @return list of roe positions in pixels. 
      */
-    public Iterator getRoePositionPixelIterator()
+    public List getRoePositionPixelList()
     {
-        return this.roePositionPixels.iterator();
+        return (List) this.roePositionPixels;
     }
     
     
@@ -137,13 +137,13 @@ public class RoeImage
             
     
     /**
-     * Get iterator from list of roe postitions in millimeter.
+     * Get list of roe postitions in millimeter.
      * 
-     * @return iterator from list of roe positions in millimeter. 
+     * @return list of roe positions in millimeter. 
      */
-    public Iterator getRoePositionMillimeterIterator()
+    public List getRoePositionMillimeterIterator()
     {
-        return this.roePositionMillimeters.iterator();
+        return (List) this.roePositionMillimeters;
     }
     
     
