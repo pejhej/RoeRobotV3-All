@@ -141,7 +141,7 @@ public class RoeImage
      * 
      * @return list of roe positions in millimeter. 
      */
-    public List getRoePositionMillimeterIterator()
+    public List getRoePositionMillimeterList()
     {
         return (List) this.roePositionMillimeters;
     }
