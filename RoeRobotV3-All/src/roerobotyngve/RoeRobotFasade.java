@@ -44,5 +44,25 @@ public class RoeRobotFasade {
     public void stopCycle() {
         this.threadPool.shutdownNow();
     }
-
+  /**
+     * this will stop the roebot 
+     */
+    public void emergencyStop() {
+      //  roeAnalyser.stopRoeBot();
+    }
+    
+    /**
+     * this will pause the roebot 
+     */
+    public void pauseSystem() { 
+        //roeAnalyser.pauseRoeBot(); 
+    }
+    
+    public void doCalibrate() {
+       // roeAnalyser.calibrateRoeBot(); 
+    }
+    
+    public void regulateLights() {
+        
+    }
 }
