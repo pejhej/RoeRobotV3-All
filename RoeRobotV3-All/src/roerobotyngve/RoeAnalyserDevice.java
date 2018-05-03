@@ -18,6 +18,7 @@ import Commands.Suction;
 import Commands.FindTray;
 import Commands.DiscoLight;
 import Commands.Velocity;
+import ImageProcessing.RoeImage;
 
 import Status.Busy;
 import Status.EMC;
@@ -50,8 +51,11 @@ import org.opencv.core.Mat;
  */
 public class RoeAnalyserDevice implements StatusListener {
 
-    public RoeAnalyserDevice(SerialCommunication serial) {
-        this.serialComm = serial;
+    public RoeAnalyserDevice() {
+        this.serialComm = new SerialCommunication();
+        this.serialComm.connect();
+        this.serialComm.addListener(this);
+        this.serialComm.start();
         this.calibrationParam = new Parameters();
     }
 
@@ -178,7 +182,7 @@ public class RoeAnalyserDevice implements StatusListener {
      * @param trayNumber is the number of the tray wanted to open.
      * @return False if the tray number do not exist.
      */
-    public boolean openTray(int trayNumber) {
+    public boolean openTray(Tray workTray) {
 
         //Return bool how the task went
         boolean succesful = true;
@@ -188,8 +192,6 @@ public class RoeAnalyserDevice implements StatusListener {
         // the tasks to be completed
         final int moveRobotToHandle = 0, lockGripper = 1, moveOpenTray = 2, releaseGripper = 3, moveToDefault = 4, done = 5, findTray = 6;
 
-        //Get the tray to work on
-        Tray workTray = trayReg.getTray(trayNumber);
         //Check if the tray was retrieved succesfully, else exit the method
         if (workTray == null) {
             task = done;
@@ -336,7 +338,7 @@ public class RoeAnalyserDevice implements StatusListener {
      * @param trayNumber is the nuber of the tray wanted to close
      * @return False if the tray number do not exist.
      */
-    public boolean closeTray(int trayNumber) {
+    public boolean closeTray(Tray workTray) {
 
         //Return bool how the task went
         boolean sucessful = true;
@@ -346,8 +348,7 @@ public class RoeAnalyserDevice implements StatusListener {
         // the tasks to be completed
         final int moveRobotToCloseHandleXY = 0, lockGripper = 1, moveCloseTray = 2, releaseGripper = 3, moveToDefault = 4, done = 5, moveToZHandle = 6;
 
-        //Get the tray to work on, or use the current tray
-        Tray workTray = trayReg.getTray(trayNumber);
+      
         //Check if the tray was retrieved succesfully, else exit the method
         if (workTray == null) {
             task = done;
@@ -800,16 +801,25 @@ public class RoeAnalyserDevice implements StatusListener {
      *
      * @param frameNumber The number wanted to take picture of
      */
-    public Mat takePicture(int frameNumber) {
+    public RoeImage takePicture(Tray workingTray) {
         //Return bool for result of task
         boolean succesful = true;
         boolean working = true;
-
+        
+                       
+        
+        
         //Switch case variables
         int task = 0;
+        
+        int currentFrame = 1;
         // the tasks to be completed
         final int moveToFrame = 0, takePic = 1, done = 2;
-        while (working) {
+           
+                        //  Take a picture. 
+
+            while(working)    
+            {
             //Switch case to do the tasks;
             switch (task) {
                 //Move to the given frame number
@@ -817,10 +827,14 @@ public class RoeAnalyserDevice implements StatusListener {
                     //Send command if robot becomes ready
                     if (robotIsReady(waitTime)) {
                         //Get the frame coord from the current tray
-                        Coordinate frameCord = currentTray.getFrameCoord(frameNumber);
+                        Coordinate frameCord = workingTray.getFrameCoord(currentFrame++);
+                        
                         //Check if the frame was found
                         if (frameCord != null) {
                             this.move(frameCord);
+                            this.setStatusToBusy();
+                            
+                            task = takePic;
                         } //Set the completion of this task to fail and exit it
                         else {
                             succesful = false;
@@ -831,29 +845,40 @@ public class RoeAnalyserDevice implements StatusListener {
                         succesful = false;
                         task = done;
                     }
+                    break;
                 //Move down to the roe pickup height
                 //Do the suction task - Check robot is ready, send suction command
                 case takePic:
                     //Send command if robot becomes ready
                     if (robotIsReady(waitTime)) {
+                        
                         //Take the pic
+                        task = done;
                     } //Something is faulty, end task
                     else {
                         succesful = false;
                         task = done;
                     }
-
+                    break;
                 //The task is done, break
                 case done:
-                    working = false;
+                    if(currentFrame >= this.currentTray.getNumberOfCameraCoordinates())
+                    {
+                        working = false;
+                    }
+                    else
+                    {
+                        task = moveToFrame;
+                    }
+                    
                     break;
             }
         }
 
-        Mat Mat = null;
+        RoeImage roeImage = null;
 
         //return succesful;
-        return Mat;
+        return roeImage;
     }
 
     /**

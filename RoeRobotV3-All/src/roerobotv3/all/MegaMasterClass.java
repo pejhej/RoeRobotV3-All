@@ -34,7 +34,7 @@ public class MegaMasterClass {
         this.threadPool = Executors.newScheduledThreadPool(10);      
         RoeAnalyser roeAnalyser = new RoeAnalyser(this.threadPool);
         RoeRobotFasade roeRobotFasade = new RoeRobotFasade(roeAnalyser, this.threadPool);
-        GPIO_HMI gpioHMI = new GPIO_HMI(roeRobotFasade);
+        // GPIO_HMI gpioHMI = new GPIO_HMI(roeRobotFasade);
 
     }
 

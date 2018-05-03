@@ -39,7 +39,10 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
     private boolean trayIsOpen;
 
     // Number of the current tray. 
-    private int currentTray;
+    private Tray currentTray;
+
+    // Tray register 
+    private TrayRegister trayRegister;
 
     // Immage prosseser
     private ImageProcessing imageProsseser;
@@ -57,12 +60,12 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
     private ArrayList<RoeImage> imageList;
 
     public RoeAnalyser(ScheduledExecutorService threadPool) {
-        // this.roeAnalyser = new RoeAnalyserDevice();
+        this.threadPool = threadPool;
+        this.roeAnalyserDevice = new RoeAnalyserDevice();
         this.imageProsseser = new ImageProcessing();
         this.patternOptimalizater = new PatternOptimalization();
-        this.threadPool = threadPool;
-        this.imageList = new ArrayList<>();
 
+        this.imageList = new ArrayList<>();
         this.trayIsOpen = false;
     }
 
@@ -75,45 +78,39 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
                 // Call on calibrate method in roeAnalyser
                 // Call on nrOfTrays from raoAnalyser.                
                 this.roeAnalyserDevice.calibrate();
+                this.trayRegister = this.roeAnalyserDevice.getCalibrationParams().getTrayReg();
+                break;
             // Starts the calibration cycle
 
             // RUNNING    
             case Running:
-                //Find number of trays in the rack. 
-                int nrOfTrays = roeAnalyserDevice.getNumberOfTrays();
-                // For each number in the rack run a roe removal sequense. {
-
                 // Turn on ligth
                 //TODO: Make readu for changing color. 
                 this.roeAnalyserDevice.turnOnLight();
-
-                for (int i = 1; i < nrOfTrays; i++) {
-                    this.currentTray = i;
-
-                    // Sett speed 
+                for (int i = 1; i <= this.trayRegister.getNumberOfTrays(); i++) {
+                    this.currentTray = this.trayRegister.getTray(i);
+                    // Set speed 
                     this.roeAnalyserDevice.changeVelocety(this.handelingTrayVelicity);
                     // Open one tray
-                    if (this.roeAnalyserDevice.openTray(i)) {
+                    if (this.roeAnalyserDevice.openTray(this.currentTray)) {
                         this.trayIsOpen = true;
                     }
-                    // Find the number of pictures needed to be taken 
-                    int nrOfPicturesToBeTaken = roeAnalyserDevice.getNumberOfPicturesInTray();
 
+                    // Change velocity for fast moving.
+                    this.roeAnalyserDevice.changeVelocety(this.runningVelocity);
                     //For each picture needed to be taken (Frames) ...
-                    for (int j = 1; j > nrOfPicturesToBeTaken; i++) {
-                        //  Take a picture. 
-                        // this.imageProsseser.addImageToProcessingQueue(this.roeAnalyserDevice.takePicture(j));
-                        this.threadPool.execute(imageProsseser);
-                    }
+
+                    this.imageProsseser.addImageToProcessingQueue(this.roeAnalyserDevice.takePicture(this.currentTray));
+                    this.threadPool.execute(imageProsseser);
                     // If all images has been added to the list of images. 
-                    if (this.getNumberOfImages() == nrOfPicturesToBeTaken) {
+                    if (this.getNumberOfImages() == this.currentTray.getNumberOfCameraCoordinates()) {
                         // Add all dead roe coodinates to the optimalisation 
                         this.patternOptimalizater.addCoordinates(this.generateCoordinatList());
                         this.roeAnalyserDevice.removeRoe(this.patternOptimalizater.doOptimalization());
                     }
 
                     // Close the tray. 
-                    if (this.roeAnalyserDevice.closeTray(i)) {
+                    if (this.roeAnalyserDevice.closeTray(this.currentTray)) {
                         this.trayIsOpen = false;
                     }
                 }

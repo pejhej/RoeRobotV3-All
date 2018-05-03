@@ -25,7 +25,7 @@ public class RoeRobotFasade {
     public RoeRobotFasade(RoeAnalyser roeAnalyser, ScheduledExecutorService threadPool) {
         this.roeAnalyser = roeAnalyser;
         this.threadPool = threadPool;
-
+        this.startCycle();
     }
 
     /**

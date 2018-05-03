@@ -40,7 +40,7 @@ public class RoeRobotV3All
          serialComm = new SerialCommunication();
          serialComm.connect();
          
-          roeb = new RoeAnalyserDevice(serialComm);
+          roeb = new RoeAnalyserDevice();
           serialComm.addListener(roeb);
           
           serialComm.start();
@@ -61,10 +61,10 @@ public class RoeRobotV3All
          int trays = roeb.getNumberOfTrays();
          for(int i=1; i<=trays; ++i)
          {
-                 System.out.println("OPEN TRAY");
-             roeb.openTray(i);
-             System.out.println("CLOSE TRAY");
-             roeb.closeTray(i);
+//                 System.out.println("OPEN TRAY");
+//             roeb.openTray(i);
+//             System.out.println("CLOSE TRAY");
+//             roeb.closeTray(i);
          }
          System.out.println("DONE");
      }
