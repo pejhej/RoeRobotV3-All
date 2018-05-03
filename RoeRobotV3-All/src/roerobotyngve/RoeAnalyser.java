@@ -21,7 +21,7 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
 
     @Override
     public void run() {
-       cycleCase(currentState);
+        cycleCase(currentState);
     }
 
     //State enum for the switchcase
@@ -30,6 +30,17 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
         Running,
         Waiting;
     }
+
+    // Velocity for running
+    private int runningVelocity = 100; // rev/min
+    // Velocity while handeling tray 
+    private int handelingTrayVelicity = 30; // rev/min
+    //Flag to remember if the tray is open or not
+    private boolean trayIsOpen;
+
+    // Number of the current tray. 
+    private int currentTray;
+
     // Immage prosseser
     private ImageProcessing imageProsseser;
     // Thread pool for keeping track of threads. 
@@ -45,12 +56,6 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
     // Roe image containing all dead roa coodrinates. 
     private ArrayList<RoeImage> imageList;
 
-    //Flag to remember if the tray is open or not
-    private boolean trayIsOpen;
-    //The amount of pictures to be taken
-    private int nrOfPicturesToBeTaken = 26;
-    private int currentTray;
-
     public RoeAnalyser(ScheduledExecutorService threadPool) {
         // this.roeAnalyser = new RoeAnalyserDevice();
         this.imageProsseser = new ImageProcessing();
@@ -62,7 +67,9 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
     }
 
     private void cycleCase(State state) {
+
         switch (state) {
+            // CALIBRATE
             // Sends calibatrion cmd. 
             case Calibrate:
                 // Call on calibrate method in roeAnalyser
@@ -70,6 +77,7 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
                 this.roeAnalyserDevice.calibrate();
             // Starts the calibration cycle
 
+            // RUNNING    
             case Running:
                 //Find number of trays in the rack. 
                 int nrOfTrays = roeAnalyserDevice.getNumberOfTrays();
@@ -81,30 +89,36 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
 
                 for (int i = 1; i < nrOfTrays; i++) {
                     this.currentTray = i;
+
+                    // Sett speed 
+                    this.roeAnalyserDevice.changeVelocety(this.handelingTrayVelicity);
                     // Open one tray
-                    this.roeAnalyserDevice.openTray(i);
-                    this.trayIsOpen = true;
-                    // Find the number of pictures needed to be taken for covering all coordinates in a tray. 
-                    // nrOfPicturesToBeTaken = roeAnalyserDevice.getNumberOfPictures;
+                    if (this.roeAnalyserDevice.openTray(i)) {
+                        this.trayIsOpen = true;
+                    }
+                    // Find the number of pictures needed to be taken 
+                    int nrOfPicturesToBeTaken = roeAnalyserDevice.getNumberOfPicturesInTray();
+
                     //For each picture needed to be taken (Frames) ...
                     for (int j = 1; j > nrOfPicturesToBeTaken; i++) {
                         //  Take a picture. 
-                        //  this.imageProsseser.addImageToProcessingQueue(this.roeAnalyserDevice.takePicture(j));
+                        // this.imageProsseser.addImageToProcessingQueue(this.roeAnalyserDevice.takePicture(j));
                         this.threadPool.execute(imageProsseser);
                     }
                     // If all images has been added to the list of images. 
-                    if (this.getNumberOfImages() == this.nrOfPicturesToBeTaken) {
+                    if (this.getNumberOfImages() == nrOfPicturesToBeTaken) {
                         // Add all dead roe coodinates to the optimalisation 
                         this.patternOptimalizater.addCoordinates(this.generateCoordinatList());
                         this.roeAnalyserDevice.removeRoe(this.patternOptimalizater.doOptimalization());
                     }
 
                     // Close the tray. 
-                    this.roeAnalyserDevice.closeTray(i);
-                    this.trayIsOpen = false;
+                    if (this.roeAnalyserDevice.closeTray(i)) {
+                        this.trayIsOpen = false;
+                    }
                 }
                 this.roeAnalyserDevice.turnOffLight();
-                
+
                 break;
 
             case Waiting:
@@ -120,10 +134,6 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
         currentState = State.Running;
     }
 
-    
-    
-    
-    
     @Override
     public void notifyImageProcessed(RoeImage processedImage) {
         this.addImage(processedImage);

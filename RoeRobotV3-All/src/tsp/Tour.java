@@ -7,7 +7,6 @@ package tsp;
 import roerobotyngve.Coordinate;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Tour will represent one possible tour option. This tour it ganerated by

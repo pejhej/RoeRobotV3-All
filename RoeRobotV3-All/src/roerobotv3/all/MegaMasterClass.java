@@ -21,10 +21,10 @@ public class MegaMasterClass {
 
     /**
      * @param args the command line arguments
+     * @throws com.pi4j.platform.PlatformAlreadyAssignedException
      */
     public static void main(String[] args) throws PlatformAlreadyAssignedException {
-        MegaMasterClass masterClass = new MegaMasterClass();
-
+        new MegaMasterClass();
     }
 
     // Thread pool for keeping track of threads. 
