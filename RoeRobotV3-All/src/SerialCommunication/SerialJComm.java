@@ -111,6 +111,7 @@ public class SerialJComm extends Thread
         //this.port.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
         //Try to open the port
         this.port.openPort();
+        port.setComPortTimeouts(port.TIMEOUT_READ_SEMI_BLOCKING, 0,0);
         //Return the writer stream
         //  writer = port.getOutputStream();
 
@@ -196,6 +197,7 @@ public class SerialJComm extends Thread
                         System.out.println("SerialJCOMM has interrupted sleep..");
                         Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
                     }
+                    
                     
                     //Uses INPUT READ BUFFER to read a line until \n is in the line
                     try
@@ -347,7 +349,7 @@ public class SerialJComm extends Thread
     /**
      * sends the data received from the function call
      */
-    public void sendData(String stringToSend)
+    public synchronized void sendData(String stringToSend)
     {
 
         // try to send the read data
@@ -376,7 +378,7 @@ public class SerialJComm extends Thread
     /**
      * sends the data received from the function call
      */
-    private void sendData()
+    private synchronized void sendData()
     {
 
         // try to send the read data
@@ -416,25 +418,6 @@ public class SerialJComm extends Thread
         {
             Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
         }
-        /*
-        int byteLength = dataToSend.length;
-        reziseSendData(byteLength);
-
-        //Iterate through the incomming databyte and set it to the send byte
-        for (int i = 0; i < byteLength; ++i)
-        {
-            this.dataToBeSent[i] = dataToSend[i];
-        }
-        /*
-        int byteLength = dataToSend.length;
-        reziseSendData(byteLength);
-
-        //Iterate through the incomming databyte and set it to the send byte
-        for (int i = 0; i < byteLength; ++i)
-        {
-            this.dataToBeSent[i] = dataToSend[i];
-        }
-        */
 
         this.dataToSend = true;
 

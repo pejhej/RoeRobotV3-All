@@ -194,7 +194,6 @@ public class Move extends Commando
  * Return the nr of bytes in the value
  * @return Return the nr of bytes in value as int
  */
-    @Override
     public byte getNrOfBytesInByte()
     {
         int counter;

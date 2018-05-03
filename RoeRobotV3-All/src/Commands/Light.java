@@ -25,7 +25,6 @@ public class Light extends Commando
     
     
  
-     @Override
       public void setValue(byte[] value)
     {
         //The length of the given byte[]
@@ -37,7 +36,7 @@ public class Light extends Commando
         {
             this.value[i] = value[i];
         }
-        this.setNrOfBytes(incSize);
+      //  this.setNrOfBytes(incSize);
         //Save the incomming byte[] value in the class value
     
     }

@@ -18,7 +18,7 @@ public class CalibParam extends Commando
     public CalibParam( )
     {
         super(COMMAND_ADDRESS);
-        super.setNrOfBytes(defaultBytes);
+       // super.setNrOfBytes(defaultBytes);
         
     }
     

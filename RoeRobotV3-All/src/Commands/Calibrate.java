@@ -24,7 +24,7 @@ public class Calibrate extends Commando
     public Calibrate( )
     {
         super(COMMAND_ADDRESS);
-        super.setNrOfBytes(defaultByte);
+      //  super.setNrOfBytes(defaultByte);
     }
 
 

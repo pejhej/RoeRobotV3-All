@@ -86,7 +86,7 @@ public class GPIOControl
 
         // by default we will use gpio pin #01; however, if an argument
         // has been provided, then lookup the pin by address
-        Pin pin = CommandArgumentParser.getPin(
+     /*   Pin pin = CommandArgumentParser.getPin(
                 OdroidXU4Pin.class,    // pin provider class to obtain pin instance from
                 OdroidXU4Pin.GPIO_01,  // default pin if no pin argument found
                 args);                // argument array to search in
@@ -117,7 +117,7 @@ public class GPIOControl
                 ConsoleColor.RED,          // negative conditional color
                 input.getState()));
         console.emptyLine();
-
+        */
         // stop all GPIO activity/threads by shutting down the GPIO controller
         // (this method will forcefully shutdown all GPIO monitoring threads and scheduled tasks)
         gpio.shutdown();

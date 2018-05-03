@@ -638,7 +638,7 @@ public final class RoeBot extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME); //load native library of openCV
-
+        //System.load("/home/odroid/NetBeansProjects/RoeRobotV3-All/lib/opencv-package-xu4/libopencv_java310.so");
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.

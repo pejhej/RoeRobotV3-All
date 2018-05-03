@@ -40,6 +40,8 @@ import java.util.Iterator;
 import org.junit.rules.Stopwatch;
 import SerialCommunication.SerialCommunication;
 import Status.Failure;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opencv.core.Mat;
 
 /**
@@ -967,7 +969,7 @@ public class RoeAnalyserDevice implements StatusListener {
     /**
      * Turn light on (send light command with value 1 as payload)
      */
-    public boolean changeVelocety(int newVelocity) {
+    public synchronized boolean changeVelocety(int newVelocity) {
         // Boolean for check if sucsess
         boolean sucsess = false;
         //Create command

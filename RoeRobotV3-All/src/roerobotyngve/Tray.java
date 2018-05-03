@@ -32,8 +32,8 @@ public class Tray{
     
     //**** OFFSETS IN "mm"****
    // x and y coordinates of first camera position
-    private double imageCoordX = 10; //======================ENDRES
-    private double imageCoordY = 10;  //======================ENDRES
+    private double imageCoordX = 25; //======================ENDRES
+    private double imageCoordY = 320;  //======================ENDRES
     //Distance from the flag Z pos to the magnet -> Z value offset
     private double distFlagPosToMagnetZ = 30;
     //Distance from the flag Z pos to the default position of the robot on this tray -> Z value offset

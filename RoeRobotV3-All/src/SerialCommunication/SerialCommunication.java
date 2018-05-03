@@ -11,6 +11,7 @@ package SerialCommunication;
  * is created.
  */
 import Commands.Commando;
+import Commands.MagnetOn;
 import Commands.Move;
 import Status.Busy;
 import Status.EMC;
@@ -407,7 +408,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
      *
      * @param sendString
      */
-    private void writeStringLinear(String sendString)
+    private synchronized void writeStringLinear(String sendString)
     {
          this.linearBot.setDataToBeSent(sendString);
         /*try
@@ -427,7 +428,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
      *
      * @param sendString
      */
-    private void writeStringElevator(String sendString)
+    private synchronized void writeStringElevator(String sendString)
     {
          this.elevatorBot.setDataToBeSent(sendString);
          /*
@@ -979,47 +980,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
                 this.writeStringElevator(sendString);
             }
 
-            /* //Check for x and y values, and write them to the linearbot
-            if ((cmdMove.getxValue() != null) && (cmdMove.getyValue() != null))
-            {
-                //SEND THE BYTES
-                byte[] XYbyte = cmdMove.makeCompleteXYByte();
-                //Make new byte for dev addr, cmd addr and payload
-                // byte[] sendByte = addBytes(Byte.decode(CONTROLLER_STRADDR_LINEARBOT), cmd.getCmdAddr(), XYbyte);
-
-                String sendString = makeCMDString(CONTROLLER_STRADDR_LINEARBOT, cmdMove.getCmdAddr());
-
-                System.out.print("Sent the XY byte: ");
-                System.out.println(sendString);
-
-                //Send the data
-                this.writeStringLinear(sendString);
-
-                try
-                {
-                    Thread.sleep(5);
-                } catch (InterruptedException ex)
-                {
-                    Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
-                }
-        }
-
-        //Z value should be written to elevator robot
-        if (cmdMove.getzValue() != null)
-        {
-            //SEND THE BYTES
-            byte[] Zbyte = cmdMove.makeCompleteZByte();
-            //Make new byte for dev addr, cmd addr and payload
-            // byte[] sendByte = addBytes(CONTROLLER_ADDR_ELEVATOR, cmd.getCmdAddr(), Zbyte);
-
-            //Send the data
-            String sendString = makeString(CONTROLLER_STRADDR_ELEVATOR, Zbyte);
-            System.out.print("Sent the Z byte: ");
-            System.out.println(sendString);
-            //SENDING THE Z BYTE DATA
-            this.writeStringElevator(sendString);
-
-        } */
+            
         } 
         //Send command
         else if (cmd != null)
@@ -1031,7 +992,16 @@ public class SerialCommunication extends Thread implements SerialInputListener
             //Send data and set bool
             if(elevatorString != null)
             {
-                 this.writeStringElevator(elevatorString);
+                if(cmd.getValue() != null)
+                {
+                    String stringWithValue = makeString(CONTROLLER_STRADDR_ELEVATOR, cmd.getStringCmdAddr(), cmd.getValue());
+                    this.writeStringElevator(stringWithValue);
+                }
+                else
+                {
+                    this.writeStringElevator(elevatorString);
+                }
+                 
             elevatorBotAwaitingACK = true;
             }
            
@@ -1039,11 +1009,20 @@ public class SerialCommunication extends Thread implements SerialInputListener
     
             if(cmd.isForLinearRobot())
             {
-                    //Send linear data and set bool
+            //Send linear data and set bool
             linearString = makeCMDString(CONTROLLER_STRADDR_LINEARBOT, cmd.getCmdAddr());
             if(linearString != null)
             {
-                this.writeStringLinear(linearString);
+                 if(cmd.getValue() != null)
+                {
+                    String stringWithValue = makeString(CONTROLLER_STRADDR_LINEARBOT, cmd.getStringCmdAddr(), cmd.getValue());
+                    this.writeStringLinear(stringWithValue);
+                }
+                else
+                {
+                    this.writeStringLinear(linearString);
+                }
+                
             linearBotAwaitingACK = true;
             }
             
@@ -1051,33 +1030,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
         
         }
         
-       // this.elevatorState = State.Busy.getStatus();
-       // this.linearBotState = State.Busy.getStatus();
-
-        //Loop until all acks of message are recieved
-        /*  while (elevatorBotAwaitingACK || linearBotAwaitingACK)
-            {
-         */
-        //New data has been recieved, check if it was ACK or NACK or not APPLICABLE
-        /*
-        if (newDataRecieved)
-        {
-            checkAckAndToggle(incommingData);
-        }
-         */
- /*
-                  //TODO: ADD TIMEOUT
-                  if (elevatorBotAwaitingACK && elevatorString != null)
-                  {
-                       this.writeStringElevator(elevatorString);
-                  }
-                  //&&timeOut
-                  if (linearBotAwaitingACK && linearString != null)
-                 {
-                      this.writeStringLinear(linearString);
-                 }
-                 
-            }*/
+       
     }
 
     /**
@@ -1091,6 +1044,16 @@ public class SerialCommunication extends Thread implements SerialInputListener
     private String makeString(String devAddr, String cmdString, byte[] payload)
     {
         return (devAddr + "," + cmdString + "," + Arrays.toString(payload));
+    }
+    
+     private String makeString(String devAddr, String cmdString, String[] payload)
+    {
+        String valueString = "";
+        for(int i=0; i<payload.length; ++i)
+        {
+            valueString += "," + payload[i];
+        }
+        return (devAddr + "," + cmdString + "," + valueString);
     }
 
     /**

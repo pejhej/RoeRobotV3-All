@@ -32,13 +32,14 @@ public class Commando
     //Class fields 
     private final byte commandAddress;
     //First input in value is the length of the byte[]
-    private byte[] value;
+    private String[] value;
     //Default is 1 bytes
     private int nrOfBytes = 1;
     
    
     //Flag for what controller this command is designated
     public boolean forLinearRobot = true;
+    public boolean forElevatorRobot = true;
 
 
     
@@ -54,7 +55,22 @@ public class Commando
         
     }
 
+  public void setIntValue(int value)
+  {
+      this.value = new String[1];
+    this.value[0] = Integer.toUnsignedString(value);
+  }
   
+  public void setMultipleIntValue(int value, int nr)
+  {
+      this.value[nr] = Integer.toUnsignedString(value);
+    
+  }
+  
+  public String[] getValue()
+  {
+      return this.value;
+  }
     
     /**
      * Returns the command address for this commando object
@@ -81,7 +97,7 @@ public class Commando
      * Set the byte[] value with an int of 2 significant numbers
      * @param intValue The int to set to value
      */
-    public void setIntValue(int intValue)
+  /*  public void setIntValue(int intValue)
     {
         ByteBuffer dbuf = ByteBuffer.allocate(Integer.BYTES);
         dbuf.putInt(intValue);
@@ -93,7 +109,7 @@ public class Commando
      * Returns byte[] value as int
      * @return  Returns byte[] value as int 
      */
-     public int getIntValue()
+  /*   public int getIntValue()
     {
         byte[] arr = value;
         ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
@@ -105,7 +121,7 @@ public class Commando
      * Set the byte[] value with an int of 2 significant numbers
      * @param intValue The int to set to value
      */
-    public void setShortValue(short intValue)
+/*    public void setShortValue(short intValue)
     {
         ByteBuffer dbuf = ByteBuffer.allocate(Short.BYTES);
         dbuf.putShort(intValue);
@@ -116,7 +132,7 @@ public class Commando
      * Returns byte[] value as short
      * @return  Returns byte[] value as short 
      */
-     public short getShortValue()
+  /*   public short getShortValue()
     {
         byte[] arr = value;
         ByteBuffer wrapped = ByteBuffer.wrap(arr); // big-endian by default
@@ -130,7 +146,7 @@ public class Commando
       * Set byte[] value as byte[]
       * @param value Set byte[] value as byte[] 
       */
-      public void setValue(byte[] value)
+   /*   public void setValue(byte[] value)
     {
         //The length of the given byte[]
         byte incSize = (byte) value.length;
@@ -149,7 +165,7 @@ public class Commando
        * Returns byte[] that is value for this commando
        * @return    Returns byte[] that is value for this commando 
        */
-      public byte[] getValue()
+   /*   public byte[] getValue()
     {
        return this.value;
     }
@@ -160,10 +176,10 @@ public class Commando
        * @param byteNr the index of where to return byte
        * @return 
        */
-       public byte getByteIndexValue(int byteNr)
+  /*     public byte getByteIndexValue(int byteNr)
     {
         if(getNrOfBytes()>= byteNr)
-            return this.value[byteNr];
+  //          return this.value[byteNr];
        
         return 0;
     }
@@ -174,7 +190,7 @@ public class Commando
  * Return the nr of bytes set in nrOfBytes
  * @return Return the nr of bytes in value as int
  */
-    public int getNrOfBytes()
+ /*   public int getNrOfBytes()
     {
         return nrOfBytes;
     }
@@ -183,18 +199,18 @@ public class Commando
  * Return the nr of bytes in the value
  * @return Return the nr of bytes in value as int
  */
-    public byte getNrOfBytesInByte()
+ /*   public byte getNrOfBytesInByte()
     {
         int counter;
         
-         return (byte) this.getValue().length; // { 0, 1 }
+   /*      return (byte) this.getValue().length; // { 0, 1 }
     }
     
     /**
      * Set the number of bytes in the value[]
      * @param nrOfBytes The integer to set nrOfBytes to
      */
-    public void setNrOfBytes(int nrOfBytes)
+ /*   public void setNrOfBytes(int nrOfBytes)
     {
         this.nrOfBytes = nrOfBytes;
     }
@@ -203,7 +219,7 @@ public class Commando
      * Return the payload of this command, with first byte as number of bytes in payload
      * @return Return the payload including its size
      */
-    public byte[] getByteWithSize()
+  /*  public byte[] getByteWithSize()
             {
                 //Create new byte array for added size to the value
                 byte[] returnByte = new byte[this.value.length + 1];
@@ -221,19 +237,19 @@ public class Commando
      * Return the payload of this command, with first byte as number of bytes in payload
      * @return Return the payload including its size
      */
-    public byte[] makeCompleteByte()
+ /*   public byte[] makeCompleteByte()
             {
                 //Create new byte array for added size to the value
                 byte[] returnByte = new byte[this.value.length + 2];
                 
                 //Set the size in the spot in the byte array
                 returnByte[0] = this.getCmdAddr();
-                returnByte[1] = (byte) this.getValue().length;
-                System.arraycopy(this.getValue(), 0, returnByte, 2, this.value.length);
+  //              returnByte[1] = (byte) this.getValue().length;
+    //            System.arraycopy(this.getValue(), 0, returnByte, 2, this.value.length);
                 
                 return returnByte;
             }
-    
+    */
     
     
         public boolean isForLinearRobot()
@@ -248,12 +264,11 @@ public class Commando
 
     public boolean isForElevatorRobot()
     {
-        return forElevatorRobot;
+        return this.forElevatorRobot;
     }
 
     public void setForElevatorRobot(boolean forElevatorRobot)
     {
         this.forElevatorRobot = forElevatorRobot;
     }
-    public boolean forElevatorRobot = true;
 }

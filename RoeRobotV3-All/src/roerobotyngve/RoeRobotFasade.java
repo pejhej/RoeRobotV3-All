@@ -11,7 +11,8 @@ import java.util.concurrent.ScheduledExecutorService;
  *
  * @author Yngve
  */
-public class RoeRobotFasade {
+public class RoeRobotFasade
+{
 
     // Roe analyser. 
     private RoeAnalyser roeAnalyser;
@@ -22,7 +23,8 @@ public class RoeRobotFasade {
     /**
      * Constructor. Create the RoeAnalyser.
      */
-    public RoeRobotFasade(RoeAnalyser roeAnalyser, ScheduledExecutorService threadPool) {
+    public RoeRobotFasade(RoeAnalyser roeAnalyser, ScheduledExecutorService threadPool)
+    {
         this.roeAnalyser = roeAnalyser;
         this.threadPool = threadPool;
         this.startCycle();
@@ -31,38 +33,48 @@ public class RoeRobotFasade {
     /**
      * Start the dead roe detecting cycle.
      */
-    public void startCycle() {
+    public void startCycle()
+    {
         this.threadPool.execute(roeAnalyser);
+        this.roeAnalyser.startRobotCalibrating();
+        this.roeAnalyser.run();
         this.roeAnalyser.startRobot();
         this.roeAnalyser.run();
+
     }
 
     /**
-     * Stop the system. 
-     * 
+     * Stop the system.
+     *
      */
-    public void stopCycle() {
+    public void stopCycle()
+    {
         this.threadPool.shutdownNow();
     }
-  /**
-     * this will stop the roebot 
-     */
-    public void emergencyStop() {
-      //  roeAnalyser.stopRoeBot();
-    }
-    
+
     /**
-     * this will pause the roebot 
+     * this will stop the roebot
      */
-    public void pauseSystem() { 
+    public void emergencyStop()
+    {
+        //  roeAnalyser.stopRoeBot();
+    }
+
+    /**
+     * this will pause the roebot
+     */
+    public void pauseSystem()
+    {
         //roeAnalyser.pauseRoeBot(); 
     }
-    
-    public void doCalibrate() {
-       // roeAnalyser.calibrateRoeBot(); 
+
+    public void doCalibrate()
+    {
+        // roeAnalyser.calibrateRoeBot(); 
     }
-    
-    public void regulateLights() {
-        
+
+    public void regulateLights()
+    {
+
     }
 }

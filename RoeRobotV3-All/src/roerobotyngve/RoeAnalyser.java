@@ -90,14 +90,15 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
                 for (int i = 1; i <= this.trayRegister.getNumberOfTrays(); i++) {
                     this.currentTray = this.trayRegister.getTray(i);
                     // Set speed 
-                    this.roeAnalyserDevice.changeVelocety(this.handelingTrayVelicity);
+                    //this.roeAnalyserDevice.changeVelocety(this.handelingTrayVelicity);
+                    
                     // Open one tray
                     if (this.roeAnalyserDevice.openTray(this.currentTray)) {
                         this.trayIsOpen = true;
                     }
 
                     // Change velocity for fast moving.
-                    this.roeAnalyserDevice.changeVelocety(this.runningVelocity);
+                   // this.roeAnalyserDevice.changeVelocety(this.runningVelocity);
                     //For each picture needed to be taken (Frames) ...
 
                     this.imageProsseser.addImageToProcessingQueue(this.roeAnalyserDevice.takePicture(this.currentTray));
@@ -130,7 +131,14 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
     public void startRobot() {
         currentState = State.Running;
     }
-
+    
+     /**
+     * Start the robot
+     */
+    public void startRobotCalibrating() {
+        currentState = State.Calibrate;
+    }
+    
     @Override
     public void notifyImageProcessed(RoeImage processedImage) {
         this.addImage(processedImage);
