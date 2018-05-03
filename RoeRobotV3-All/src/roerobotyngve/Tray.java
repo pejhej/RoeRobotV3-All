@@ -39,7 +39,7 @@ public class Tray{
     //Distance from the flag Z pos to the default position of the robot on this tray -> Z value offset
     private double distFlagPosToDefaultZ = 60;
     //Distance from flag Z pos to the suction point. In reality, from bottom sensor to the suction end. Z offset
-    private double distFlagPosToSucktionZ = 5;
+    private double distFlagPosToSucktionZ = 20;
     //Distance from the calibrated Y MAX pos to where the tray should be put back. In reality, where the robot should leave the tray. in Y position.
     private double closeTrayOffset = 15;
     //The default Z position....
@@ -310,6 +310,8 @@ public class Tray{
            //Create the coordinate for closing the tray, just Y movement in reality
            this.closeTrayCoord = new Coordinate(xParam/2, yParam-this.closeTrayOffset);
            //this.closeTrayZCoord = new Coordinate(xParam/2, yParam-this.closeTrayOffset);
+           //The z coord for picking up roe
+           this.pickupRoeZCoord = new Coordinate(this.defaultZ-distFlagPosToSucktionZ);
        }
 
        

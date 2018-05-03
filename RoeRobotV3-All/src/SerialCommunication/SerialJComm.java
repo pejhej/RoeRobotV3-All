@@ -30,6 +30,12 @@ public class SerialJComm extends Thread
 
     //The serial port name
     private String portName;
+    
+      // variable holding the timeout variable
+    private static final int TIME_OUT = 2000;
+
+    // variable holding the desired rate of sending and receiving data 
+    private static final int DATA_RATE = 115200;
 
     //Reader and writer stream
     InputStream reader;
@@ -53,13 +59,13 @@ public class SerialJComm extends Thread
     {
 
         //Print the port name
-        //getPortNames();
+        getPortNames();
         this.portName = portName;
 
         // creating the arrayList of listeners 
         this.listeners = new ArrayList<>();
 
-        this.inputStringData = new String[20];
+        //this.inputStringData = new String[20];
     }
 
     /**
@@ -67,7 +73,6 @@ public class SerialJComm extends Thread
      */
     public void connect()
     {
-
         //Find the port
         port = findPort(portName);
         try
@@ -102,7 +107,7 @@ public class SerialJComm extends Thread
     {
         //Opening the port and setting the buad rate
         // this.port = SerialPort.getCommPort(portName);
-        this.port.setBaudRate(19200);
+        this.port.setBaudRate(DATA_RATE);
         //this.port.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
         //Try to open the port
         this.port.openPort();
@@ -161,8 +166,61 @@ public class SerialJComm extends Thread
             }
         });
         */
-
     }
+    
+           @Override
+    public void run()
+    {
+        //While loop to keep thread running as long as port is open
+        while (port.isOpen())
+        {
+            //Checks if data is availble to be sent
+            if (dataToSend)
+            {
+                this.sendData();
+                dataToSend = false;
+            }
+            
+            try
+            {
+                //read from serial port
+                while (input.ready())
+                {
+                    //SLEEP FOR THE ALL THE BYTES INCOMMING ON THE SERIAL TO GET IN THE BUFFER BEFORE READING STARTS
+                    
+                    try
+                    {
+                        Thread.sleep(10);
+                    } catch (InterruptedException ex)
+                    {
+                        System.out.println("SerialJCOMM has interrupted sleep..");
+                        Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    
+                    //Uses INPUT READ BUFFER to read a line until \n is in the line
+                    try
+                    {
+                        String[] dataArrString = input.readLine().split(",");
+                        System.out.println(Arrays.toString(dataArrString));
+                        notifyListeners(dataArrString);
+                        
+                    } catch (UnsupportedEncodingException ex)
+                    {
+                        Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex)
+                    {
+                        System.out.println("SerialJCOMM port " + this.portName + " got IO exception..");
+                        Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            } catch (IOException ex)
+            {
+                Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        this.close();
+    }
+
 
 
     /**
@@ -353,12 +411,12 @@ public class SerialJComm extends Thread
         byte[] dataToSend = null;
         try
         {
-            dataToSend = dataString.getBytes("UTF-8");
+            this.dataToBeSent = dataString.getBytes("UTF-8");
         } catch (UnsupportedEncodingException ex)
         {
             Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        /*
         int byteLength = dataToSend.length;
         reziseSendData(byteLength);
 
@@ -367,6 +425,16 @@ public class SerialJComm extends Thread
         {
             this.dataToBeSent[i] = dataToSend[i];
         }
+        /*
+        int byteLength = dataToSend.length;
+        reziseSendData(byteLength);
+
+        //Iterate through the incomming databyte and set it to the send byte
+        for (int i = 0; i < byteLength; ++i)
+        {
+            this.dataToBeSent[i] = dataToSend[i];
+        }
+        */
 
         this.dataToSend = true;
 
@@ -452,7 +520,12 @@ public class SerialJComm extends Thread
             this.port.closePort();
         }
     }
-
+}
+    
+ 
+    
+    
+    
     /*
     /**
      * Handles event on the serial port. Checks if there is data coming in from
@@ -494,48 +567,4 @@ public class SerialJComm extends Thread
         }
     }
      */
-    @Override
-    public void run()
-    {
-        while (port.isOpen())
-        {
-            if (dataToSend)
-            {
-                this.sendData();
-                dataToSend = false;
-            }
-            
-            //read from serial port
-            while (port.bytesAvailable() > 0)
-            {
-                try
-                {
-                    Thread.sleep(20);
-                } catch (InterruptedException ex)
-                {
-                    Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
-                }
 
-               // byte[] readBuffer = new byte[port.bytesAvailable()];
-               // int numRead = port.readBytes(readBuffer, readBuffer.length);
-               // System.out.println("Read " + numRead + " bytes.");
-                try
-                {
-                   // String dataString = new String(readBuffer, "UTF-8");
-                    String[] dataArrString = input.readLine().split(",");
-                    System.out.println(Arrays.toString(dataArrString));
-                    notifyListeners(dataArrString);
-
-                } catch (UnsupportedEncodingException ex)
-                {
-                    Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException ex)
-                {
-                    Logger.getLogger(SerialJComm.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            
-
-        }
-    }
-}

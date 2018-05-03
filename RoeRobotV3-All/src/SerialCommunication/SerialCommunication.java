@@ -10,11 +10,7 @@ package SerialCommunication;
  * when a connection has been established a reader and a writer object
  * is created.
  */
-import Commands.ChangeLedColor;
 import Commands.Commando;
-import Commands.FindTray;
-import Commands.MagnetOff;
-import Commands.MagnetOn;
 import Commands.Move;
 import Status.Busy;
 import Status.EMC;
@@ -59,11 +55,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
     private static final String CONTROLLER_STRADDR_ELEVATOR = "dev2";
     private static final String CONTROLLER_STRADDR_LINEARBOT = "dev1";
 
-    // variable holding the timeout variable
-    private static final int TIME_OUT = 2000;
-
-    // variable holding the desired rate of sending and receiving data 
-    private static final int DATA_RATE = 9600;
+  
 
     //Commports to the controllers
     SerialJComm linearBot;
@@ -913,16 +905,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
         sendQeue.add(cmd);
     }
 
-    /**
-     * Added to the recieving queue
-     *
-     * @param stat
-     */
-    //TODO: Make changes to this recieving thing
-    public void sendQ(Commando cmd)
-    {
-        sendQeue.add(cmd);
-    }
+   
 
     /**
      * Resize an array with only carrying information, -1 is considered as not
@@ -959,7 +942,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
      *
      * @param cmd The commando to perform
      */
-    public void sendCommand(Commando cmd)
+    private void sendCommand(Commando cmd)
     {
 
         String elevatorString = null;
@@ -1046,16 +1029,24 @@ public class SerialCommunication extends Thread implements SerialInputListener
                      //Make string for elevator
             elevatorString = makeCMDString(CONTROLLER_STRADDR_ELEVATOR, cmd.getCmdAddr());
             //Send data and set bool
-            this.writeStringElevator(elevatorString);
+            if(elevatorString != null)
+            {
+                 this.writeStringElevator(elevatorString);
             elevatorBotAwaitingACK = true;
+            }
+           
             }
     
             if(cmd.isForLinearRobot())
             {
                     //Send linear data and set bool
             linearString = makeCMDString(CONTROLLER_STRADDR_LINEARBOT, cmd.getCmdAddr());
-            this.writeStringLinear(linearString);
+            if(linearString != null)
+            {
+                this.writeStringLinear(linearString);
             linearBotAwaitingACK = true;
+            }
+            
             }
         
         }
