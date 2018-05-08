@@ -32,7 +32,14 @@ public class Population {
             }
         }
     }
-
+    
+    /**
+     * Generate empty population. 
+     * @param populationSize
+     */
+    public Population(int populationSize){
+        this.tours = new Tour[populationSize];
+    }
 
     /**
      * Adds a tour to the list of tours.
@@ -41,6 +48,11 @@ public class Population {
      */
     public void addTour(Tour tour) {
         this.tours[this.tours.length + 1] = tour;
+    }
+    
+        // Saves a tour
+    public void saveTour(int index, Tour tour) {
+        tours[index] = tour;
     }
 
     /**
@@ -67,7 +79,9 @@ public class Population {
         }
         return fittestTour;
     }
-
+    
+    
+    // List all tour ass string. 
     public String listAllTours() {
         String allToursString = "There is no tours";
         if (this.tours.length != 0) {
@@ -78,4 +92,15 @@ public class Population {
         }
         return allToursString;
     }
+    
+    
+    /**
+     * Get the number of tour in population. 
+     * 
+     * 
+     */
+    public int getNrOfTours(){
+        return this.tours.length;
+    }
+    
 }

@@ -64,9 +64,16 @@ public class PatternOptimalization {
             // Generate populations.  
             Population population = new Population(nrOfPopulations, this.coordinatList, true);
             fittestTourList = population.getFittest().getList();
-            System.out.println(population.listAllTours());
-            System.out.println("Fittest tour: " + population.getFittest());
-            System.out.println("Total distance of fittest tour: " + population.getFittest().getTotalDistance());
+//            System.out.println("Initial Fittest tour: " + population.getFittest());
+//            System.out.println("Initial Total distance of fittest tour: " + population.getFittest().getTotalDistance());
+//            System.out.println("Start GA:");
+            //
+            GAnew ga = new GAnew();
+            population = ga.evolvePopulation(2000, population);
+//
+//            System.out.println("Fittest tour: " + population.getFittest().getTotalDistance());
+//            System.out.println("Initial Fittest tour: " + population.getFittest());
+
             this.coordinatList.clear();
         }
         return fittestTourList;
