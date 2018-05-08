@@ -28,7 +28,8 @@ public class MegaMasterClass {
         
         //Load the open cv
         System.load("/home/odroid/NetBeansProjects/RoeRobotV3-All/RoeRobotV3-All/lib/opencv-package-xu4/libopencv_java310.so");
-        
+       // System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+                
         new MegaMasterClass();
     }
 

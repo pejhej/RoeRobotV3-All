@@ -27,36 +27,50 @@ public class Tray{
     private final int TotalCameraPositions = 6;  //Total amount of camera positions
     
     private int nrOfRemovedRoe;
+    //The flag position for this tray
     private int flagPosZ;
     
     
-    //**** OFFSETS IN "mm"****
+    //**** OFFSETS IN "mm"**** 
+    //New alu brancket adds 32mm
+    
    // x and y coordinates of first camera position
     private double imageCoordX = 25; //======================ENDRES
     private double imageCoordY = 200;  //======================ENDRES
+    
+    
+      //Distance from bottom of flag to top of water surface on tray
+    private double bottomFlagToTraySurface = 11;
+    //Distance from bottom of flag to top of tray
+    private double bottomFlagToTopOfTray = 26;
+      //Distance from the flag Z pos to the magnet -> Z value offset
+    private double distFlagToEndEffector = 34;
     //Distance from the flag Z pos to the magnet -> Z value offset
-    private double distFlagPosToMagnetZ = 30;
+    private double bottomFlagToMagnet = 34+35;
+    //Distance from the flag Z pos to the magnet -> Z value offset //distFlagToEndEffector + from endEffector to magnet
+    private double distFlagPosToMagnetZ = bottomFlagToMagnet;
     //Distance from the flag Z pos to the default position of the robot on this tray -> Z value offset
-    private double distFlagPosToDefaultZ = 60;
+    private double distFlagPosToDefaultZ = bottomFlagToTopOfTray;
     //Distance from flag Z pos to the suction point. In reality, from bottom sensor to the suction end. Z offset
-    private double distFlagPosToSucktionZ = 20;
+    private double distFlagPosToSucktionZ = distFlagToEndEffector + bottomFlagToTraySurface;
     //Distance from the calibrated Y MAX pos to where the tray should be put back. In reality, where the robot should leave the tray. in Y position.
-    private double closeTrayOffset = 15;
-    //The default Z position....
+    private double closeTrayOffsetX = 15;
+    //The default Z position.. Used to store the calculated Z-pos
     private double defaultZ;
     
-    //Distance from bottom of flag to top of tray
-    private double distFlagToTopOfTray = 11;
+    
+  
     //Wanted distance from the tray water to the camera lens
     private double waterSurfaceOffsetForCamera = 80;
 
    
     //Offset between ir beam and camera lens
-    private double beamToCamera = 50;
-    //From camera to tray water
+   // private double beamToCamera = 50 + 20;
+    //Distance from the flag to the camera on end effector
+    private double fromFlagToCamera = 80;
+    //From camera to tray water, store the calculated camera height
     private double cameraHeight;
        
-    
     
     
     //Coordinate for diff positions related to the tray
@@ -74,8 +88,7 @@ public class Tray{
     private Coordinate defaultZPosCoord;
      //Coordinate for closing the tray, no Z movement
     private Coordinate closeTrayCoord;
-     //Coordinate for taking picture
-    private Coordinate takingPicture;
+
     
     
     // image width and height in mm
@@ -87,6 +100,7 @@ public class Tray{
 
     public Tray(int nr, int flagposZ) 
     {
+        //Flag positions in Z axis, at bottom of flag
         this.flagPosZ = flagposZ;
         this.nr = nr;
         //Set all the  coords to null
@@ -98,8 +112,8 @@ public class Tray{
         
         this.cameraPositions = new ArrayList<Coordinate>();
         
-        //Calculate camera height
-        cameraHeight = (double)flagposZ + waterSurfaceOffsetForCamera - (beamToCamera - distFlagToTopOfTray);
+        //Calculate camera height //flagposZ + bottomFlagToTraySurface - random offset;
+        cameraHeight = (double)flagposZ + bottomFlagToTraySurface - 8;
         
         // fill list with camera coordinates
         this.createCameraCoordinates();
@@ -267,11 +281,10 @@ public class Tray{
      return this.closeTrayCoord;
     }
     
-        /**
-         * Return coordinate for the tray handle in Z position
-         * @return Return coordinate for the tray handle in Z position
-         */
-    
+     /**
+      * Return coordinate for the tray handle in Z position
+      * @return Return coordinate for the tray handle in Z position
+      */
       public Coordinate getHandleZCoord()
     {
         return this.handleZCoord;
@@ -327,8 +340,8 @@ public class Tray{
            //Create the open tray coordinate
            this.openTrayCoord = new Coordinate(xParam/2, 10);
            //Create the coordinate for closing the tray, just Y movement in reality
-           this.closeTrayCoord = new Coordinate(xParam/2, yParam-this.closeTrayOffset);
-           //this.closeTrayZCoord = new Coordinate(xParam/2, yParam-this.closeTrayOffset);
+           this.closeTrayCoord = new Coordinate(xParam/2, yParam-this.closeTrayOffsetX);
+           //this.closeTrayZCoord = new Coordinate(xParam/2, yParam-this.closeTrayOffsetX);
            //The z coord for picking up roe
            this.pickupRoeZCoord = new Coordinate(this.defaultZ-distFlagPosToSucktionZ);
        }

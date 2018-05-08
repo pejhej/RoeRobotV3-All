@@ -125,12 +125,11 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable
                     //For each picture needed to be taken (Frames) ...
                     for(int k=0; k<this.currentTray.getNumberOfCameraCoordinates(); ++k)
                     {
-                        System.out.println("Capturing image " + k);
+                       // System.out.println("Capturing image " + k);
                         this.imageProsseser.addImageToProcessingQueue(this.roeAnalyserDevice.takePicture(this.currentTray, k));
                     }
                     
-                    System.out.println("Executing image process");
-                    this.threadPool.execute(imageProsseser);
+                    
                     // If all images has been added to the list of images. 
                     System.out.println("images processed" + this.getNumberOfImages());
                     if (this.getNumberOfImages() == this.currentTray.getNumberOfCameraCoordinates())

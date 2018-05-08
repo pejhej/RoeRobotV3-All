@@ -1,5 +1,6 @@
 package ImageProcessing;
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 import static org.opencv.videoio.Videoio.CAP_PROP_FRAME_HEIGHT;
@@ -34,7 +35,6 @@ public class Camera
     {
         boolean found = false;
         // Open a camerasource
-        
         this.cam = new VideoCapture(camToOpen);
 
         

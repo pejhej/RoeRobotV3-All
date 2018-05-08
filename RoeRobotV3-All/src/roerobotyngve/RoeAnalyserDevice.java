@@ -864,6 +864,7 @@ public class RoeAnalyserDevice implements StatusListener {
                     if (robotIsReady(waitTime)) 
                     {
                        imageTaken = this.camera.takePicture((float) workingTray.getWaterSurfaceOffsetForCamera());
+                        System.out.println("Taken picture " + frameNumber);
                         //Take the pic
                         task = done;
                     } //Something is faulty, end task

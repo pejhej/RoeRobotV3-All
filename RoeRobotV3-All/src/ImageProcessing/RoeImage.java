@@ -47,6 +47,8 @@ public class RoeImage
     {
         // save the camera to surface distance 
         this.captureHeight = captureHeight;
+        //Set image to null
+        image = null;
         
         // save the cameras FOV
         this.FOV = fieldOfView;
@@ -75,7 +77,7 @@ public class RoeImage
      */
     public Mat getImage()
     {
-        return image;
+        return this.image;
     }
     
     

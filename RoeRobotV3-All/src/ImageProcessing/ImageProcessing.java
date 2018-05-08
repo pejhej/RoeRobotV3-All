@@ -64,16 +64,19 @@ public class ImageProcessing implements Runnable
      */
     private void processImage()
     {
+         System.out.println("Top of image processing");
         // get image from processing queue
-        RoeImage processingImage = this.processQueue.pop();
-        
+        RoeImage processingImage = this.getImageFromProcessingQueue();
+
         // get RGB picture from image object
         Mat rgbImage = processingImage.getImage();
-        
+ 
         // transform from RGB to grayscale        
         Mat grayImage = new Mat();
+  
+          
         System.out.println("Error 1");
-        Imgproc.cvtColor(rgbImage, grayImage, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.cvtColor(rgbImage, grayImage, Imgproc.COLOR_BGR2GRAY); //Imgproc.COLOR_RGB2GRAY
         
         // brighten grayscale image
         Mat brightGrayImage = new Mat();
@@ -231,7 +234,16 @@ public class ImageProcessing implements Runnable
      */
     public synchronized void addImageToProcessingQueue(RoeImage image)
     {
+        System.out.println("Adda bilete");
         this.processQueue.add(image);
+    }
+    /**
+     * Return image from queue stack of Roe Image
+     * @return Return Roe Image from stack
+     */
+    public synchronized RoeImage getProcessQueue()
+    {
+        return processQueue.pop();
     }
     
     
@@ -276,9 +288,10 @@ public class ImageProcessing implements Runnable
         //check if processing queue is empty, if not start processing image
         while(true)
         {
-            if(this.processQueue.size() > 0)
+             
+            if(this.nmbrOfElementsInProcessingQueue() > 0)
             {
-                System.out.println("massse bilde å  prosssswsssseserererer");
+            System.out.println("massse bilde å  prosssswssss");
             this.processImage();
             }
         }
