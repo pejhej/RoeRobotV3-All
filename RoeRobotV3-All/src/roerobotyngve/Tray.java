@@ -33,7 +33,7 @@ public class Tray{
     //**** OFFSETS IN "mm"****
    // x and y coordinates of first camera position
     private double imageCoordX = 25; //======================ENDRES
-    private double imageCoordY = 320;  //======================ENDRES
+    private double imageCoordY = 200;  //======================ENDRES
     //Distance from the flag Z pos to the magnet -> Z value offset
     private double distFlagPosToMagnetZ = 30;
     //Distance from the flag Z pos to the default position of the robot on this tray -> Z value offset
@@ -44,6 +44,20 @@ public class Tray{
     private double closeTrayOffset = 15;
     //The default Z position....
     private double defaultZ;
+    
+    //Distance from bottom of flag to top of tray
+    private double distFlagToTopOfTray = 11;
+    //Wanted distance from the tray water to the camera lens
+    private double waterSurfaceOffsetForCamera = 80;
+
+   
+    //Offset between ir beam and camera lens
+    private double beamToCamera = 50;
+    //From camera to tray water
+    private double cameraHeight;
+       
+    
+    
     
     //Coordinate for diff positions related to the tray
     //Coord for the handle when tray its closed
@@ -58,10 +72,11 @@ public class Tray{
     private Coordinate pickupRoeZCoord;
      //Default Z pos for roebot - Over working tray
     private Coordinate defaultZPosCoord;
-
-    
      //Coordinate for closing the tray, no Z movement
     private Coordinate closeTrayCoord;
+     //Coordinate for taking picture
+    private Coordinate takingPicture;
+    
     
     // image width and height in mm
     private double imageWidth = 50;
@@ -83,8 +98,12 @@ public class Tray{
         
         this.cameraPositions = new ArrayList<Coordinate>();
         
+        //Calculate camera height
+        cameraHeight = (double)flagposZ + waterSurfaceOffsetForCamera - (beamToCamera - distFlagToTopOfTray);
+        
         // fill list with camera coordinates
         this.createCameraCoordinates();
+
         
     }
 
@@ -97,14 +116,14 @@ public class Tray{
         // create top row of coordinates
         for(int i = 0; i <= 12; i++)
         {
-            Coordinate nextCoord = new Coordinate(this.imageCoordX + this.imageWidth*i, this.imageCoordY + this.imageHeight);
+            Coordinate nextCoord = new Coordinate(this.imageCoordX + this.imageWidth*i, this.imageCoordY + this.imageHeight, cameraHeight);
             this.addCameraPos(nextCoord);
         }
         
         // create bottom row of coordinates
         for(int i = 12; i >= 0; i--)
         {
-            Coordinate nextCoord = new Coordinate(this.imageCoordX + this.imageWidth*i, this.imageCoordY);
+            Coordinate nextCoord = new Coordinate(this.imageCoordX + this.imageWidth*i, this.imageCoordY, cameraHeight);
             this.addCameraPos(nextCoord);
         }
     }
@@ -322,5 +341,14 @@ public class Tray{
     public int getNumberOfCameraCoordinates() 
     {
         return this.cameraPositions.size();
+    }
+    
+    /**
+     * Return the offset for the camera height to the water surface on the tray
+     * @return Returns camera height
+     */
+     public double getWaterSurfaceOffsetForCamera()
+    {
+        return waterSurfaceOffsetForCamera;
     }
 }

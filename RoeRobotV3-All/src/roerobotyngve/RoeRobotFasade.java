@@ -35,11 +35,11 @@ public class RoeRobotFasade
      */
     public void startCycle()
     {
-        this.threadPool.execute(roeAnalyser);
+       
         this.roeAnalyser.startRobotCalibrating();
-        this.roeAnalyser.run();
+         this.roeAnalyser.run();
         this.roeAnalyser.startRobot();
-        this.roeAnalyser.run();
+           this.roeAnalyser.run();
 
     }
 

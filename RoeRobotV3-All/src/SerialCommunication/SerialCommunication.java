@@ -179,16 +179,14 @@ public class SerialCommunication extends Thread implements SerialInputListener
         incommingData = null;
         //Save the incomming data
         incommingData = data;
-        System.out.println("Parsing input");
-        //Check and parse data
-     //   if (!checkAckAndToggle(incommingData))
-      //  {
+
+  
             //Parse the newly recieved data
             parseInputData(incommingData);
+            //Set the new data bool to true
                 this.newDataRecieved = true;
-             //Set the new data bool to true
+             
             
-      //  }
         
     }
 
@@ -411,16 +409,6 @@ public class SerialCommunication extends Thread implements SerialInputListener
     private synchronized void writeStringLinear(String sendString)
     {
          this.linearBot.setDataToBeSent(sendString);
-        /*try
-        {
-            //System.out.print("Sent linear string: ");
-            // System.out.println(sendString);
-            this.linearBot.sendData(sendString.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException ex)
-        {
-            Logger.getLogger(SerialCommunication.class.getName()).log(Level.SEVERE, null, ex);
-        }
-         */
     }
 
     /**
@@ -587,8 +575,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
     {
         boolean newData = false;
         
-        
-        //System.out.print("Parsing the input data");
+        //Check for nullpointer
         if (incommingData != null)
         {
             int arrCnt = 0;
@@ -620,14 +607,11 @@ public class SerialCommunication extends Thread implements SerialInputListener
                     
                 
                 
-                // System.out.print("Made state: ");
                  System.out.println(this.linearBotState.getString());
 
                 //Check if it is a calibration status, and set values if so
                 if (checkForCalibParam(this.linearBotState))
                 {
-                    //System.out.print("Its a LINEAR PARAMETER Status");
-
                     //Copy all the values
                     String[] onlyValues = new String[valueStr.length - 1];
                     System.arraycopy(valueStr, 1, onlyValues, 0, valueStr.length - 1);
@@ -708,9 +692,6 @@ public class SerialCommunication extends Thread implements SerialInputListener
                             
                         }
                     }
-
-                    //  System.out.print("Made elevator status with");
-                    //  System.out.print("Z:" + calibrationParams.getzCalibRange() + " Trays:" + calibrationParams.getNumberOfTrays());
                 }
             }
         }

@@ -71,6 +71,14 @@ public class Commando
   {
       return this.value;
   }
+  
+  
+    public void setValue(String[] newValue)
+  {
+      this.value = newValue;
+  }
+  
+  
     
     /**
      * Returns the command address for this commando object

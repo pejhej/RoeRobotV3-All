@@ -19,5 +19,5 @@ public class DiscoLight extends Commando
         super.setForElevatorRobot(false);
     }
 
-    
+
 }

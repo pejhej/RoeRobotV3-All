@@ -7,6 +7,7 @@ package roerobotyngve;
 
 import Commands.CalibParam;
 import Commands.Calibrate;
+import Commands.ChangeLedColor;
 import Commands.Commando;
 import Commands.Light;
 import Commands.MagnetOn;
@@ -18,6 +19,7 @@ import Commands.Suction;
 import Commands.FindTray;
 import Commands.DiscoLight;
 import Commands.Velocity;
+import ImageProcessing.Camera;
 import ImageProcessing.RoeImage;
 
 import Status.Busy;
@@ -53,12 +55,44 @@ import org.opencv.core.Mat;
  */
 public class RoeAnalyserDevice implements StatusListener {
 
+    
+        //The timer for this object
+    //Timer variabales
+    private long timerTime = 0;
+    private long waitTime = 30000;
+
+    //Holds the current status sent by the roerobot
+    Status currentStatus = null;
+    //The calibration params
+    Parameters calibrationParam = null;
+
+    //Serial communication 
+    SerialCommunication serialComm;
+
+    //Tray
+    Tray currentTray;
+    TrayRegister trayReg;
+    
+    //Image processing variables
+    Camera camera;
+
+    
+    
+    
+    
     public RoeAnalyserDevice() {
+        
+        //Create and connect the serial communication 
         this.serialComm = new SerialCommunication();
         this.serialComm.connect();
         this.serialComm.addListener(this);
+        //Start the serial thread
         this.serialComm.start();
+        
         this.calibrationParam = new Parameters();
+        
+        this.camera = new Camera();
+        
     }
 
     private synchronized Status getCurrentStatus() {
@@ -85,7 +119,7 @@ public class RoeAnalyserDevice implements StatusListener {
             calibrationParam = (Parameters) status;
             printCalib();
         }
-
+        
         setCurrentStatus(status);
 
         //Interrupt if the thread is sleeping
@@ -149,34 +183,10 @@ public class RoeAnalyserDevice implements StatusListener {
         }
     }
 
-    //Stopwatch
-    Stopwatch stopwatch;
-    private final static int waitTimeMillis = 50;
 
-    //Default height for going down to row
-    int defaultSuckHeight = 40;
-    int defaultHeight = 50;
 
-    //The timer for this object
-    //Timer timer = new Timer();
-    //Timer variabales
-    private long timerTime = 0;
-    private long waitTime = 30000;
 
-    //Holds the current status sent by the roerobot
-    Status currentStatus = null;
-    //The calibration params
-    Parameters calibrationParam = null;
-
-    //I2c communication 
-    SerialCommunication serialComm;
-
-    //Tray
-    Tray currentTray;
-    TrayRegister trayReg;
-
-    //Flag bool to know if a faulty status has been recieved
-    private boolean robotFault = false;
+ 
 
     /**
      * Open tray will open a tray with a specific number.
@@ -803,14 +813,13 @@ public class RoeAnalyserDevice implements StatusListener {
      *
      * @param frameNumber The number wanted to take picture of
      */
-    public RoeImage takePicture(Tray workingTray) {
+    public RoeImage takePicture(Tray workingTray, int frameNumber) {
         //Return bool for result of task
         boolean succesful = true;
         boolean working = true;
         
-                       
-        
-        
+        //RoeImage to return
+        RoeImage imageTaken = null;
         //Switch case variables
         int task = 0;
         
@@ -818,8 +827,8 @@ public class RoeAnalyserDevice implements StatusListener {
         // the tasks to be completed
         final int moveToFrame = 0, takePic = 1, done = 2;
            
-                        //  Take a picture. 
-
+                     
+            //Keep the program in loop until its done         
             while(working)    
             {
             //Switch case to do the tasks;
@@ -829,7 +838,7 @@ public class RoeAnalyserDevice implements StatusListener {
                     //Send command if robot becomes ready
                     if (robotIsReady(waitTime)) {
                         //Get the frame coord from the current tray
-                        Coordinate frameCord = workingTray.getFrameCoord(currentFrame++);
+                        Coordinate frameCord = workingTray.getFrameCoord(frameNumber);
                         
                         //Check if the frame was found
                         if (frameCord != null) {
@@ -852,8 +861,9 @@ public class RoeAnalyserDevice implements StatusListener {
                 //Do the suction task - Check robot is ready, send suction command
                 case takePic:
                     //Send command if robot becomes ready
-                    if (robotIsReady(waitTime)) {
-                        
+                    if (robotIsReady(waitTime)) 
+                    {
+                       imageTaken = this.camera.takePicture((float) workingTray.getWaterSurfaceOffsetForCamera());
                         //Take the pic
                         task = done;
                     } //Something is faulty, end task
@@ -864,23 +874,15 @@ public class RoeAnalyserDevice implements StatusListener {
                     break;
                 //The task is done, break
                 case done:
-                    if(currentFrame >= this.currentTray.getNumberOfCameraCoordinates())
-                    {
                         working = false;
-                    }
-                    else
-                    {
-                        task = moveToFrame;
-                    }
-                    
                     break;
             }
         }
 
-        RoeImage roeImage = null;
+        
 
         //return succesful;
-        return roeImage;
+        return imageTaken;
     }
 
     /**
@@ -966,17 +968,20 @@ public class RoeAnalyserDevice implements StatusListener {
         return succesful;
     }
 
-    /**
-     * Turn light on (send light command with value 1 as payload)
-     */
-    public synchronized boolean changeVelocety(int newVelocity) {
+/**
+ *  Sends a command to the robot to change its speed
+ * @param newVelocity The speed to change to
+ * @return Returns true if it was succesfull, false it something happened
+ */
+    public synchronized boolean changeVelocity(int newVelocity) {
         // Boolean for check if sucsess
         boolean sucsess = false;
         //Create command
         Velocity cmdVelocity = new Velocity();
         //Make the control byte to be sent
         cmdVelocity.setIntValue(newVelocity);
-
+        cmdVelocity.setForElevatorRobot(false);
+        
         if (this.robotIsReady(waitTime)) {
             //Send command
             serialComm.addSendQ(cmdVelocity);
@@ -986,7 +991,33 @@ public class RoeAnalyserDevice implements StatusListener {
         }
 
         return sucsess;
+    }
+    
+    /**
+     * Change the RGB color of the leds
+     * @param red Red value
+     * @param green Green value
+     * @param blue Blue value
+     * @return Returns true if it was succesfull
+     */
+       public synchronized boolean changeRGBLight(int red, int green, int blue) {
+        // Boolean for check if sucsess
+        boolean sucsess = false;
+        //Create command
+        ChangeLedColor changeLedColor = new ChangeLedColor();
+        //Make the control byte to be sent
+        changeLedColor.setMultipleIntValue(red, green, blue);
+        changeLedColor.setForElevatorRobot(false);
+        
+        if (this.robotIsReady(waitTime)) {
+            //Send command
+            serialComm.addSendQ(changeLedColor);
+            sucsess = true;
+        } else {
+            sucsess = false;
+        }
 
+        return sucsess;
     }
 
     /**

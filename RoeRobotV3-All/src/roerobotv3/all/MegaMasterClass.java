@@ -12,6 +12,7 @@ import roerobotyngve.RoeAnalyser;
 import roerobotyngve.RoeRobotFasade;
 
 import java.util.concurrent.ScheduledExecutorService;
+import org.opencv.core.Core;
 
 /**
  *
@@ -24,6 +25,10 @@ public class MegaMasterClass {
      * @throws com.pi4j.platform.PlatformAlreadyAssignedException
      */
     public static void main(String[] args) throws PlatformAlreadyAssignedException {
+        
+        //Load the open cv
+        System.load("/home/odroid/NetBeansProjects/RoeRobotV3-All/RoeRobotV3-All/lib/opencv-package-xu4/libopencv_java310.so");
+        
         new MegaMasterClass();
     }
 
@@ -31,7 +36,9 @@ public class MegaMasterClass {
     private ScheduledExecutorService threadPool;
 
     public MegaMasterClass() throws PlatformAlreadyAssignedException {
+        
         this.threadPool = Executors.newScheduledThreadPool(10);      
+        
         RoeAnalyser roeAnalyser = new RoeAnalyser(this.threadPool);
         RoeRobotFasade roeRobotFasade = new RoeRobotFasade(roeAnalyser, this.threadPool);
         // GPIO_HMI gpioHMI = new GPIO_HMI(roeRobotFasade);

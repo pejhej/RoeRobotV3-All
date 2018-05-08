@@ -109,7 +109,6 @@ public class RoeImage
     public void addRoePositionPixel(Coordinate coordinate)
     {
         this.roePositionPixels.add(coordinate);
-        System.out.println("pixel: " + coordinate.getxCoord() + " - " + coordinate.getyCoord());
     }
             
     
@@ -132,12 +131,12 @@ public class RoeImage
     public void addRoePositionMillimeter(Coordinate coordinate)
     {
         this.roePositionMillimeters.add(coordinate);
-        System.out.println("millimeter: " + coordinate.getxCoord() + " - " + coordinate.getyCoord());
+        System.out.println("millimeter: " + coordinate.getxCoord() + " , " + coordinate.getyCoord());
     }
             
     
     /**
-     * Get list of roe postitions in millimeter.
+     * Get list of roe positions in millimeter.
      * 
      * @return list of roe positions in millimeter. 
      */

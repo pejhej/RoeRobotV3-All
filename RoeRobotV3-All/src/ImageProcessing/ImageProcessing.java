@@ -72,6 +72,7 @@ public class ImageProcessing implements Runnable
         
         // transform from RGB to grayscale        
         Mat grayImage = new Mat();
+        System.out.println("Error 1");
         Imgproc.cvtColor(rgbImage, grayImage, Imgproc.COLOR_RGB2GRAY);
         
         // brighten grayscale image
@@ -136,6 +137,7 @@ public class ImageProcessing implements Runnable
             listener.notifyImageProcessed(processingImage);
         }
         
+        System.out.println("Image done processed yay");
         
         
         //======================== DEBUG =============================//
@@ -272,9 +274,13 @@ public class ImageProcessing implements Runnable
     public void run() 
     {
         //check if processing queue is empty, if not start processing image
-        while(this.nmbrOfElementsInProcessingQueue() != 0)
+        while(true)
         {
+            if(this.processQueue.size() > 0)
+            {
+                System.out.println("massse bilde å  prosssswsssseserererer");
             this.processImage();
+            }
         }
     }
 }

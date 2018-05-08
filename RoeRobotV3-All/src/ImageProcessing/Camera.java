@@ -15,7 +15,7 @@ import static org.opencv.videoio.Videoio.CAP_PROP_FRAME_WIDTH;
 public class Camera 
 {
     // Which connected camera to open
-    private final int camToOpen = 1;
+    private final int camToOpen = -1;
     
     // Picture frame
     private final Mat frame;
@@ -32,8 +32,11 @@ public class Camera
     
     public Camera() 
     {
+        boolean found = false;
         // Open a camerasource
-        this.cam = new VideoCapture(this.camToOpen);
+        
+        this.cam = new VideoCapture(camToOpen);
+
         
         // create a Mat frame variable
         this.frame = new Mat();
