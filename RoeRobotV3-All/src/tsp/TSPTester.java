@@ -23,33 +23,41 @@ public class TSPTester {
         destinations.add(startPos);
         destinations.add(new Coordinate(20, 20, 0));
         destinations.add(new Coordinate(20, 130, 0));
-        destinations.add(new Coordinate(250, 40, 0));
+        destinations.add(new Coordinate(20, 40, 0));
         destinations.add(new Coordinate(20, 160, 0));
-        destinations.add(new Coordinate(230, 450, 0));
+        destinations.add(new Coordinate(20, 450, 0));
         destinations.add(new Coordinate(20, 100, 0));
-        destinations.add(new Coordinate(205, 40, 0));
+        destinations.add(new Coordinate(20, 40, 0));
         destinations.add(new Coordinate(30, 30, 0));
         destinations.add(new Coordinate(30, 450, 0));
-        destinations.add(new Coordinate(360, 10, 0));
+        destinations.add(new Coordinate(30, 10, 0));
         destinations.add(new Coordinate(30, 490, 0));
         destinations.add(new Coordinate(33, 60, 0));
         destinations.add(new Coordinate(30, 760, 0));
-        destinations.add(new Coordinate(380, 420, 0));
+        destinations.add(new Coordinate(30, 420, 0));
         destinations.add(new Coordinate(40, 40, 0));
         destinations.add(new Coordinate(40, 160, 0));
-        destinations.add(new Coordinate(402, 456, 0));
-        destinations.add(new Coordinate(40, 1660, 0));
+        destinations.add(new Coordinate(40, 456, 0));
+        destinations.add(new Coordinate(40, 660, 0));
         destinations.add(new Coordinate(40, 420, 0));
-        destinations.add(new Coordinate(460, 130, 0));
+        destinations.add(new Coordinate(40, 130, 0));
         destinations.add(new Coordinate(40, 440, 0));
-        destinations.add(new Coordinate(450, 140, 0));
-        destinations.add(new Coordinate(405, 1160, 0));
+        destinations.add(new Coordinate(40, 140, 0));
+        destinations.add(new Coordinate(45, 110, 0));
         destinations.add(new Coordinate(50, 50, 0));
         destinations.add(new Coordinate(60, 60, 0));
         destinations.add(new Coordinate(60, 40, 0));
         destinations.add(new Coordinate(60, 10, 0));
         destinations.add(new Coordinate(60, 400, 0));
-
+        
+        Tour originalTour = new Tour(destinations.size());
+        for (int i = 0; i < destinations.size(); i++) {
+            originalTour.setCoordinate(i , destinations.get(i));
+        }
+        System.out.println("Original tour: " + originalTour);
+        System.out.println("Original tour tot dist: " + originalTour.getTotalDistance());
+        
+        
         PatternOptimalization pOpt = new PatternOptimalization();
         pOpt.addCoordinates(destinations);
         pOpt.doOptimalization();

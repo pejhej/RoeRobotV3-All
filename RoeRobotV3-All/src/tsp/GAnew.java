@@ -45,17 +45,19 @@ public class GAnew {
         while (evolutions > j++) {
             for (int i = elitismOffset; i < newPopulation.getNrOfTours(); i++) {
                 // Chose pair of chromosmes for amtiong
-                Tour parrentOne = this.turnamentSelection(pop);
-                Tour parrentTwo = this.turnamentSelection(pop);
-                if (parrentOne.getList().contains(null) || parrentTwo.getList().contains(null)) {
+                Tour parentOne = this.turnamentSelection(pop);
+                Tour parentTwo = this.turnamentSelection(pop);
+                if (parentOne.getList().contains(null) || parentTwo.getList().contains(null)) {
                     System.out.println("Fuck You parrent");
                 }
                 // Preforme crossover with Pc possebility 
                 // Tour child = this.crossover(parrentOne, parrentTwo, parrentOne.tourSize());
-                Tour child = this.crossoverWithStartCoord(parrentOne, parrentTwo, parrentOne.tourSize(), startCoord);
+                Tour childOne = this.crossoverWithStartCoord(parentOne, parentTwo, parentOne.tourSize(), startCoord);
+                Tour childTwo = this.crossoverWithStartCoord(parentOne, parentTwo, parentOne.tourSize(), startCoord);
                 // System.out.println(startCoord);
                 // Add child to new population
-                newPopulation.saveTour(i, child);
+                newPopulation.saveTour(i, childOne);
+                newPopulation.saveTour(i, childTwo);
             }
 //
             // Mutate the new population a bit to add some new genetic material
@@ -120,7 +122,7 @@ public class GAnew {
     /**
      * Croosover Arranged Crossover
      */
-    private Tour crossoverWithStartCoord(Tour parrentOne, Tour parrentTwo, int tourSize, Coordinate startCoord) {
+    private Tour crossoverWithStartCoord(Tour parentOne, Tour parentTwo, int tourSize, Coordinate startCoord) {
         Tour child = new Tour(tourSize);
         child.setCoordinate(0, startCoord);
         // Get start and end sub tour positions for parent1's tour
@@ -131,11 +133,11 @@ public class GAnew {
         for (int i = 1; i < tourSize; i++) {
             // If our start position is less than the end position
             if (startPos < endPos && i > startPos && i < endPos) {
-                child.setCoordinate(i, parrentOne.getCoordinate(i));
+                child.setCoordinate(i, parentOne.getCoordinate(i));
             } // If our start position is larger
             else if (startPos > endPos) {
                 if (!(i < startPos && i > endPos)) {
-                    child.setCoordinate(i, parrentOne.getCoordinate(i));
+                    child.setCoordinate(i, parentOne.getCoordinate(i));
                 }
             }
         }
@@ -144,9 +146,9 @@ public class GAnew {
             // If the child have an empty spot. 
             if (child.getList().contains(null)) {
                 if (child.getCoordinate(i) == null) {
-                    for (int k = 0; k < parrentTwo.tourSize(); k++) {
-                        if (!child.containsCoordinate(parrentTwo.getCoordinate(k))) {
-                            child.setCoordinate(i, parrentTwo.getCoordinate(k));
+                    for (int k = 0; k < parentTwo.tourSize(); k++) {
+                        if (!child.containsCoordinate(parentTwo.getCoordinate(k))) {
+                            child.setCoordinate(i, parentTwo.getCoordinate(k));
                             break;
                         }
                     }
@@ -156,7 +158,7 @@ public class GAnew {
         }
         if (child.getList().contains(null)) {
             System.out.println("Fuck You child");
-            this.crossoverWithStartCoord(parrentOne, parrentTwo, tourSize, startCoord);
+            this.crossoverWithStartCoord(parentOne, parentTwo, tourSize, startCoord);
         }
         return child;
     }
