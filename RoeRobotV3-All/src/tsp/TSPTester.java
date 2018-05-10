@@ -27,7 +27,6 @@ public class TSPTester {
         destinations.add(new Coordinate(20, 160, 0));
         destinations.add(new Coordinate(20, 450, 0));
         destinations.add(new Coordinate(20, 100, 0));
-        destinations.add(new Coordinate(20, 40, 0));
         destinations.add(new Coordinate(30, 30, 0));
         destinations.add(new Coordinate(30, 450, 0));
         destinations.add(new Coordinate(30, 10, 0));
@@ -49,15 +48,14 @@ public class TSPTester {
         destinations.add(new Coordinate(60, 40, 0));
         destinations.add(new Coordinate(60, 10, 0));
         destinations.add(new Coordinate(60, 400, 0));
-        
+//        
         Tour originalTour = new Tour(destinations.size());
         for (int i = 0; i < destinations.size(); i++) {
-            originalTour.setCoordinate(i , destinations.get(i));
+            originalTour.setCoordinate(i, destinations.get(i));
         }
         System.out.println("Original tour: " + originalTour);
         System.out.println("Original tour tot dist: " + originalTour.getTotalDistance());
-        
-        
+
         PatternOptimalization pOpt = new PatternOptimalization();
         pOpt.addCoordinates(destinations);
         pOpt.doOptimalization();

@@ -18,7 +18,7 @@ public class GAnew {
 
     private static final double mutationRate = 0.001;
     private static final int tournamentSize = 5;
-    private static final boolean elitism = false;
+    private static final boolean elitism = true;
 
     public GAnew() {
     }
@@ -33,16 +33,19 @@ public class GAnew {
         Population newPopulation = new Population(pop.getNrOfTours());
 
         Coordinate startCoord = pop.getFittest().getCoordinate(0);
-
+        // Boolen for detectiong no improvement. 
+        boolean noImprovement = false; 
+        int noImprovemnetRange = 0; 
         // Keep our best individual if elitism is enabled
         int elitismOffset = 0;
         if (elitism) {
             newPopulation.saveTour(0, pop.getFittest());
-            elitismOffset = 1;
+            newPopulation.saveTour(1, pop.getSecoundFittest());
+            elitismOffset = 2;
         }
 
         int j = 0;
-        while (evolutions > j++) {
+        while (evolutions > j++ && !noImprovement) {
             for (int i = elitismOffset; i < newPopulation.getNrOfTours(); i++) {
                 // Chose pair of chromosmes for amtiong
                 Tour parentOne = this.turnamentSelection(pop);
@@ -56,13 +59,21 @@ public class GAnew {
                 Tour childTwo = this.crossoverWithStartCoord(parentOne, parentTwo, parentOne.tourSize(), startCoord);
                 // System.out.println(startCoord);
                 // Add child to new population
-                newPopulation.saveTour(i, childOne);
+                newPopulation.saveTour(i++, childOne);
                 newPopulation.saveTour(i, childTwo);
             }
 //
             // Mutate the new population a bit to add some new genetic material
             for (int i = 0; i < newPopulation.getNrOfTours(); i++) {
-                mutate(newPopulation.getTour(i));
+                mutateWithStartCoord(newPopulation.getTour(i));
+            }
+            
+            if(pop.getFittest().getTotalDistance() == newPopulation.getFittest().getTotalDistance()){
+                noImprovemnetRange++;
+                // If no improvement are done for 10 iterations. 
+                if(noImprovemnetRange >= 10){
+                    noImprovement = true; 
+                }
             }
             // 
             pop = newPopulation;
@@ -82,17 +93,17 @@ public class GAnew {
     private Tour crossover(Tour parrentOne, Tour parrentTwo, int tourSize) {
         Tour child = new Tour(tourSize);
         // Get start and end sub tour positions for parent1's tour
-        int startPos = (int) (abs(Math.random() * tourSize));
-        int endPos = (int) (abs(Math.random() * tourSize));
+        int startCrossoverPoint = (int) (abs(Math.random() * tourSize));
+        int endCrossoverPoint = (int) (abs(Math.random() * tourSize));
 
         // Loop and add the sub tour from parent1 to our child
         for (int i = 0; i < tourSize; i++) {
             // If our start position is less than the end position
-            if (startPos < endPos && i > startPos && i < endPos) {
+            if (startCrossoverPoint < endCrossoverPoint && i > startCrossoverPoint && i < endCrossoverPoint) {
                 child.setCoordinate(i, parrentOne.getCoordinate(i));
             } // If our start position is larger
-            else if (startPos > endPos) {
-                if (!(i < startPos && i > endPos)) {
+            else if (startCrossoverPoint > endCrossoverPoint) {
+                if (!(i < startCrossoverPoint && i > endCrossoverPoint)) {
                     child.setCoordinate(i, parrentOne.getCoordinate(i));
                 }
             }
@@ -126,17 +137,17 @@ public class GAnew {
         Tour child = new Tour(tourSize);
         child.setCoordinate(0, startCoord);
         // Get start and end sub tour positions for parent1's tour
-        int startPos = (int) (abs(Math.random() * tourSize - 1) + 1);
-        int endPos = (int) (abs(Math.random() * tourSize - 1) + 1);
+        int startCrossoverPoint = (int) (abs(Math.random() * tourSize - 1) + 1);
+        int endCrossoverPoint = (int) (abs(Math.random() * tourSize - 1) + 1);
 
         // Loop and add the sub tour from parent1 to our child
         for (int i = 1; i < tourSize; i++) {
             // If our start position is less than the end position
-            if (startPos < endPos && i > startPos && i < endPos) {
+            if (startCrossoverPoint < endCrossoverPoint && i > startCrossoverPoint && i < endCrossoverPoint) {
                 child.setCoordinate(i, parentOne.getCoordinate(i));
             } // If our start position is larger
-            else if (startPos > endPos) {
-                if (!(i < startPos && i > endPos)) {
+            else if (startCrossoverPoint > endCrossoverPoint) {
+                if (!(i < startCrossoverPoint && i > endCrossoverPoint)) {
                     child.setCoordinate(i, parentOne.getCoordinate(i));
                 }
             }
@@ -164,10 +175,10 @@ public class GAnew {
     }
 
     /**
-     * Mutation.
+     * Mutate a tour using swap mutation
+     * The start coordinate will ceaped ass first in list. 
      */
-    // Mutate a tour using swap mutation
-    private static void mutate(Tour tour) {
+    private static void mutateWithStartCoord(Tour tour) {
         // Loop through tour cities
         for (int tourPos1 = 1; tourPos1 < tour.tourSize(); tourPos1++) {
             // Apply mutation rate
@@ -176,7 +187,7 @@ public class GAnew {
             if (randNr < mutationRate) {
                 // Get a second random position in the tour
                 int tourPos2 = (int) (abs(Math.random() * tour.tourSize() - 1) + 1);
-                // Get the cities at target position in tour
+                // Get the coordinates at target position in tour
                 Coordinate coord1 = tour.getCoordinate(tourPos1);
                 Coordinate coord2 = tour.getCoordinate(tourPos2);
                 // Swap them around

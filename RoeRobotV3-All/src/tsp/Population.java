@@ -23,7 +23,7 @@ public class Population {
     // list of tours (chromosomes) in the population. 
     private Tour[] tours;
 
-    public Population(int populationSize, ArrayList coordList , boolean initialise) {
+    public Population(int populationSize, ArrayList coordList, boolean initialise) {
         this.tours = new Tour[populationSize];
         if (initialise) {
             for (int index = 0; index <= populationSize - 1; index++) {
@@ -32,12 +32,13 @@ public class Population {
             }
         }
     }
-    
+
     /**
-     * Generate empty population. 
+     * Generate empty population.
+     *
      * @param populationSize
      */
-    public Population(int populationSize){
+    public Population(int populationSize) {
         this.tours = new Tour[populationSize];
     }
 
@@ -49,8 +50,8 @@ public class Population {
     public void addTour(Tour tour) {
         this.tours[this.tours.length + 1] = tour;
     }
-    
-        // Saves a tour
+
+    // Saves a tour
     public void saveTour(int index, Tour tour) {
         tours[index] = tour;
     }
@@ -79,8 +80,28 @@ public class Population {
         }
         return fittestTour;
     }
-    
-    
+
+    /**
+     * Get fittest tour in the population.
+     *
+     * @return fittest tour in the population.
+     */
+    public Tour getSecoundFittest() {
+        Tour fittestTour = this.getTour(0);
+        Tour secoundFittestTour = this.getTour(0);
+        for (int i = 0; i <= this.tours.length - 1; i++) {
+            if (fittestTour.getFitness() < this.getTour(i).getFitness()) {
+                fittestTour = this.getTour(i);
+            }
+        }
+        for (int i = 0; i <= this.tours.length - 1; i++) {
+            if (secoundFittestTour.getFitness() > fittestTour.getFitness() && secoundFittestTour.getFitness() < this.getTour(i).getFitness()) {
+                secoundFittestTour = this.getTour(i);
+            }
+        }
+        return secoundFittestTour;
+    }
+
     // List all tour ass string. 
     public String listAllTours() {
         String allToursString = "There is no tours";
@@ -92,15 +113,14 @@ public class Population {
         }
         return allToursString;
     }
-    
-    
+
     /**
-     * Get the number of tour in population. 
-     * 
-     * 
+     * Get the number of tour in population.
+     *
+     *
      */
-    public int getNrOfTours(){
+    public int getNrOfTours() {
         return this.tours.length;
     }
-    
+
 }
