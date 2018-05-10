@@ -36,7 +36,7 @@ public class Loading extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        labelLoadingFish.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagesGUI/giphy.gif"))); // NOI18N
+        labelLoadingFish.setIcon(new javax.swing.ImageIcon(getClass().getResource("/mainFrame/images/giphy.gif"))); // NOI18N
         labelLoadingFish.setToolTipText("");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

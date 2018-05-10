@@ -128,14 +128,15 @@ public class Tray{
     {
         
         // create top row of coordinates
-        for(int i = 0; i <= 12; i++)
+        // antall bilder skal være 12 
+        for(int i = 0; i <= 1; i++)
         {
             Coordinate nextCoord = new Coordinate(this.imageCoordX + this.imageWidth*i, this.imageCoordY + this.imageHeight, cameraHeight);
             this.addCameraPos(nextCoord);
         }
         
         // create bottom row of coordinates
-        for(int i = 12; i >= 0; i--)
+        for(int i = 1; i >= 0; i--)
         {
             Coordinate nextCoord = new Coordinate(this.imageCoordX + this.imageWidth*i, this.imageCoordY, cameraHeight);
             this.addCameraPos(nextCoord);
@@ -300,7 +301,7 @@ public class Tray{
     {
         Coordinate returnCoord = null;
         //Check if the coordinate is in the array
-        if(nr <= this.cameraPositions.size())
+        if(nr < this.cameraPositions.size())
             returnCoord = this.cameraPositions.get(nr);
        
        return returnCoord;

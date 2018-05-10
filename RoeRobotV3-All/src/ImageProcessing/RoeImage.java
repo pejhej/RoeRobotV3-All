@@ -133,7 +133,6 @@ public class RoeImage
     public void addRoePositionMillimeter(Coordinate coordinate)
     {
         this.roePositionMillimeters.add(coordinate);
-        System.out.println("millimeter: " + coordinate.getxCoord() + " , " + coordinate.getyCoord());
     }
             
     

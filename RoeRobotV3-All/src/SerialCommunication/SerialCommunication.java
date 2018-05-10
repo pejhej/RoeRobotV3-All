@@ -263,7 +263,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
 
             if (getSendQSize() != 0)
             {    //Send the commands in the qeue
-                sendCommand(popSendQ());
+                sendCommand(pollSendQ());
                 // Only recieve if something is sent
                 //TODO: Check this, currently the incomming recieving qeue only can recieve stateRequest, maybe staterequest should be Status 
                 //and thereof the incomming demand can handle all kind of "requests" for different states
@@ -297,9 +297,9 @@ public class SerialCommunication extends Thread implements SerialInputListener
      *
      * @return Returns the last commando put into the queue
      */
-    private synchronized Commando popSendQ()
+    private synchronized Commando pollSendQ()
     {
-        return sendQeue.pop();
+        return sendQeue.poll();
     }
 
     /*

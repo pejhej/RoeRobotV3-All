@@ -35,7 +35,7 @@ public class RackAllClosed extends javax.swing.JPanel {
 
         rackClosedLabel = new javax.swing.JLabel();
 
-        rackClosedLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagesGUI/rack-system-three-allclosed.jpg"))); // NOI18N
+        rackClosedLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/mainFrame/images/rack-system-three-allclosed.jpg"))); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

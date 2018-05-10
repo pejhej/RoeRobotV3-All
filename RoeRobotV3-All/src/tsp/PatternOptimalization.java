@@ -18,7 +18,7 @@ public class PatternOptimalization {
     private boolean ready;
 
     // Number of populations to generate
-    private int nrOfPopulations = 60;
+    private int nrOfPopulations = 20;
 
     // Arraylist holding on all coordinates for a specific tour. 
     private ArrayList<Coordinate> coordinatList;
@@ -64,13 +64,14 @@ public class PatternOptimalization {
             // Generate populations.  
             Population population = new Population(nrOfPopulations, this.coordinatList, true);
             fittestTourList = population.getFittest().getList();
-            System.out.println("Initial Fittest tour: " + population.getFittest());
+            
+            System.out.println("Initial Fittest tour: " + population.getFittest().tourSize());
             System.out.println("Initial Total distance of fittest tour: " + population.getFittest().getTotalDistance());
             System.out.println("Start GA:");
             //
             GAnew ga = new GAnew();
-            population = ga.evolvePopulation(400, population);
-//
+            population = ga.evolvePopulation(20,population);//400, population);
+            
             System.out.println("Fittest tour: " + population.getFittest().getTotalDistance());
             System.out.println("Initial Fittest tour: " + population.getFittest());
 

@@ -29,7 +29,7 @@ public class ImageTest
       public void test()
       {
           Camera cam = new Camera();
-          cam.takePicture(80);
+          cam.takePicture(80,0);
       }
     
 }

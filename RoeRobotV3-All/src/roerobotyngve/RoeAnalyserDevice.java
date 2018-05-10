@@ -591,6 +591,7 @@ public class RoeAnalyserDevice implements StatusListener {
                         Suction cmdSuck = new Suction();
                         //Send suction command
                         serialComm.addSendQ(cmdSuck);
+                        setStatusToBusy();
                         task = moveUp;
                         System.out.println("Suction command sent");
                     } //Something is faulty, end task
@@ -603,7 +604,7 @@ public class RoeAnalyserDevice implements StatusListener {
                 case moveUp:
                     //Send command if robot becomes ready
                     if (robotIsReady(waitTime)) {
-                        this.move(thisTray.getDefaultCoord());
+                        this.move(thisTray.getDefaultZPosCoord());
                         this.setStatusToBusy();
                         task = done;
                         System.out.println("Move Up");
@@ -863,7 +864,7 @@ public class RoeAnalyserDevice implements StatusListener {
                     //Send command if robot becomes ready
                     if (robotIsReady(waitTime)) 
                     {
-                       imageTaken = this.camera.takePicture((float) workingTray.getWaterSurfaceOffsetForCamera());
+                       imageTaken = this.camera.takePicture((float) workingTray.getWaterSurfaceOffsetForCamera(), frameNumber);
                         System.out.println("Taken picture " + frameNumber);
                         //Take the pic
                         task = done;

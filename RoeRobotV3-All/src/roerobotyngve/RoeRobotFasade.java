@@ -27,7 +27,7 @@ public class RoeRobotFasade
     {
         this.roeAnalyser = roeAnalyser;
         this.threadPool = threadPool;
-        this.startCycle();
+        //this.startCycle();
     }
 
     /**
@@ -36,10 +36,10 @@ public class RoeRobotFasade
     public void startCycle()
     {
        
-        this.roeAnalyser.startRobotCalibrating();
-         this.roeAnalyser.run();
+        //this.roeAnalyser.startRobotCalibrating();
+      //   this.roeAnalyser.run();
         this.roeAnalyser.startRobot();
-           this.roeAnalyser.run();
+          threadPool.execute(roeAnalyser);
 
     }
 
@@ -63,14 +63,22 @@ public class RoeRobotFasade
     /**
      * this will pause the roebot
      */
-    public void pauseSystem()
+    public void pauseRobot()
     {
-        //roeAnalyser.pauseRoeBot(); 
+        this.roeAnalyser.pauseRobot();
+    }
+    
+      /* this will unpause the roebot
+     */
+    public void unPauseRobot()
+    {
+        this.roeAnalyser.notify();
     }
 
     public void doCalibrate()
     {
-        // roeAnalyser.calibrateRoeBot(); 
+        this.roeAnalyser.startRobotCalibrating();
+         threadPool.execute(roeAnalyser);
     }
 
     public void regulateLights()

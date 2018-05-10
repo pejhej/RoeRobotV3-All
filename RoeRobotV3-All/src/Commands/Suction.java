@@ -17,6 +17,8 @@ public class Suction extends Commando
     public Suction()
     {
         super(COMMAND_ADDRESS);
+        super.setForElevatorRobot(true);
+        super.setForLinearRobot(false);
     }
     
 }

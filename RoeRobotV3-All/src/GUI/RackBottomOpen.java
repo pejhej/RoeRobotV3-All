@@ -36,7 +36,7 @@ public class RackBottomOpen extends javax.swing.JPanel {
 
         jLabel1 = new javax.swing.JLabel();
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagesGUI/rack-system-three-bottomOpen.jpg"))); // NOI18N
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/mainFrame/images/rack-system-three-bottomOpen.jpg"))); // NOI18N
         jLabel1.setPreferredSize(new java.awt.Dimension(400, 375));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

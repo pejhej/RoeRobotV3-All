@@ -38,12 +38,16 @@ public class Camera
     private final int FOV = 78;
     
     
+    // visualisering fjernes
+    OpenCVWindow orgImage;
+    
+    
     public Camera() 
     {
         boolean found = false;
         // Open a camerasource
         this.cam = new VideoCapture(camToOpen);
-        System.out.println("Camera øpnat");
+        //System.out.println("Camera øpnat");
         
         // create a Mat frame variable
         this.frame = new Mat();
@@ -51,6 +55,10 @@ public class Camera
         // set the desired width and height of the pictures taken
         this.cam.set(CAP_PROP_FRAME_WIDTH, 1920);
         this.cam.set(CAP_PROP_FRAME_HEIGHT, 1080);
+                
+                
+                // visualisering - fjernes
+             //   orgImage = new OpenCVWindow(1,1,512,512);
     }
    
 
@@ -61,15 +69,15 @@ public class Camera
      * @param cameraHeight distance between lens and surface 
      * @return RoeImage with picture and properties
      */
-    public RoeImage takePicture(float cameraHeight) 
+    public RoeImage takePicture(float cameraHeight, int pictureIndex) 
     {
-        System.out.println("skal ta bilde");
+        //System.out.println("skal ta bilde");
         // return variable
         RoeImage result = new RoeImage(cameraHeight, this.FOV);
         
         // take picture 
         this.cam.read(this.frame);
-        System.out.println("bilde tatt");
+        //System.out.println("bilde tatt");
         // update timestamp for image capturing
         this.timestamp = System.currentTimeMillis();
         
@@ -79,13 +87,19 @@ public class Camera
         // add timestamp of captured image
         result.setTimeStamp(this.timestamp);
         
-        OpenCVWindow orgImage = new OpenCVWindow(1,1,512,512);
-       Mat origImage = frame.clone();
+        // set the index of the picture captured
+        result.setPictureIndex(pictureIndex);
+        
+      
+        
+
+        // visualisering - fjernes{        
+       //Mat origImage = frame.clone();
        //orgImage.showImage(origImage);
             
-       Image image = Mat2BufferedImage(frame);
-       displayImage(image);
-        
+       //Image image = Mat2BufferedImage(frame);
+       //displayImage(image);
+        //}
         
         
         

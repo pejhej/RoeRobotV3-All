@@ -5,6 +5,7 @@
  */
 package roerobotv3.all;
 
+import GUI.RoeBot;
 import com.pi4j.platform.PlatformAlreadyAssignedException;
 import java.util.concurrent.Executors;
 import roerobotyngve.GPIO_HMI;
@@ -43,6 +44,15 @@ public class MegaMasterClass {
         RoeAnalyser roeAnalyser = new RoeAnalyser(this.threadPool);
         RoeRobotFasade roeRobotFasade = new RoeRobotFasade(roeAnalyser, this.threadPool);
         // GPIO_HMI gpioHMI = new GPIO_HMI(roeRobotFasade);
+        
+        //START the GUI
+           /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new RoeBot(roeRobotFasade).setVisible(true);
+
+            }
+        });
 
     }
 

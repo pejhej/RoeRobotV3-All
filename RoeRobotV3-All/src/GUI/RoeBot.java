@@ -94,18 +94,20 @@ public final class RoeBot extends javax.swing.JFrame {
     /**
      * Creates new form RoeBot
      */
-    public RoeBot() {
+    public RoeBot(RoeRobotFasade roeBotFasade) {
         initComponents(); //initializing components. work as a connection between GUI Editor and JAVA. 
 
         PanelReady.setVisible(false); //hiding the Ready panel to calibration button is pushed
         NumberOfSearches.setVisible(false);
         errorMessageSetTraysLabel.setVisible(false);
-
+        
+        //Load the GUI windows
         rackClosed = new RackAllClosed();
         rackBottomOpen = new RackBottomOpen();
         rackMiddleOpen = new RackMiddleOpen();
         rackTopOpen = new RackTopOpen();
-        //roeBotFasade = new RoeRobotFasade();
+        //Set the fasade
+        this.roeBotFasade = roeBotFasade;
 
         gridBagConstraints();
         //this.lightReg = lightReg; 
@@ -564,7 +566,7 @@ public final class RoeBot extends javax.swing.JFrame {
      * @param evt
      */
     private void btnPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPauseActionPerformed
-        roeBotFasade.pauseSystem();
+        roeBotFasade.pauseRobot();
     }//GEN-LAST:event_btnPauseActionPerformed
 
     /**
@@ -623,6 +625,7 @@ public final class RoeBot extends javax.swing.JFrame {
             loading.setVisible(false);
             PanelCalibration.setVisible(false);
             PanelReady.setVisible(true);
+            
         } else {
             errorMessageSetTraysLabel.setVisible(true);
         }
@@ -637,8 +640,8 @@ public final class RoeBot extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME); //load native library of openCV
-        //System.load("/home/odroid/NetBeansProjects/RoeRobotV3-All/lib/opencv-package-xu4/libopencv_java310.so");
+        //System.loadLibrary(Core.NATIVE_LIBRARY_NAME); //load native library of openCV
+        System.load("/home/odroid/NetBeansProjects/RoeRobotV3-All/RoeRobotV3-All/lib/opencv-package-xu4/libopencv_java310.so");;
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -665,7 +668,7 @@ public final class RoeBot extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new RoeBot().setVisible(true);
+              //  new RoeBot().setVisible(true);
 
             }
         });

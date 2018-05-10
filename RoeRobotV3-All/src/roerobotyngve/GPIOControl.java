@@ -73,7 +73,8 @@ public class GPIOControl
         
         //Allow for user to exit program using CTRL-C
         console.promptForExit();
-
+        
+     //   putenv("GPIO_DMEM=1");
         //Create gpio controller
         final GpioController gpio = GpioFactory.getInstance();
 

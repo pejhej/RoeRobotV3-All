@@ -29,7 +29,7 @@
     <Component class="javax.swing.JLabel" name="rackClosedLabel">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/imagesGUI/rack-system-three-allclosed.jpg"/>
+          <Image iconType="3" name="/mainFrame/images/rack-system-three-allclosed.jpg"/>
         </Property>
       </Properties>
     </Component>
