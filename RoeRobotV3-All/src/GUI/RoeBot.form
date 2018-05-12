@@ -98,21 +98,22 @@
                               <EmptySpace min="-2" pref="329" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="btnCalibrate" min="-2" pref="169" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="564" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="1" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="NumberOfSearches" min="-2" max="-2" attributes="0"/>
-                                  <Component id="pleaseCalibrateToContinueLabel" min="-2" pref="280" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="230" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="jLabel1" alignment="0" min="-2" pref="96" max="-2" attributes="0"/>
-                                  <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
+                                  <Component id="btnCalibrate" min="-2" pref="244" max="-2" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <Group type="103" groupAlignment="1" attributes="0">
+                                          <Component id="NumberOfSearches" min="-2" max="-2" attributes="0"/>
+                                          <Component id="pleaseCalibrateToContinueLabel" alignment="1" min="-2" pref="280" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace min="-2" pref="230" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="jLabel1" alignment="0" min="-2" pref="96" max="-2" attributes="0"/>
+                                          <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel5" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                  </Group>
                               </Group>
                               <EmptySpace min="-2" pref="146" max="-2" attributes="0"/>
                           </Group>
@@ -127,9 +128,9 @@
                       <Component id="lblRoeBot1" min="-2" pref="117" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
                       <Component id="pleaseCalibrateToContinueLabel" min="-2" pref="58" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="54" max="-2" attributes="0"/>
-                      <Component id="btnCalibrate" min="-2" pref="54" max="-2" attributes="0"/>
-                      <EmptySpace pref="193" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
+                      <Component id="btnCalibrate" min="-2" pref="114" max="-2" attributes="0"/>
+                      <EmptySpace pref="141" max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <Component id="jLabel1" min="-2" pref="40" max="-2" attributes="0"/>
@@ -217,9 +218,9 @@
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
-                          <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
-                          <Component id="textFieldSetSearches" min="-2" pref="112" max="-2" attributes="0"/>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="9" max="-2" attributes="0"/>
+                          <Component id="textFieldSetSearches" min="-2" pref="138" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="setNumberOfSearchesButton" pref="141" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -246,13 +247,16 @@
               </Layout>
               <SubComponents>
                 <Component class="javax.swing.JTextField" name="textFieldSetSearches">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Operation interaval (min)"/>
+                  </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textFieldSetSearchesActionPerformed"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JButton" name="setNumberOfSearchesButton">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Number Of Searches"/>
+                    <Property name="text" type="java.lang.String" value="Start"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="setNumberOfSearchesButtonActionPerformed"/>
@@ -424,7 +428,7 @@
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Tahoma" size="14" style="1"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Emergency Stop"/>
+                <Property name="text" type="java.lang.String" value="Stop"/>
                 <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                   <Dimension value="[160, 80]"/>
                 </Property>

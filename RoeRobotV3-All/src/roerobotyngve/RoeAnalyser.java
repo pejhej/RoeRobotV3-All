@@ -248,12 +248,6 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
     }
     
      public void pauseRobot() {
-        try {
-            this.wait();
-            
-        } catch (InterruptedException ex) {
-            Logger.getLogger(RoeAnalyser.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
     
     /**

@@ -203,13 +203,14 @@ public final class RoeBot extends javax.swing.JFrame {
 
         jLabel6.setText("Kristoffer Hildrestrand");
 
+        textFieldSetSearches.setText("Operation interaval (min)");
         textFieldSetSearches.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 textFieldSetSearchesActionPerformed(evt);
             }
         });
 
-        setNumberOfSearchesButton.setText("Number Of Searches");
+        setNumberOfSearchesButton.setText("Start");
         setNumberOfSearchesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 setNumberOfSearchesButtonActionPerformed(evt);
@@ -225,9 +226,9 @@ public final class RoeBot extends javax.swing.JFrame {
         NumberOfSearchesLayout.setHorizontalGroup(
             NumberOfSearchesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(NumberOfSearchesLayout.createSequentialGroup()
-                .addGap(23, 23, 23)
-                .addComponent(textFieldSetSearches, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(9, 9, 9)
+                .addComponent(textFieldSetSearches, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(setNumberOfSearchesButton, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, NumberOfSearchesLayout.createSequentialGroup()
@@ -257,19 +258,19 @@ public final class RoeBot extends javax.swing.JFrame {
                         .addComponent(lblRoeBot1, javax.swing.GroupLayout.PREFERRED_SIZE, 642, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(329, 329, 329))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelCalibrationLayout.createSequentialGroup()
-                        .addComponent(btnCalibrate, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(564, 564, 564))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, PanelCalibrationLayout.createSequentialGroup()
-                        .addGroup(PanelCalibrationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(NumberOfSearches, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pleaseCalibrateToContinueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(230, 230, 230)
                         .addGroup(PanelCalibrationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel6))
+                            .addComponent(btnCalibrate, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(PanelCalibrationLayout.createSequentialGroup()
+                                .addGroup(PanelCalibrationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(NumberOfSearches, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(pleaseCalibrateToContinueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 280, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(230, 230, 230)
+                                .addGroup(PanelCalibrationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel6))))
                         .addGap(146, 146, 146))))
         );
         PanelCalibrationLayout.setVerticalGroup(
@@ -279,9 +280,9 @@ public final class RoeBot extends javax.swing.JFrame {
                 .addComponent(lblRoeBot1, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(27, 27, 27)
                 .addComponent(pleaseCalibrateToContinueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(54, 54, 54)
-                .addComponent(btnCalibrate, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 197, Short.MAX_VALUE)
+                .addGap(50, 50, 50)
+                .addComponent(btnCalibrate, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 141, Short.MAX_VALUE)
                 .addGroup(PanelCalibrationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelCalibrationLayout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -330,7 +331,7 @@ public final class RoeBot extends javax.swing.JFrame {
 
         tgbEmergencyStop.setBackground(new java.awt.Color(255, 0, 0));
         tgbEmergencyStop.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        tgbEmergencyStop.setText("Emergency Stop");
+        tgbEmergencyStop.setText("Stop");
         tgbEmergencyStop.setMaximumSize(new java.awt.Dimension(160, 80));
         tgbEmergencyStop.setMinimumSize(new java.awt.Dimension(160, 80));
         tgbEmergencyStop.setPreferredSize(new java.awt.Dimension(160, 80));
@@ -548,8 +549,10 @@ public final class RoeBot extends javax.swing.JFrame {
 
 
     private void tgbEmergencyStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tgbEmergencyStopActionPerformed
+        tgbEmergencyStop.setVisible(false); 
         tgbEmergencyStop.setBackground(Color.red);
-        if (tgbEmergencyStop.isSelected()) {
+        if (tgbSearchSystem.isSelected()) {
+            tgbEmergencyStop.setVisible(true);
             roeBotFasade.emergencyStop();
             tgbEmergencyStop.setText("STOPPED!");
             tgbSearchSystem.setText("Search");
@@ -561,12 +564,31 @@ public final class RoeBot extends javax.swing.JFrame {
     }//GEN-LAST:event_btnReCalibrateActionPerformed
 
     /**
-     * BUTTON, that will pause the system if pushed.
+     * BUTTON, that will pause or continue the system if pushed.
      *
      * @param evt
      */
     private void btnPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPauseActionPerformed
-        roeBotFasade.pauseRobot();
+       // check if the pause button is pushed
+       if(btnPause.isSelected())
+       {
+        // check the state of the pause button, pause or continue
+        if(btnPause.getText().equals("Pause"))
+        {
+            // pause robot, change button to continue button
+            roeBotFasade.pauseRobot();
+            btnPause.setText("Continue");
+            btnPause.setBackground(Color.green);
+        }
+        
+        if(btnPause.getText().equals("Continue"))
+        {
+            // continue robot, change button state to pause
+            this.roeBotFasade.continueRobot();
+            btnPause.setText("Pause");
+            btnPause.setBackground(Color.yellow);
+        }
+       }
     }//GEN-LAST:event_btnPauseActionPerformed
 
     /**

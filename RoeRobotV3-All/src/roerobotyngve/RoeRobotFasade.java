@@ -66,6 +66,7 @@ public class RoeRobotFasade
     public void pauseRobot()
     {
         this.roeAnalyser.pauseRobot();
+        //threadPool.
     }
     
       /* this will unpause the roebot
@@ -84,5 +85,9 @@ public class RoeRobotFasade
     public void regulateLights()
     {
 
+    }
+
+    public void continueRobot() {
+       
     }
 }
