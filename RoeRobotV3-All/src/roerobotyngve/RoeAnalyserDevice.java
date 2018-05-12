@@ -75,7 +75,12 @@ public class RoeAnalyserDevice implements StatusListener {
     
     //Image processing variables
     Camera camera;
+    
+    
+    //pause boolean
+    private boolean pause = false;
 
+  
     
     
     
@@ -112,10 +117,8 @@ public class RoeAnalyserDevice implements StatusListener {
     @Override
     public synchronized void notifyNewStatus(Status status) {
         // System.out.println("NOTIFY NEW STATUS TRIGGED");
-        System.out.println(status.getString());
         //Check if its parameter
         if (State.PARAMETER.getStateStatus().getString().contentEquals(status.getString())) {
-            // System.out.println("ROE ANAL DEVICE RECIEVED PARAMETERS");
             calibrationParam = (Parameters) status;
             printCalib();
         }
@@ -209,9 +212,18 @@ public class RoeAnalyserDevice implements StatusListener {
             task = done;
             succesful = false;
         }
+        
         //updateStatus();
         //While loop to keep in the case until done or failure
         while (succesful && searching) {
+            if(this.isPause())
+                {
+                try {
+                    this.wait();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(RoeAnalyserDevice.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                }
             //Switch case to do the tasks;
             switch (task) {
                 //Move robot to the position of the handle
@@ -523,7 +535,6 @@ public class RoeAnalyserDevice implements StatusListener {
             //Check if calib parameter has been updated with both
             //Set in loop until both calibration parameters are returned
             while (!this.calibrationParam.isSent()) {
-                //System.out.println("Waiting for calib params");
                 //Send calib param command to get calibration parameters
                 CalibParam cmdCalibPar = new CalibParam();
                 if (timerHasPassed(calibWaitTime)) {
@@ -1080,4 +1091,17 @@ public class RoeAnalyserDevice implements StatusListener {
     public Parameters getCalibrationParams() {
         return this.calibrationParam;
     }
+    
+    /**
+     * Pause 
+     * @return 
+     */
+      public synchronized boolean isPause() {
+        return pause;
+    }
+
+    public synchronized void setPause(boolean pause) {
+        this.pause = pause;
+    }
+    
 }

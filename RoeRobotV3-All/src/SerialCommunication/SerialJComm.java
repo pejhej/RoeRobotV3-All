@@ -332,7 +332,6 @@ public class SerialJComm extends Thread
 
             // this.setDataToBeSent(bytesToSend);
             //Print the data to be sent - for debugging
-            System.out.println("Writer sending data");
             String inputString = new String(this.getDataToSend(), "UTF-8");
             System.out.println(inputString);
 
@@ -359,7 +358,6 @@ public class SerialJComm extends Thread
             this.setDataToBeSent(stringToSend.getBytes("UTF-8"));
             //Print the data to be sent - for debugging
             //Data to send
-            System.out.println("Writer sending data");
             String inputString = new String(this.getDataToSend(), "UTF-8");
             System.out.println(inputString);
 
@@ -387,8 +385,7 @@ public class SerialJComm extends Thread
             //Set data to be sent
             // this.setDataToBeSent(stringToSend.getBytes("UTF-8"));
             //Print the data to be sent - for debugging
-            //Data to send
-            System.out.println("Writer sending data");
+            //Get data to send
             String inputString = new String(this.getDataToSend(), "UTF-8");
             System.out.println(inputString);
 

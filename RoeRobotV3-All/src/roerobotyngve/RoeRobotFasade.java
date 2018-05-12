@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package roerobotyngve;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,13 +10,15 @@ public class RoeRobotFasade
 {
 
     // Roe analyser. 
-    private RoeAnalyser roeAnalyser;
+    private final RoeAnalyser roeAnalyser;
 
     // Threadpoool for running roe analyser
-    private ScheduledExecutorService threadPool;
+    private final ScheduledExecutorService threadPool;
 
     /**
      * Constructor. Create the RoeAnalyser.
+     * @param roeAnalyser
+     * @param threadPool
      */
     public RoeRobotFasade(RoeAnalyser roeAnalyser, ScheduledExecutorService threadPool)
     {
@@ -35,11 +32,10 @@ public class RoeRobotFasade
      */
     public void startCycle()
     {
-       
-        //this.roeAnalyser.startRobotCalibrating();
-      //   this.roeAnalyser.run();
+        // Set the state of the robot as start
         this.roeAnalyser.startRobot();
-          threadPool.execute(roeAnalyser);
+        // start the robot
+        this.threadPool.execute(roeAnalyser);
 
     }
 
@@ -49,15 +45,16 @@ public class RoeRobotFasade
      */
     public void stopCycle()
     {
+        // instant stop the threads from running
         this.threadPool.shutdownNow();
     }
 
     /**
      * this will stop the roebot
      */
-    public void emergencyStop()
+    public void stopRobot()
     {
-        //  roeAnalyser.stopRoeBot();
+        roeAnalyser.stopRobot();
     }
 
     /**
@@ -65,29 +62,43 @@ public class RoeRobotFasade
      */
     public void pauseRobot()
     {
-        this.roeAnalyser.pauseRobot();
-        //threadPool.
-    }
-    
-      /* this will unpause the roebot
-     */
-    public void unPauseRobot()
-    {
-        this.roeAnalyser.notify();
+        this.roeAnalyser.pauseRobot();     
     }
 
+    /**
+     * Perform calibration of the robot
+     */
     public void doCalibrate()
     {
         this.roeAnalyser.startRobotCalibrating();
          threadPool.execute(roeAnalyser);
     }
 
-    public void regulateLights()
+    /**
+     * Change the level of the lights  
+     * 
+     * @param redVal
+     * @param greenVal
+     * @param blueVal
+     */
+    public void regulateLights(int redVal, int greenVal, int blueVal)
     {
-
+        this.roeAnalyser.setLightVal(redVal, greenVal, blueVal);
     }
 
-    public void continueRobot() {
-       
+    
+    public void continueRobot() 
+    {
+        
+       this.roeAnalyser.unPauseRobot();
+    }
+
+    /**
+     * set the search interval 
+     * @param input interval in minutes
+     */
+    public void setSearchInterval(int input) 
+    {
+        this.roeAnalyser.setSearchInterval(input);
     }
 }

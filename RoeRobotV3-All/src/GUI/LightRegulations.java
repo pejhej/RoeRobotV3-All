@@ -13,6 +13,11 @@ import javax.swing.JLabel;
  */
 public class LightRegulations extends javax.swing.JFrame {
 
+    // variable for storing the values of the lights 
+    private int redVal;
+    private int greenVal;
+    private int blueVal;
+    
     /**
      * Creates new form lightRegulations
      */
@@ -23,17 +28,17 @@ public class LightRegulations extends javax.swing.JFrame {
     }
     
     /**
-    * methods to get information from sliders 
+    * Methods for getting values of the light levels
     * @return 
     */
-    public JLabel blueSlider() {
-        return null;
+    public int getRedLightValue() {
+        return this.redVal;
     }
-    public JLabel greenSlider() {
-        return null;
+    public int getGreenLightValue() {
+        return this.greenVal;
     }
-    public JLabel redSlider() {
-        return null;
+    public int getBlueLightValue() {
+        return this.blueVal;
     }
 
 
@@ -139,8 +144,8 @@ public class LightRegulations extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(greenSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(greenNumberReg, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(91, 91, 91)
+                        .addComponent(greenNumberReg, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(84, 84, 84)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
@@ -178,14 +183,20 @@ public class LightRegulations extends javax.swing.JFrame {
 
     private void redSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_redSliderStateChanged
         redNumberReg.setText(Integer.toString(redSlider.getValue()));
+        // save the value to the variable
+        this.redVal = redSlider.getValue();
     }//GEN-LAST:event_redSliderStateChanged
 
     private void greenSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_greenSliderStateChanged
         greenNumberReg.setText(Integer.toString(greenSlider.getValue()));
+        // save the value to the variable
+        this.greenVal = greenSlider.getValue();
     }//GEN-LAST:event_greenSliderStateChanged
 
     private void blueSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_blueSliderStateChanged
         blueNumberReg.setText(Integer.toString(blueSlider.getValue()));
+        // save the value to the variable
+        this.blueVal = blueSlider.getValue();
     }//GEN-LAST:event_blueSliderStateChanged
 
     /**

@@ -596,7 +596,6 @@ public class SerialCommunication extends Thread implements SerialInputListener
             if (addrStr.compareTo(CONTROLLER_STRADDR_LINEARBOT) == 0)
             {
                 //Make state for the linearbot
-                System.out.print("Making Linear bot state");
                 Status tempStatus = makeState(valueStr);
                 //Check the status
                 if(tempStatus != null)
@@ -606,8 +605,7 @@ public class SerialCommunication extends Thread implements SerialInputListener
                 }
                     
                 
-                
-                 System.out.println(this.linearBotState.getString());
+
 
                 //Check if it is a calibration status, and set values if so
                 if (checkForCalibParam(this.linearBotState))
@@ -763,7 +761,6 @@ public class SerialCommunication extends Thread implements SerialInputListener
                     if (!checkForCalibParam(elevatorState))
                     {
                         //TODO: Trigger this state / send notify
-                      //  System.out.println("Elevator state triggered");
                         elevatorState.setSent(true);
                         elevatorState.notifyListeners();
                         sentStatus = true;
@@ -775,7 +772,6 @@ public class SerialCommunication extends Thread implements SerialInputListener
                     if (!checkForCalibParam(linearBotState))
                     {
                         //Trigger this state / send notify
-                      //  System.out.println("LinearBotState triggered");
                         linearBotState.setSent(true);
                         linearBotState.notifyListeners();
                         sentStatus = true;
@@ -849,8 +845,6 @@ public class SerialCommunication extends Thread implements SerialInputListener
             Status status = state.getStatus();
             returnState = status.returnNew();
 
-            // System.out.println("Return state: ");
-            //  System.out.print(returnState.getString());
             //CHECK FOR VALUES
             if (stateByte.length > 1)
             {

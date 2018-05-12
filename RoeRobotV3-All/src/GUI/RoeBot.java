@@ -5,18 +5,17 @@
  */
 package GUI;
 
+import ImageProcessing.ImageCaptureListener;
+import ImageProcessing.RoeImage;
 import roerobotyngve.RoeRobotFasade;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import javax.imageio.ImageIO;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -27,7 +26,7 @@ import org.opencv.videoio.VideoCapture;
  *
  * @author Kristoffer
  */
-public final class RoeBot extends javax.swing.JFrame {
+public final class RoeBot extends javax.swing.JFrame  implements ImageCaptureListener{
 
     /**
      * for dynamic panel
@@ -50,6 +49,27 @@ public final class RoeBot extends javax.swing.JFrame {
     Mat frame = new Mat();
     MatOfByte mem = new MatOfByte();
     Loading loading = new Loading();
+    
+    
+    /**
+     * variables used for retrieving input
+     */
+    private int operationInterval;
+    private int redLightVal;
+    private int greenLightVal;
+    private int blueLightVal;
+
+    /**
+     * Get image from camera when captured
+     * @param capturedImage 
+     */
+    @Override
+    public void noitfyImageCaptured(RoeImage capturedImage) 
+    {
+        this.frame = capturedImage.getImage();
+    }
+    
+    
 
     /**
      * DaemonThread Class. Does not prevent JVM from exiting when the program
@@ -88,24 +108,27 @@ public final class RoeBot extends javax.swing.JFrame {
                 }
             }
         }
-
-    }
+    }    
+    
 
     /**
      * Creates new form RoeBot
+     * @param roeBotFasade
      */
     public RoeBot(RoeRobotFasade roeBotFasade) {
         initComponents(); //initializing components. work as a connection between GUI Editor and JAVA. 
 
         PanelReady.setVisible(false); //hiding the Ready panel to calibration button is pushed
         NumberOfSearches.setVisible(false);
+        this.setNumberOfSearchesButton.setEnabled(false);
         errorMessageSetTraysLabel.setVisible(false);
-        
+
         //Load the GUI windows
         rackClosed = new RackAllClosed();
         rackBottomOpen = new RackBottomOpen();
         rackMiddleOpen = new RackMiddleOpen();
         rackTopOpen = new RackTopOpen();
+
         //Set the fasade
         this.roeBotFasade = roeBotFasade;
 
@@ -156,7 +179,6 @@ public final class RoeBot extends javax.swing.JFrame {
         setNumberOfSearchesButton = new javax.swing.JButton();
         errorMessageSetTraysLabel = new javax.swing.JLabel();
         PanelReady = new javax.swing.JPanel();
-        btnPause = new javax.swing.JButton();
         tgbSearchSystem = new javax.swing.JToggleButton();
         tgbEmergencyStop = new javax.swing.JToggleButton();
         btnReCalibrate = new javax.swing.JButton();
@@ -167,6 +189,7 @@ public final class RoeBot extends javax.swing.JFrame {
         btnLightRegulations = new javax.swing.JButton();
         DynamicPanelCameraAndRack = new javax.swing.JPanel();
         CameraPanel = new javax.swing.JPanel();
+        jTgbPause = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -199,7 +222,7 @@ public final class RoeBot extends javax.swing.JFrame {
 
         jLabel4.setText("Per Espen Aarseth");
 
-        jLabel5.setText("Kristian Lillindset");
+        jLabel5.setText("Kristian Andre Lilleindset");
 
         jLabel6.setText("Kristoffer Hildrestrand");
 
@@ -282,7 +305,7 @@ public final class RoeBot extends javax.swing.JFrame {
                 .addComponent(pleaseCalibrateToContinueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(50, 50, 50)
                 .addComponent(btnCalibrate, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 141, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 137, Short.MAX_VALUE)
                 .addGroup(PanelCalibrationLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelCalibrationLayout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -303,18 +326,6 @@ public final class RoeBot extends javax.swing.JFrame {
         PanelReady.setMaximumSize(new java.awt.Dimension(1460, 700));
         PanelReady.setMinimumSize(new java.awt.Dimension(1460, 700));
         PanelReady.setPreferredSize(new java.awt.Dimension(1460, 700));
-
-        btnPause.setBackground(new java.awt.Color(255, 255, 0));
-        btnPause.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        btnPause.setText("Pause");
-        btnPause.setMaximumSize(new java.awt.Dimension(160, 80));
-        btnPause.setMinimumSize(new java.awt.Dimension(160, 80));
-        btnPause.setPreferredSize(new java.awt.Dimension(160, 80));
-        btnPause.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnPauseActionPerformed(evt);
-            }
-        });
 
         tgbSearchSystem.setBackground(new java.awt.Color(51, 255, 0));
         tgbSearchSystem.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
@@ -416,23 +427,31 @@ public final class RoeBot extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        jTgbPause.setBackground(new java.awt.Color(255, 255, 0));
+        jTgbPause.setFont(new java.awt.Font("TakaoPGothic", 1, 14)); // NOI18N
+        jTgbPause.setText("Pause");
+        jTgbPause.setToolTipText("");
+        jTgbPause.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTgbPauseActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout PanelReadyLayout = new javax.swing.GroupLayout(PanelReady);
         PanelReady.setLayout(PanelReadyLayout);
         PanelReadyLayout.setHorizontalGroup(
             PanelReadyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(PanelReadyLayout.createSequentialGroup()
-                .addGroup(PanelReadyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(74, 74, 74)
+                .addGroup(PanelReadyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(DynamicPanelCameraAndRack, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(PanelReadyLayout.createSequentialGroup()
-                        .addGap(93, 93, 93)
-                        .addComponent(DynamicPanelCameraAndRack, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(PanelReadyLayout.createSequentialGroup()
-                        .addGap(74, 74, 74)
                         .addComponent(tgbSearchSystem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(37, 37, 37)
-                        .addComponent(btnPause, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(34, 34, 34)
-                        .addComponent(tgbEmergencyStop, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 229, Short.MAX_VALUE)
+                        .addGap(39, 39, 39)
+                        .addComponent(jTgbPause, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(27, 27, 27)
+                        .addComponent(tgbEmergencyStop, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 245, Short.MAX_VALUE)
                 .addGroup(PanelReadyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(PanelReadyLayout.createSequentialGroup()
                         .addComponent(btnLightRegulations, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -464,9 +483,9 @@ public final class RoeBot extends javax.swing.JFrame {
                         .addGap(90, 90, 90)
                         .addGroup(PanelReadyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(PanelReadyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(tgbEmergencyStop, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(tgbEmergencyStop, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(tgbSearchSystem, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(btnPause, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jTgbPause, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(PanelReadyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(btnLightRegulations, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(btnReCalibrate, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -542,18 +561,18 @@ public final class RoeBot extends javax.swing.JFrame {
         if (tgbSearchSystem.isSelected()) {
             roeBotFasade.startCycle();
             tgbSearchSystem.setText("DestROEing");
-            tgbEmergencyStop.setText("Emergency Stop");
+            tgbEmergencyStop.setText("Stop");
         }
 
     }//GEN-LAST:event_tgbSearchSystemActionPerformed
 
 
     private void tgbEmergencyStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tgbEmergencyStopActionPerformed
-        tgbEmergencyStop.setVisible(false); 
+        tgbEmergencyStop.setVisible(false);
         tgbEmergencyStop.setBackground(Color.red);
         if (tgbSearchSystem.isSelected()) {
             tgbEmergencyStop.setVisible(true);
-            roeBotFasade.emergencyStop();
+            roeBotFasade.stopRobot();
             tgbEmergencyStop.setText("STOPPED!");
             tgbSearchSystem.setText("Search");
         }
@@ -562,34 +581,6 @@ public final class RoeBot extends javax.swing.JFrame {
     private void btnReCalibrateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReCalibrateActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnReCalibrateActionPerformed
-
-    /**
-     * BUTTON, that will pause or continue the system if pushed.
-     *
-     * @param evt
-     */
-    private void btnPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPauseActionPerformed
-       // check if the pause button is pushed
-       if(btnPause.isSelected())
-       {
-        // check the state of the pause button, pause or continue
-        if(btnPause.getText().equals("Pause"))
-        {
-            // pause robot, change button to continue button
-            roeBotFasade.pauseRobot();
-            btnPause.setText("Continue");
-            btnPause.setBackground(Color.green);
-        }
-        
-        if(btnPause.getText().equals("Continue"))
-        {
-            // continue robot, change button state to pause
-            this.roeBotFasade.continueRobot();
-            btnPause.setText("Pause");
-            btnPause.setBackground(Color.yellow);
-        }
-       }
-    }//GEN-LAST:event_btnPauseActionPerformed
 
     /**
      * TOGGLE BUTTON, activating the photo if pushed. Else rack system will
@@ -627,74 +618,81 @@ public final class RoeBot extends javax.swing.JFrame {
 
 
     private void btnLightRegulationsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLightRegulationsActionPerformed
-        new LightRegulations().setVisible(true);
-
+        LightRegulations lightRegulator = new LightRegulations();
+        // display window
+        lightRegulator.setVisible(true);
+        
+        // get values from the window
+        this.redLightVal = lightRegulator.getRedLightValue();
+        this.greenLightVal = lightRegulator.getGreenLightValue();
+        this.blueLightVal = lightRegulator.getBlueLightValue();
+        
+        
+        // Update the fasade with new values
+        this.roeBotFasade.regulateLights(this.redLightVal, this.greenLightVal, this.blueLightVal);
+        System.out.println("endra farger til:"+ redLightVal +" , "+ greenLightVal + " , "+blueLightVal);
+                
     }//GEN-LAST:event_btnLightRegulationsActionPerformed
 
     private void setNumberOfSearchesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setNumberOfSearchesButtonActionPerformed
-        String input = textFieldSetSearches.getText();
-        //if 2 or 3 is typed 
-        //then choose right image in dynamic panel 
-        if (input.equals("3")) {
-            loading.setVisible(false);
-            PanelCalibration.setVisible(false);
-            PanelReady.setVisible(true);
-        } else if (input.equals("2")) {
-            loading.setVisible(false);
-            PanelCalibration.setVisible(false);
-            PanelReady.setVisible(true);
-        } else if (input.equals("1")) {
-            loading.setVisible(false);
-            PanelCalibration.setVisible(false);
-            PanelReady.setVisible(true);
-            
-        } else {
-            errorMessageSetTraysLabel.setVisible(true);
-        }
+
+        //if (input != null) {
+            this.roeBotFasade.setSearchInterval(this.operationInterval);
+            this.loading.setVisible(false);
+            this.PanelCalibration.setVisible(false);
+            this.PanelReady.setVisible(true);
+        //}
+        //else 
+        //{
+        //   errorMessageSetTraysLabel.setVisible(true);
+        //}
 
     }//GEN-LAST:event_setNumberOfSearchesButtonActionPerformed
 
     private void textFieldSetSearchesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textFieldSetSearchesActionPerformed
-        // TODO add your handling code here:
+        String input = textFieldSetSearches.getText();
+        //if 2 or 3 is typed 
+        //then choose right image in dynamic panel 
+        if (input != null) {
+            try{
+            this.operationInterval = Integer.parseInt(input);
+            }
+            catch(NumberFormatException ex)
+            {
+                System.out.println("må vårrå ett tall");
+            }
+            this.setNumberOfSearchesButton.setEnabled(true);
+        }
+        else
+        {
+            this.setNumberOfSearchesButton.setEnabled(false);
+        }
     }//GEN-LAST:event_textFieldSetSearchesActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        //System.loadLibrary(Core.NATIVE_LIBRARY_NAME); //load native library of openCV
-        System.load("/home/odroid/NetBeansProjects/RoeRobotV3-All/RoeRobotV3-All/lib/opencv-package-xu4/libopencv_java310.so");;
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
+    private void jTgbPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTgbPauseActionPerformed
+            
+        if (jTgbPause.isSelected()) {
+            System.out.println("Pause is pressed");
+            // check the state of the pause button, pause or continue
+            if (jTgbPause.getText().equals("Pause")) {
+                System.out.println("Pause is Button");
+                // pause robot, change button to continue button
+                jTgbPause.setText("Continue");
+                jTgbPause.setBackground(Color.green);
+                roeBotFasade.pauseRobot();
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(RoeBot.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(RoeBot.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(RoeBot.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(RoeBot.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
+            else if (jTgbPause.getText().equals("Continue")) {
+                System.out.println("Continue is Button");
+                // continue robot, change button state to pause
+                this.roeBotFasade.continueRobot();
+                jTgbPause.setText("Pause");
+                jTgbPause.setBackground(Color.yellow);
+            }
         }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-              //  new RoeBot().setVisible(true);
-
-            }
-        });
-    }
+    
+    }//GEN-LAST:event_jTgbPauseActionPerformed
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel CameraPanel;
@@ -705,7 +703,6 @@ public final class RoeBot extends javax.swing.JFrame {
     public javax.swing.JTable UpdateTable;
     private javax.swing.JButton btnCalibrate;
     public javax.swing.JButton btnLightRegulations;
-    public javax.swing.JButton btnPause;
     private javax.swing.JButton btnReCalibrate;
     private javax.swing.JLabel errorMessageSetTraysLabel;
     private javax.swing.JLabel jLabel1;
@@ -715,6 +712,7 @@ public final class RoeBot extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLayeredPane jLayeredPane1;
     private javax.swing.JScrollPane jScrollPane1;
+    public javax.swing.JToggleButton jTgbPause;
     private javax.swing.JLabel lblRoeBot;
     private javax.swing.JLabel lblRoeBot1;
     private javax.swing.JLabel pleaseCalibrateToContinueLabel;
