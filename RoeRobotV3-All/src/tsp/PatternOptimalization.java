@@ -56,6 +56,15 @@ public class PatternOptimalization {
     }
 
     public ArrayList doOptimalization() {
+
+        Tour originalTour = new Tour(coordinatList.size());
+        for (int i = 0; i < coordinatList.size(); i++) {
+            originalTour.setCoordinate(i, coordinatList.get(i));
+        }
+        // System.out.println("Original tour: " + originalTour);
+        System.out.println("Original tour tot dist: " + originalTour.getTotalDistance());
+
+
         ArrayList<Coordinate> fittestTourList = new ArrayList<>();
 
         // If cordinates added. 
@@ -65,15 +74,15 @@ public class PatternOptimalization {
             Population population = new Population(nrOfPopulations, this.coordinatList, true);
             fittestTourList = population.getFittest().getList();
             
-            System.out.println("Initial Fittest tour: " + population.getFittest().tourSize());
-            System.out.println("Initial Total distance of fittest tour: " + population.getFittest().getTotalDistance());
-            System.out.println("Start GA:");
+            System.out.println("Initial Fittest tour: " + population.getFittest().getTotalDistance());
+            //System.out.println("Initial Total distance of fittest tour: " + population.getFittest().getTotalDistance());
+            //System.out.println("Start GA:");
             //
             GAnew ga = new GAnew();
-            population = ga.evolvePopulation(20,population);//400, population);
+            population = ga.evolvePopulation(400,population);//400, population);
             
             System.out.println("Fittest tour: " + population.getFittest().getTotalDistance());
-            System.out.println("Initial Fittest tour: " + population.getFittest());
+            //System.out.println("Initial Fittest tour: " + population.getFittest());
 
             this.coordinatList.clear();
         }

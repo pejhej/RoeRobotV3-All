@@ -33,9 +33,11 @@ public class GAnew {
         Population newPopulation = new Population(pop.getNrOfTours());
 
         Coordinate startCoord = pop.getFittest().getCoordinate(0);
+
+        Tour currentFittestTour = pop.getFittest();
         // Boolen for detectiong no improvement. 
-        boolean noImprovement = false; 
-        int noImprovemnetRange = 0; 
+        boolean noImprovement = false;
+        int noImprovemnetRange = 0;
         // Keep our best individual if elitism is enabled
         int elitismOffset = 0;
         if (elitism) {
@@ -65,14 +67,19 @@ public class GAnew {
 //
             // Mutate the new population a bit to add some new genetic material
             for (int i = 0; i < newPopulation.getNrOfTours(); i++) {
-                mutateWithStartCoord(newPopulation.getTour(i));
+                mutateWithStartCoord(newPopulation.getTour(i));              
             }
             
-            if(pop.getFittest().getTotalDistance() == newPopulation.getFittest().getTotalDistance()){
+            // Check if the result has been improved 
+            if (currentFittestTour.getTotalDistance() >= newPopulation.getFittest().getTotalDistance()) {
+                //System.out.println(pop.getFittest().getTotalDistance());
+                //System.out.println(newPopulation.getFittest().getTotalDistance());
                 noImprovemnetRange++;
+                currentFittestTour = newPopulation.getFittest();
                 // If no improvement are done for 10 iterations. 
-                if(noImprovemnetRange >= 10){
-                    noImprovement = true; 
+                if (noImprovemnetRange >= 10) {
+                    noImprovement = true;
+                    // System.out.println("No improvmenet after: " + j + " generations");
                 }
             }
             // 
@@ -175,8 +182,8 @@ public class GAnew {
     }
 
     /**
-     * Mutate a tour using swap mutation
-     * The start coordinate will ceaped ass first in list. 
+     * Mutate a tour using swap mutation The start coordinate will ceaped ass
+     * first in list.
      */
     private static void mutateWithStartCoord(Tour tour) {
         // Loop through tour cities

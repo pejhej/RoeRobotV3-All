@@ -49,12 +49,7 @@ public class TSPTester {
         destinations.add(new Coordinate(60, 10, 0));
         destinations.add(new Coordinate(60, 400, 0));
 //        
-        Tour originalTour = new Tour(destinations.size());
-        for (int i = 0; i < destinations.size(); i++) {
-            originalTour.setCoordinate(i, destinations.get(i));
-        }
-        System.out.println("Original tour: " + originalTour);
-        System.out.println("Original tour tot dist: " + originalTour.getTotalDistance());
+
 
         PatternOptimalization pOpt = new PatternOptimalization();
         pOpt.addCoordinates(destinations);
