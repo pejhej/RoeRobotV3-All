@@ -79,7 +79,7 @@ public class PatternOptimalization {
             //System.out.println("Start GA:");
             //
             GAnew ga = new GAnew();
-            population = ga.evolvePopulation(400,population);//400, population);
+            population = ga.evolvePopulation(20000,population);//400, population);
             
             System.out.println("Fittest tour: " + population.getFittest().getTotalDistance());
             //System.out.println("Initial Fittest tour: " + population.getFittest());

@@ -48,11 +48,13 @@ public class TSPTester {
         destinations.add(new Coordinate(60, 40, 0));
         destinations.add(new Coordinate(60, 10, 0));
         destinations.add(new Coordinate(60, 400, 0));
-//        
 
+        CreateTestSet testSet = new CreateTestSet();
+        testSet.readTestFile();
 
         PatternOptimalization pOpt = new PatternOptimalization();
-        pOpt.addCoordinates(destinations);
+        pOpt.addCoordinates(testSet.readTestFile());
+        // pOpt.addCoordinates(destinations);
         pOpt.doOptimalization();
 
     }

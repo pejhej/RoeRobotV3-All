@@ -7,6 +7,7 @@
 package tsp;
 
 import static java.lang.Math.abs;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import roerobotyngve.Coordinate;
 
@@ -17,8 +18,8 @@ import roerobotyngve.Coordinate;
 public class GAnew {
 
     private static final double mutationRate = 0.001;
-    private static final int tournamentSize = 5;
-    private static final boolean elitism = true;
+    private static final int tournamentSize = 7;
+    private static final boolean elitism = false;
 
     public GAnew() {
     }
@@ -28,8 +29,12 @@ public class GAnew {
      * chromosomes. // Select two parants for mating. This two can be selected
      * by random or select the fittest of the initial population Evolve for
      * given number of iterations.
+     *
+     * @param evolutions
+     * @param pop
+     * @return
      */
-    public Population evolvePopulation(int evolutions, Population pop) {
+    public Population evolvePopulation(long evolutions, Population pop) {
         Population newPopulation = new Population(pop.getNrOfTours());
 
         Coordinate startCoord = pop.getFittest().getCoordinate(0);
@@ -38,6 +43,9 @@ public class GAnew {
         // Boolen for detectiong no improvement. 
         boolean noImprovement = false;
         int noImprovemnetRange = 0;
+
+        int cnt = 0;
+
         // Keep our best individual if elitism is enabled
         int elitismOffset = 0;
         if (elitism) {
@@ -67,22 +75,27 @@ public class GAnew {
 //
             // Mutate the new population a bit to add some new genetic material
             for (int i = 0; i < newPopulation.getNrOfTours(); i++) {
-                mutateWithStartCoord(newPopulation.getTour(i));              
+                mutateWithStartCoord(newPopulation.getTour(i));
             }
-            
+
             // Check if the result has been improved 
-            if (currentFittestTour.getTotalDistance() >= newPopulation.getFittest().getTotalDistance()) {
-                //System.out.println(pop.getFittest().getTotalDistance());
-                //System.out.println(newPopulation.getFittest().getTotalDistance());
+            if ((int)currentFittestTour.getTotalDistance() <= (int)newPopulation.getFittest().getTotalDistance()) {
+//                System.out.println(pop.getFittest().getTotalDistance());
+//                System.out.println(newPopulation.getFittest().getTotalDistance());
                 noImprovemnetRange++;
                 currentFittestTour = newPopulation.getFittest();
                 // If no improvement are done for 10 iterations. 
                 if (noImprovemnetRange >= 10) {
                     noImprovement = true;
-                    // System.out.println("No improvmenet after: " + j + " generations");
+                    System.out.println("No improvmenet after: " + j + " generations");
                 }
             }
-            // 
+
+            if (cnt++ == 5000) {
+                System.out.println("Current total dist:  " + newPopulation.getFittest().getTotalDistance());
+                cnt = 0;
+            }
+            // Update population. 
             pop = newPopulation;
 
         }
