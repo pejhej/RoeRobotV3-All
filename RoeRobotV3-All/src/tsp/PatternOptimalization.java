@@ -55,36 +55,48 @@ public class PatternOptimalization {
         this.nrOfPopulations = nrOfPopulations;
     }
 
-    public ArrayList doOptimalization() {
-
+    public ArrayList doOptimalization(double xMilimerePerSec, double yMilimerePerSec) {
         Tour originalTour = new Tour(coordinatList.size());
-        for (int i = 0; i < coordinatList.size(); i++) {
-            originalTour.setCoordinate(i, coordinatList.get(i));
-        }
-        // System.out.println("Original tour: " + originalTour);
-        System.out.println("Original tour tot dist: " + originalTour.getTotalDistance());
-
-
         ArrayList<Coordinate> fittestTourList = new ArrayList<>();
-
-        // If cordinates added. 
-        // Add Start coordinate. 
-        if (!this.coordinatList.isEmpty()) {
-            // Generate populations.  
-            Population population = new Population(nrOfPopulations, this.coordinatList, true);
-            fittestTourList = population.getFittest().getList();
+        if (this.coordinatList.isEmpty()) {
+            System.out.println("No coordinates added!!!!");
+        } else {
+            for (int i = 0; i < coordinatList.size(); i++) {
+                originalTour.setCoordinate(i, coordinatList.get(i));
+            }
+            // System.out.println("Original tour: " + originalTour);
+            double orginalTourTime = originalTour.getTotalTime(xMilimerePerSec, yMilimerePerSec);
+            System.out.println("Original tour tot time: " + orginalTourTime + " sec");
             
-            System.out.println("Initial Fittest tour: " + population.getFittest().getTotalDistance());
-            //System.out.println("Initial Total distance of fittest tour: " + population.getFittest().getTotalDistance());
-            //System.out.println("Start GA:");
-            //
-            GAnew ga = new GAnew();
-            population = ga.evolvePopulation(20000,population);//400, population);
-            
-            System.out.println("Fittest tour: " + population.getFittest().getTotalDistance());
-            //System.out.println("Initial Fittest tour: " + population.getFittest());
 
-            this.coordinatList.clear();
+            // If cordinates added. 
+            // Add Start coordinate. 
+            if (!this.coordinatList.isEmpty()) {
+                // Generate populations.  
+                Population population = new Population(nrOfPopulations, this.coordinatList, true);
+                fittestTourList = population.getFittest().getList();
+
+                System.out.println("Random path Total distance of fittest tour: " + population.getFittest().getTotalDistance());
+                double randomPathTime = population.getFittest().getTotalTime(xMilimerePerSec, yMilimerePerSec);
+                System.out.println("Random path Fittest tour total time: " + randomPathTime + " sec");
+                System.out.println("-------------------------");
+                // 
+                long startTime = System.currentTimeMillis();
+                // Start GA 
+                GAnew ga = new GAnew();
+                population = ga.evolvePopulation(20000, population);//400, population);
+
+                double timeHasPassesd = (System.currentTimeMillis() - startTime) / 1000;
+                System.out.println("Time GA has used:  " + timeHasPassesd + " sec");
+                System.out.println("-------------------------");
+                System.out.println("Fittest tour: " + population.getFittest().getTotalDistance());
+                double newTime = population.getFittest().getTotalTime(xMilimerePerSec, yMilimerePerSec);
+                System.out.println("Fittest tour total time: " + newTime + " sec");
+                
+                System.out.println("Time saved by Random pattern:  " + (orginalTourTime - randomPathTime - timeHasPassesd) + " sec");
+                System.out.println("Time saved by GA:  " + (orginalTourTime - newTime - timeHasPassesd) + " sec");
+                this.coordinatList.clear();
+            }
         }
         return fittestTourList;
     }

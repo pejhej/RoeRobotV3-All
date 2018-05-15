@@ -7,8 +7,6 @@
 package tsp;
 
 import static java.lang.Math.abs;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import roerobotyngve.Coordinate;
 
 /**
@@ -222,6 +220,8 @@ public class GAnew {
      * *
      * Rouletwheel selection.
      */
+    
+    
     /**
      * Turnement selection will retun
      */

@@ -24,6 +24,7 @@ public class Tour {
     private ArrayList<Coordinate> coordinates;
     private double fitness = 0;
     private double totalDistance = 0;
+    private double totalTime = 0;
 
     /**
      * The constructor adds all the destinations to the list of destinations and
@@ -89,6 +90,11 @@ public class Tour {
         return this.totalDistance;
     }
 
+    public double getTotalTime(double xMilimerePerSec, double yMilimerePerSec) {
+        this.calcTotalTime(xMilimerePerSec, yMilimerePerSec);
+        return this.totalTime;
+    }
+
     /**
      * Get Start Coordiante
      */
@@ -146,7 +152,6 @@ public class Tour {
      */
     private void calcTotalDist() {
         this.totalDistance = 0;
-
         for (int i = 0; i < this.coordinates.size() - 1; i++) {
             double fromX = this.coordinates.get(i).getxCoord();
             double fromY = this.coordinates.get(i).getyCoord();
@@ -162,6 +167,33 @@ public class Tour {
         }
     }
 
+    /**
+     * Calculate total time of tour
+     */
+    private void calcTotalTime(double xMilimerePerSec, double yMilimerePerSec) {
+        this.totalTime = 0;
+        for (int i = 0; i < this.coordinates.size() - 1; i++) {
+            double fromX = this.coordinates.get(i).getxCoord();
+            double fromY = this.coordinates.get(i).getyCoord();
+            if (this.coordinates.contains(null)) {
+                System.out.println("I Found Waldo");
+            }
+            double toX = this.coordinates.get(i + 1).getxCoord();
+            double toY = this.coordinates.get(i + 1).getyCoord();
+            double deltaX = Math.abs(toX - fromX);
+            double deltaY = Math.abs(toY - fromY);
+            // To time 
+            double deltaTX = deltaX / xMilimerePerSec;
+            double deltaTY = deltaY / yMilimerePerSec;
+
+            this.totalTime = this.totalTime + Math.sqrt(deltaTX * deltaTX + deltaTY * deltaTY);
+        }
+    }
+
+    /**
+     *
+     * @return
+     */
     @Override
     public String toString() {
         String geneString = "|";

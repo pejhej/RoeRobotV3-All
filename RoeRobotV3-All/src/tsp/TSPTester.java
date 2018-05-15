@@ -49,13 +49,26 @@ public class TSPTester {
         destinations.add(new Coordinate(60, 10, 0));
         destinations.add(new Coordinate(60, 400, 0));
 
+        // TEST PARAM
+        int xRevPerMin = 100;
+        int yRevPerMin = 100;
+        double xPulleyDiam = 12.22;
+        double yPulleyDiam = 9.678;
+        double xCricumf = xPulleyDiam * Math.PI;
+        double yCricumf = yPulleyDiam * Math.PI;
+        double xMMPerSec = xRevPerMin * xCricumf / 60;
+        double yMMPerSec = yRevPerMin * yCricumf / 60;
+        System.out.println(xMMPerSec);
+        System.out.println(yMMPerSec);
+        
+        
         CreateTestSet testSet = new CreateTestSet();
         testSet.readTestFile();
 
         PatternOptimalization pOpt = new PatternOptimalization();
-        pOpt.addCoordinates(testSet.readTestFile());
-        // pOpt.addCoordinates(destinations);
-        pOpt.doOptimalization();
+        //      pOpt.addCoordinates(testSet.readTestFile());
+        pOpt.addCoordinates(destinations);
+        pOpt.doOptimalization(xMMPerSec, yMMPerSec);
 
     }
 }
