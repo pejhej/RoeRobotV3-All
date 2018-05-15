@@ -58,17 +58,14 @@ public class TSPTester {
         double yCricumf = yPulleyDiam * Math.PI;
         double xMMPerSec = xRevPerMin * xCricumf / 60;
         double yMMPerSec = yRevPerMin * yCricumf / 60;
-        System.out.println(xMMPerSec);
-        System.out.println(yMMPerSec);
-        
-        
+
         CreateTestSet testSet = new CreateTestSet();
-        testSet.readTestFile();
 
         PatternOptimalization pOpt = new PatternOptimalization();
-        //      pOpt.addCoordinates(testSet.readTestFile());
-        pOpt.addCoordinates(destinations);
-        pOpt.doOptimalization(xMMPerSec, yMMPerSec);
+        pOpt.addCoordinates(testSet.readTestFile());
+        pOpt.doOptimizeNearestNeighbour(xMMPerSec, yMMPerSec);
+        //       pOpt.addCoordinates(destinations);
+         //pOpt.doOptimalization(xMMPerSec, yMMPerSec);
 
     }
 }

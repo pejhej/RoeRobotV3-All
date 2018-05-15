@@ -5,6 +5,7 @@
  */
 package tsp;
 
+import java.io.FileWriter;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -24,8 +25,8 @@ import roerobotyngve.Coordinate;
  */
 public class CreateTestSet {
 
-    private static final String SAMPLE_CSV_FILE_PATH = "C:\\Users\\Yngve\\Documents\\TSPDatasets\\eli76.csv";
-
+    private static final String SAMPLE_CSV_FILE_PATH = "C:\\Users\\Yngve\\Documents\\TSPDatasets\\Our25.csv";
+    
     public ArrayList readTestFile() {
         ArrayList<Coordinate> testList = new ArrayList<>();
         try (
@@ -46,16 +47,17 @@ public class CreateTestSet {
                 testList.add(coord);
 //                System.out.println("Record No - " + csvRecord.getRecordNumber());
 //                System.out.println("---------------");
-//                System.out.println("Number : " + number);
+//               //  System.out.println("Number : " + number);
 //                System.out.println("XCoord : " + xCoord);
 //                System.out.println("YCoord : " + yCoord);
-//                System.out.println("---------------\n\n");
+//                System.out.println("---------------\n");
             }
         } catch (IOException ex) {
             Logger.getLogger(CreateTestSet.class.getName()).log(Level.SEVERE, null, ex);
         }
         return testList;
     }
+    
 
     /**
      * Convert from string to Int

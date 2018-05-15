@@ -69,7 +69,7 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
     
     //Search interval in minutes
     private int searchInterval = 100;
-     private long timerTime = 0;
+    private long timerTime = 0;
     
     // Number of the current tray. 
     private Tray currentTray;

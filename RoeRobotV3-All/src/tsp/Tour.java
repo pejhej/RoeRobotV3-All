@@ -111,8 +111,8 @@ public class Tour {
     public void setCoordinate(int tourPosition, Coordinate coordinate) {
         this.coordinates.set(tourPosition, coordinate);
         // If the tours been altered we need to reset the fitness and distance
-
     }
+    
 
     // Get number of cities on our tour
     public int tourSize() {
@@ -186,7 +186,7 @@ public class Tour {
             double deltaTX = deltaX / xMilimerePerSec;
             double deltaTY = deltaY / yMilimerePerSec;
 
-            this.totalTime = this.totalTime + Math.sqrt(deltaTX * deltaTX + deltaTY * deltaTY);
+            this.totalTime = (this.totalTime + Math.sqrt(deltaTX * deltaTX + deltaTY * deltaTY));
         }
     }
 
@@ -196,9 +196,9 @@ public class Tour {
      */
     @Override
     public String toString() {
-        String geneString = "|";
+        String geneString = " ";
         for (int i = 0; i < this.coordinates.size(); i++) {
-            geneString += this.getCoordinate(i).toString() + "|";
+            geneString += this.getCoordinate(i).toString() + "\n ";
         }
         return geneString;
     }
