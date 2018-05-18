@@ -204,6 +204,7 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
                                 newArray2.add(newArray.get(2));
                                 newArray2.add(newArray.get(3));
                                 this.roeAnalyserDevice.removeRoe(newArray2);//this.patternOptimalizater.doOptimalization());
+                                runningState = RunningStates.CloseTray;
                             break;
                             
                             //Close the tray
