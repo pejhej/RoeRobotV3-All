@@ -55,12 +55,21 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
     private int runningVelocity = 150; // rev/min
     // Velocity while handeling tray 
     private int handelingTrayVelicity = 60; // rev/min
+    // Current Velocity
+    private int currentVelocity = runningVelocity; 
+    
+    //Pulley circumference for X and Y axiz
+    // Diameter * pi
+    private double xCircumf = 12.22*Math.PI;
+    private double yCircumf = 9.678*Math.PI;
+    
+    
     //Flag to remember if the tray is open or not
     private boolean trayIsOpen;
     
     //Search interval in minutes
     private int searchInterval = 100;
-     private long timerTime = 0;
+    private long timerTime = 0;
     
     // Number of the current tray. 
     private Tray currentTray;
@@ -198,7 +207,10 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
                               System.out.println("Removing the dead roe");
                                // test for reducing nr of points
                                 ArrayList<Coordinate> newArray = new ArrayList();
-                                newArray = this.patternOptimalizater.doOptimalization();
+                                // Covert from rev/min to mm/sec
+                                double xMMPerSec = this.revMinToMMSec(this.currentVelocity, this.xCircumf);
+                                double yMMPerSec = this.revMinToMMSec(this.currentVelocity, this.yCircumf);
+                                newArray = this.patternOptimalizater.doOptimalization(xMMPerSec,yMMPerSec);
                                 ArrayList<Coordinate> newArray2 = new ArrayList();
                                 newArray2.add(newArray.get(1));
                                 newArray2.add(newArray.get(2));
@@ -452,6 +464,16 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
     public void setLightVal(int redVal, int greenVal, int blueVal) 
     {
         this.roeAnalyserDevice.changeRGBLight(redVal, greenVal, blueVal);
+    }
+    
+    
+    
+    /**
+     * Convert from rev/min to mm/sec 
+     */
+    private double revMinToMMSec(int velocity, double circumference){
+        double newDouble = velocity*circumference/60;
+        return newDouble;
     }
    
 }

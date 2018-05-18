@@ -71,7 +71,7 @@ public class Coordinate {
     
     @Override
      public String toString() {
-        String XYCoordString = "X: " + this.xCoord +  " Y: " + this.yCoord;
+        String XYCoordString =  this.xCoord +  " " + this.yCoord;
         return XYCoordString;
     }
 
