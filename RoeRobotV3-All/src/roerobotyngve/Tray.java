@@ -27,6 +27,9 @@ public class Tray{
     private final int TotalCameraPositions = 6;  //Total amount of camera positions
     
     private int nrOfRemovedRoe;
+    private int nrOfDeadRoe;
+
+   
     //The flag position for this tray
     private int flagPosZ;
     
@@ -364,5 +367,21 @@ public class Tray{
      public double getWaterSurfaceOffsetForCamera()
     {
         return waterSurfaceOffsetForCamera;
+    }
+     
+     /**
+      * Return the number of dead roes in this tray
+      * @return Return how many dead roe in this tray
+      */
+      public int getNrOfDeadRoe() {
+        return nrOfDeadRoe;
+    }
+      
+      /**
+       * Set dead roe found in this tray.
+       * @param nrOfDeadRoe 
+       */
+    public void setNrOfDeadRoe(int nrOfDeadRoe) {
+        this.nrOfDeadRoe = nrOfDeadRoe;
     }
 }

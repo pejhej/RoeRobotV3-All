@@ -105,6 +105,8 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
 
         this.imageList = new ArrayList<>();
         this.trayIsOpen = false;
+        
+        this.pause = false;
     }
 
     private void cycleCase() {
@@ -138,16 +140,8 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
                 
                 while (working) {
                     //If pause is set
-                    if(pause)
-                        {
-                        try {
-                            System.out.println("Putting to sleep " + Thread.currentThread().getName());
-                            this.wait();
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(RoeAnalyser.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        }
-                    
+                   if(!this.pause)
+                {
                     //The different sates in running
                     switch (runningState) 
                     {
@@ -182,7 +176,9 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
                              System.out.println("Taking picture " + takePictureNr);
                              if(takePictureNr < this.currentTray.getNumberOfCameraCoordinates())
                                  {
-                                    this.imageProsseser.addImageToProcessingQueue(this.roeAnalyserDevice.takePicture(this.currentTray, takePictureNr++)); 
+                                     RoeImage currentImage = this.roeAnalyserDevice.takePicture(this.currentTray, takePictureNr++);
+                                    this.imageProsseser.addImageToProcessingQueue(currentImage); 
+                                    
                                  }
                              else
                                  {
@@ -194,16 +190,26 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
                             //Wait for all the images to get processed
                             if(this.getNumberOfImages() == this.currentTray.getNumberOfCameraCoordinates()) 
                             {
+                                //Generate the list of coordinates from the processed images
+                                ArrayList deadRoeList = this.generateCoordinatList();
+                                
+                                //Add the found dead roe to the tray
+                                this.currentTray.setNrOfDeadRoe(deadRoeList.size());
+                                
+                                //Optimize the pattern
                                 System.out.println("images processed" + this.getNumberOfImages());
                                 System.out.println("Optimize the pattern");
                                 // Add all dead roe coodinates to the optimalisation 
-                                this.patternOptimalizater.addCoordinates(this.generateCoordinatList());
+                                this.patternOptimalizater.addCoordinates(deadRoeList);
                                 runningState = RunningStates.RemoveRoes;
                             }
                             break;
                             
                             //Remove the dead roe
                         case RemoveRoes:
+                            
+                            this.currentTray.increaseNrOfRemovedRoe(trayNumber);
+                            
                               System.out.println("Removing the dead roe");
                                // test for reducing nr of points
                                 ArrayList<Coordinate> newArray = new ArrayList();
@@ -215,6 +221,7 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
                                 newArray2.add(newArray.get(1));
                                 newArray2.add(newArray.get(2));
                                 newArray2.add(newArray.get(3));
+                                System.out.println("Device - Remove roe arraylist");
                                 this.roeAnalyserDevice.removeRoe(newArray2);//this.patternOptimalizater.doOptimalization());
                                 runningState = RunningStates.CloseTray;
                             break;
@@ -247,7 +254,7 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
                                 {
                                     this.roeAnalyserDevice.closeTray(this.currentTray);
                                 }
-                                runningState = RunningStates.Finished;
+                                //runningState = RunningStates.Finished;
                             break;   
                             
                              default:
@@ -257,7 +264,7 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
          
                             }
                             
-
+                    }
                     }
 
                 
@@ -302,7 +309,7 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
      */
     public void unPauseRobot() {
         this.pause = false;
-        this.roeAnalyserDevice.setPause(true);
+        this.roeAnalyserDevice.setPause(false);
         
     }
     
@@ -475,5 +482,14 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
         double newDouble = velocity*circumference/60;
         return newDouble;
     }
+    
+    /**
+     * Return the number of dead roes found in the current tray
+     * @return Return the number of dead roes found in the current tray
+     */
+    public int getFoundDeadRoes()
+            {
+                return this.currentTray.getNrOfDeadRoe();
+            }
    
 }

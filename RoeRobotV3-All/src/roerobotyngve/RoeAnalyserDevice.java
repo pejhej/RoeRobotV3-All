@@ -98,6 +98,8 @@ public class RoeAnalyserDevice implements StatusListener {
         
         this.camera = new Camera();
         
+        this.setPause(false);
+        
     }
 
     private synchronized Status getCurrentStatus() {
@@ -216,14 +218,9 @@ public class RoeAnalyserDevice implements StatusListener {
         //updateStatus();
         //While loop to keep in the case until done or failure
         while (succesful && searching) {
-            if(this.isPause())
+            //if its paused, dont perform any actions
+            if(!this.isPause())
                 {
-                try {
-                    this.wait();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(RoeAnalyserDevice.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                }
             //Switch case to do the tasks;
             switch (task) {
                 //Move robot to the position of the handle
@@ -347,11 +344,13 @@ public class RoeAnalyserDevice implements StatusListener {
                 default:
                     break;
             }
-        }
+        
 
         //Save this opening tray to the currentTray
         currentTray = workTray;
-
+        }
+            
+                }
         return succesful;
 
     }
@@ -490,8 +489,11 @@ public class RoeAnalyserDevice implements StatusListener {
         boolean succesful = true;
 
         Iterator itr = cordinates.iterator();
-
+        
         while (itr.hasNext() && succesful) {
+             //if paused is set, dont perform any actions
+            if(this.isPause())
+                {
             //Get the next coordinate
             Coordinate cord = (Coordinate) itr.next();
 
@@ -514,7 +516,7 @@ public class RoeAnalyserDevice implements StatusListener {
                 succesful = false;
             }
         }
-
+            }
         return succesful;
     }
 
@@ -577,6 +579,9 @@ public class RoeAnalyserDevice implements StatusListener {
         final int moveDown = 0, suck = 1, moveUp = 2, done = 3;
 
         while (working) {
+            //if paused is set, dont perform any actions
+            if(!this.isPause())
+                {
             //Switch case to do the tasks;
             switch (task) {
                 //Move down to the roe pickup height
@@ -631,7 +636,7 @@ public class RoeAnalyserDevice implements StatusListener {
                     break;
             }
         }
-
+            }
         return succesful;
     }
 
@@ -719,7 +724,7 @@ public class RoeAnalyserDevice implements StatusListener {
         resetTimer();
 
         //Check if robot is ready for new command & no faults are present
-        while (!isReady() && !robotFaultyStatus()) {
+        while ((!isReady() && !robotFaultyStatus()) || this.isPause()) {
             /*
             //After a set wait time, update the status
             if (timerHasPassed(pollTime))
@@ -930,7 +935,10 @@ public class RoeAnalyserDevice implements StatusListener {
         Light cmdLight = new Light();
         //Make the control byte to be sent
         cmdLight.setOn();
-
+        
+        ChangeLedColor cmdColor = new ChangeLedColor();
+        
+        cmdColor.setMultipleIntValue(200, 100, 50);
         //Return bool for result of task
         boolean succesful = true;
 
@@ -948,7 +956,7 @@ public class RoeAnalyserDevice implements StatusListener {
         }
 
         //Send command
-        serialComm.addSendQ(cmdLight);
+        serialComm.addSendQ(cmdColor);
     }
 
     /**
