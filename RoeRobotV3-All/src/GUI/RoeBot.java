@@ -9,6 +9,7 @@ import ImageProcessing.ImageCaptureListener;
 import ImageProcessing.RoeImage;
 import roerobotyngve.RoeRobotFasade;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -16,17 +17,20 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import javax.imageio.ImageIO;
+import javax.swing.table.TableColumn;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
+import roerobotyngve.Tray;
+import roerobotyngve.TrayProcessedListener;
 
 //import org.opencv.highgui.HighGui;
 /**
  *
  * @author Kristoffer
  */
-public final class RoeBot extends javax.swing.JFrame  implements ImageCaptureListener{
+public final class RoeBot extends javax.swing.JFrame  implements ImageCaptureListener, TrayProcessedListener{
 
     /**
      * for dynamic panel
@@ -58,6 +62,10 @@ public final class RoeBot extends javax.swing.JFrame  implements ImageCaptureLis
     private int redLightVal;
     private int greenLightVal;
     private int blueLightVal;
+   
+    private int deadRoeInTray;
+    
+    Tray workingTray;
 
     /**
      * Get image from camera when captured
@@ -68,6 +76,20 @@ public final class RoeBot extends javax.swing.JFrame  implements ImageCaptureLis
     {
         this.frame = capturedImage.getImage();
     }
+    
+    /**
+     * Get information from tray after pictures are processed
+     * @param capturedImage 
+     */
+    @Override
+    public void noitfyProcessingDone(Tray workingTray) 
+    {
+        this.workingTray = workingTray;
+        this.updateTrayTable();
+        
+    }
+
+    
     
     
 
@@ -568,8 +590,10 @@ public final class RoeBot extends javax.swing.JFrame  implements ImageCaptureLis
 
 
     private void tgbEmergencyStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tgbEmergencyStopActionPerformed
-        tgbEmergencyStop.setVisible(false);
+        System.out.println("Stop pressed!");
+        tgbEmergencyStop.setVisible(true);
         tgbEmergencyStop.setBackground(Color.red);
+        
         if (tgbSearchSystem.isSelected()) {
             tgbEmergencyStop.setVisible(true);
             roeBotFasade.stopRobot();
@@ -580,6 +604,7 @@ public final class RoeBot extends javax.swing.JFrame  implements ImageCaptureLis
 
     private void btnReCalibrateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReCalibrateActionPerformed
         // TODO add your handling code here:
+        roeBotFasade.doCalibrate();
     }//GEN-LAST:event_btnReCalibrateActionPerformed
 
     /**
@@ -636,30 +661,38 @@ public final class RoeBot extends javax.swing.JFrame  implements ImageCaptureLis
 
     private void setNumberOfSearchesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setNumberOfSearchesButtonActionPerformed
 
-        //if (input != null) {
+ 
+   
+            
             this.roeBotFasade.setSearchInterval(this.operationInterval);
             this.loading.setVisible(false);
             this.PanelCalibration.setVisible(false);
             this.PanelReady.setVisible(true);
-        //}
-        //else 
-        //{
-        //   errorMessageSetTraysLabel.setVisible(true);
-        //}
+            this.setNumberOfSearchesButton.setEnabled(true);
+            this.UpdateTable.setVisible(true);
+        
 
     }//GEN-LAST:event_setNumberOfSearchesButtonActionPerformed
 
     private void textFieldSetSearchesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textFieldSetSearchesActionPerformed
+        
+        boolean numberInput = false;
+        //Wait for numberinput
+        while(!numberInput)
+            { 
         String input = textFieldSetSearches.getText();
         //if 2 or 3 is typed 
         //then choose right image in dynamic panel 
-        if (input != null) {
+        if (input != null) 
+        {
             try{
             this.operationInterval = Integer.parseInt(input);
+            numberInput = true;
             }
             catch(NumberFormatException ex)
             {
                 System.out.println("må vårrå ett tall");
+                numberInput = false;
             }
             this.setNumberOfSearchesButton.setEnabled(true);
         }
@@ -667,10 +700,11 @@ public final class RoeBot extends javax.swing.JFrame  implements ImageCaptureLis
         {
             this.setNumberOfSearchesButton.setEnabled(false);
         }
+        }
     }//GEN-LAST:event_textFieldSetSearchesActionPerformed
 
     private void jTgbPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTgbPauseActionPerformed
-            
+        //
         if (jTgbPause.isSelected()) {
             System.out.println("Pause is pressed");
             // check the state of the pause button, pause or continue
@@ -681,7 +715,7 @@ public final class RoeBot extends javax.swing.JFrame  implements ImageCaptureLis
                 jTgbPause.setBackground(Color.green);
                 roeBotFasade.pauseRobot();
             }
-
+            //
             else if (jTgbPause.getText().equals("Continue")) {
                 System.out.println("Continue is Button");
                 // continue robot, change button state to pause
@@ -692,6 +726,14 @@ public final class RoeBot extends javax.swing.JFrame  implements ImageCaptureLis
         }
     
     }//GEN-LAST:event_jTgbPauseActionPerformed
+    
+    
+    private void updateTrayTable() {
+        TableColumn coloumn;
+        Component comp;
+
+    }
+    
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
