@@ -65,8 +65,7 @@ public class TSPTester {
         pOpt.addCoordinates(testSet.readTestFile());
         pOpt.doOptimizeNearestNeighbour(xMMPerSec, yMMPerSec);
         //       pOpt.addCoordinates(destinations);
-        pOpt.addCoordinates(testSet.readTestFile());
-        pOpt.doOptimalizationGA(xMMPerSec, yMMPerSec);
+         //pOpt.doOptimalization(xMMPerSec, yMMPerSec);
 
     }
 }

@@ -25,7 +25,7 @@ import roerobotyngve.Coordinate;
  */
 public class CreateTestSet {
 
-    private static final String SAMPLE_CSV_FILE_PATH = "C:\\Users\\Yngve\\Documents\\TSPDatasets\\Our47.csv";
+    private static final String SAMPLE_CSV_FILE_PATH = "C:\\Users\\Yngve\\Documents\\TSPDatasets\\Our25.csv";
     
     public ArrayList readTestFile() {
         ArrayList<Coordinate> testList = new ArrayList<>();

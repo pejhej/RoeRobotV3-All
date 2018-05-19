@@ -216,7 +216,7 @@ public class RoeAnalyser implements ImageProcessingListener, Runnable {
                                 // Covert from rev/min to mm/sec
                                 double xMMPerSec = this.revMinToMMSec(this.currentVelocity, this.xCircumf);
                                 double yMMPerSec = this.revMinToMMSec(this.currentVelocity, this.yCircumf);
-                                newArray = this.patternOptimalizater.doOptimalizationGA(xMMPerSec,yMMPerSec);
+                                newArray = this.patternOptimalizater.doOptimalization(xMMPerSec,yMMPerSec);
                                 ArrayList<Coordinate> newArray2 = new ArrayList();
                                 newArray2.add(newArray.get(1));
                                 newArray2.add(newArray.get(2));

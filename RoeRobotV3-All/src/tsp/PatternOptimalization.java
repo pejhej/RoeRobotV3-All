@@ -19,10 +19,10 @@ public class PatternOptimalization {
     private boolean ready;
 
     // Number of populations to generate !!can not be an odd number
-    private int nrOfPopulations = 300;
+    private int nrOfPopulations = 400;
 
     // Number of populations to generate !!can not be an odd number
-    private int nrOfGenerations = 100;
+    private int nrOfGenerations = 11;
 
     // Arraylist holding on all coordinates for a specific tour. 
     private ArrayList<Coordinate> coordinatList;
@@ -63,16 +63,9 @@ public class PatternOptimalization {
         // NearestNeigghbors Optimizer
         ArrayList<Coordinate> fittestTourList = new ArrayList<>();
         NearestNeighbors NN = new NearestNeighbors();
-        long startRand = System.currentTimeMillis();
-        System.out.println("----------Start NN opt-----------");
         Tour NNTour = NN.NearestNeighbors(this.coordinatList);
-        long timeNNHasUsed = (System.currentTimeMillis() - startRand);
-        System.out.println("Time NN Opt has used:  " + timeNNHasUsed + " milli sec");
-        System.out.println("Total time NN uses  " + (NNTour.getTotalTime(xMilimerePerSec, yMilimerePerSec) + (timeNNHasUsed / 1000)) + " sec");
-        System.out.println("Total dist NN  " + NNTour.getTotalDistance() + " sec");
-
-        System.out.println("---------------------");
-       //  System.out.println(NNTour);
+        System.out.println(NNTour.getTotalTime(xMilimerePerSec, yMilimerePerSec));
+        
         return fittestTourList;
     }
 
@@ -82,7 +75,7 @@ public class PatternOptimalization {
      * @param yMilimerePerSec
      * @return
      */
-    public ArrayList doOptimalizationGA(double xMilimerePerSec, double yMilimerePerSec) {
+    public ArrayList doOptimalization(double xMilimerePerSec, double yMilimerePerSec) {
 
         Tour originalTour = new Tour(coordinatList.size());
         ArrayList<Coordinate> fittestTourList = new ArrayList<>();
@@ -97,7 +90,6 @@ public class PatternOptimalization {
             double orginalTourTime = originalTour.getTotalTime(xMilimerePerSec, yMilimerePerSec);
             System.out.println("Original tour tot time: " + orginalTourTime + " sec");
             System.out.println("Original tour Total distance: " + originalTour.getTotalDistance());
-            // System.out.println(originalTour);
 
             // If cordinates added. 
             // Add Start coordinate. 
@@ -115,26 +107,16 @@ public class PatternOptimalization {
                 System.out.println("---------Start GA---------");
                 // To mashure the tame used by the GA
                 long startGA = System.currentTimeMillis();
-                // ------------Start GA------------------- 
+                // Start GA 
                 GAnew ga = new GAnew();
                 population = ga.evolvePopulation(this.nrOfGenerations, population, originalTour);
-
-                // FOR RESULT 
-//                for (int j = 2; j < 100; j++) {
+//                for (int j = 2; j < 400; j++) {
 //                    startGA = System.currentTimeMillis();
-//                    population = ga.evolvePopulation((j), population, originalTour);//400, population);
+//                    population = ga.evolvePopulation((j * 10), population, originalTour);//400, population);
 //                    long timeGAHasUsed = (System.currentTimeMillis() - startGA);
 //                    double afterGATime = population.getFittest().getTotalTime(xMilimerePerSec, yMilimerePerSec);
-//                    System.out.println((j) + " " + (afterGATime + timeGAHasUsed / 1000));
+//                    System.out.println((j * 10) + " " + (afterGATime + timeGAHasUsed / 1000));
 //                }
-//                for (int j = 2; j < 200; j++) {
-//                    startGA = System.currentTimeMillis();
-//                    population = ga.evolvePopulation((j*20), population, originalTour);//400, population);
-//                    long timeGAHasUsed = (System.currentTimeMillis() - startGA);
-//                    double afterGATime = population.getFittest().getTotalTime(xMilimerePerSec, yMilimerePerSec);
-//                    System.out.println((j*20) + " " + (afterGATime + timeGAHasUsed / 1000));
-//                }
-                // -----------RESULT!!! ----------------------------
                 long timeGAHasUsed = (System.currentTimeMillis() - startGA);
                 long totalOptTime = (System.currentTimeMillis() - startRand);
                 double afterGATime = population.getFittest().getTotalTime(xMilimerePerSec, yMilimerePerSec);
@@ -156,7 +138,7 @@ public class PatternOptimalization {
                 System.out.println("Time between Random pattern and GA:  " + (randomPathTime - afterGATime) + " sec");
                 System.out.println("-------------------------");
 
-                System.out.println(population.getFittest());
+                //System.out.println(population.getFittest());
                 this.coordinatList.clear();
             }
         }
