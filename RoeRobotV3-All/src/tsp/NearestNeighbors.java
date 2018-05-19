@@ -46,6 +46,7 @@ public class NearestNeighbors {
             }
             if(!(currentCoord == null)&&!resultTour.containsCoordinate(currentCoord)){
                 resultTour.setCoordinate(j, currentCoord);
+                startCoord = currentCoord;
                 coordListCopy.remove(currentCoord);
             } else {
                 System.out.println("Coorinate do not excist");
